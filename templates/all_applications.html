@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>All Applications</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#f2f2f2;
+            padding:30px;
+        }
+
+        .container{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        h1{
+            color:#333;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+        }
+
+        table th{
+            background:#007bff;
+            color:white;
+            padding:12px;
+        }
+
+        table td{
+            padding:12px;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+            background:#f5f5f5;
+        }
+
+        .pending{
+            color:orange;
+            font-weight:bold;
+        }
+
+        .delivered{
+            color:green;
+            font-weight:bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+<div style="margin-bottom:20px;">
+
+    <a href="/check-status/"
+    style="
+    background:green;
+    color:white;
+    padding:12px 18px;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:18px;
+    ">
+        Customer Status Check
+    </a>
+
+</div>
+    <h1>All Applications</h1>
+
+    <table>
+
+        <tr>
+
+            <th>Customer</th>
+
+            <th>Application</th>
+
+            <th>Application No</th>
+
+            <th>Status</th>
+
+            <th>Delivery Date</th>
+
+        </tr>
+
+        {% for app in applications %}
+
+        <tr>
+
+            <td>{{ app.customer.name }}</td>
+
+            <td>{{ app.application_name }}</td>
+
+            <td>{{ app.application_no }}</td>
+
+            <td>
+
+                {% if app.status == 'Delivered' %}
+
+                    <span class="delivered">
+
+                        {{ app.status }}
+
+                    </span>
+
+                {% else %}
+
+                    <span class="pending">
+
+                        {{ app.status }}
+
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if app.delivery_date %}
+
+                    {{ app.delivery_date }}
+
+                {% else %}
+
+                    Not Delivered
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="5">
+
+                No applications found.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+</body>
+
+</html>

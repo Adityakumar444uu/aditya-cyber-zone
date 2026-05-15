@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Application Status</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f2f2f2;
+            padding:40px;
+        }
+
+        .box{
+            max-width:500px;
+            margin:auto;
+            background:white;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 0 10px #ccc;
+        }
+
+        input,button{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+        }
+
+        button{
+            background:#0d6efd;
+            color:white;
+            border:none;
+            border-radius:6px;
+        }
+
+        .result{
+            margin-top:20px;
+            background:#e8f5e9;
+            padding:15px;
+            border-radius:8px;
+        }
+
+        .error{
+            color:red;
+            margin-top:15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Check Application Status</h2>
+<div style="margin-bottom:20px;">
+
+    <a href="/admin/"
+    style="
+    background:#007bff;
+    color:white;
+    padding:10px 15px;
+    text-decoration:none;
+    border-radius:6px;
+    ">
+        ⬅ Back To Home
+    </a>
+
+</div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input type="text" name="application_no"
+        placeholder="Enter Application Number" required>
+
+        <button type="submit">
+            Check Status
+        </button>
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if result %}
+
+    <div class="result">
+
+        <p>
+            <b>Customer Name:</b>
+            {{ result.customer.name }}
+        </p>
+
+        <p>
+            <b>Application:</b>
+            {{ result.application_name }}
+        </p>
+
+        <p>
+            <b>Application No:</b>
+            {{ result.application_no }}
+        </p>
+
+        <p>
+            <b>Status:</b>
+            {{ result.status }}
+        </p>
+<h3>Application Timeline</h3>
+
+{% for history in result.status_history.all %}
+
+<div style="border-left:3px solid green; padding-left:10px; margin-bottom:15px;">
+
+    <b>{{ history.status }}</b><br>
+
+    <small>{{ history.updated_at }}</small><br>
+
+    <p>{{ history.remark }}</p>
+
+</div>
+
+{% empty %}
+
+<p>No status updates yet.</p>
+
+{% endfor %}
+        <p>
+            <b>Delivery Date:</b>
+            {{ result.delivery_date }}
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

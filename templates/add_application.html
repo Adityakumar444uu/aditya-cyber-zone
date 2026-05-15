@@ -1,0 +1,84 @@
+STEP 15 — add_application.html ME YE POORA CODE PASTE KARO
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Application</title>
+</head>
+
+<body>
+
+    <h2>Add Application</h2>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Save Application
+        </button>
+
+    </form>
+
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+
+            function () {
+
+                const statusField =
+                    document.getElementById("id_status");
+
+                const deliveryField =
+                    document.getElementById("id_delivery_date");
+
+
+                function toggleDeliveryDate() {
+
+                    if (
+                        statusField.value === "Delivered"
+                    ) {
+
+                        deliveryField.disabled = false;
+
+                    }
+
+                    else {
+
+                        deliveryField.disabled = true;
+
+                        deliveryField.value = "";
+                    }
+                }
+
+
+                toggleDeliveryDate();
+
+
+                statusField.addEventListener(
+                    "change",
+                    toggleDeliveryDate
+                );
+
+            }
+
+        );
+
+    </script>
+
+</body>
+
+</html>
+
+
+--------------------------------------------------
+PHIR
+--------------------------------------------------
+
+CTRL + S
