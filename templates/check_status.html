@@ -100,10 +100,16 @@
             {{ result.application_no }}
         </p>
 
-        <p>
-            <b>Status:</b>
-            {{ result.status }}
-        </p>
+        
+<p>
+    <b>Status:</b>
+    {{ result.status }}
+</p>
+
+<p>
+    <b>Last Updated:</b>
+    {{ result.status_updated_at|date:"d M Y, h:i A" }}
+</p>        
 <h3>Application Timeline</h3>
 
 {% for history in result.status_history.all %}
@@ -112,7 +118,9 @@
 
     <b>{{ history.status }}</b><br>
 
-    <small>{{ history.updated_at }}</small><br>
+    <small>
+{{ history.updated_at|date:"d M Y, h:i A" }}
+</small><br>
 
     <p>{{ history.remark }}</p>
 
