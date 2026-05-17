@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import Customer, Application
+from .models import Customer, Application, ApplicationStatusHistory
 
 
 class ApplicationInline(admin.TabularInline):
@@ -35,6 +35,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         'application_name',
         'application_no',
         'status',
+        'status_updated_at',
         'delivery_date',
         'mark_delivered_button',
     )
@@ -46,6 +47,22 @@ class ApplicationAdmin(admin.ModelAdmin):
         'customer__name',
         'customer__aadhaar_no',
     )
+
+    def save_model(self, request, obj, form, change):
+        old_status = None
+
+        if change:
+            old_obj = Application.objects.get(pk=obj.pk)
+            old_status = old_obj.status
+
+        super().save_model(request, obj, form, change)
+
+        if not change or old_status != obj.status:
+            ApplicationStatusHistory.objects.create(
+                application=obj,
+                status=obj.status,
+                remark=obj.remarks
+            )
 
     def mark_delivered_button(self, obj):
         if obj.status != 'Delivered':
@@ -76,4 +93,15 @@ class ApplicationAdmin(admin.ModelAdmin):
         application.delivery_date = timezone.now()
         application.save()
 
+        ApplicationStatusHistory.objects.create(
+            application=application,
+            status='Delivered',
+            remark=application.remarks
+        )
+
         return redirect('/admin/customers_app/application/')
+
+
+@admin.register(ApplicationStatusHistory)
+class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
+    list_display = ('application', 'status', 'updated_at')
