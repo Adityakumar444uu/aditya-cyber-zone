@@ -120,6 +120,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 JAZZMIN_SETTINGS = {
     "site_title": "Aditya Cyber Zone",
     "site_header": "Aditya Cyber Zone",
@@ -176,3 +179,9 @@ JAZZMIN_UI_TWEAKS = {
 
     }
 }
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
