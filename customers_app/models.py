@@ -29,13 +29,25 @@ class Application(models.Model):
         ('Delivered', 'Delivered'),
     ]
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE
+    )
 
     application_name = models.CharField(max_length=100)
+
     application_no = models.CharField(max_length=100)
+
     application_date = models.DateField()
 
-    delivery_date = models.DateTimeField(null=True, blank=True)
+    status_updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    delivery_date = models.DateTimeField(
+        null=True,
+        blank=True
+    )
 
     status = models.CharField(
         max_length=20,
@@ -43,10 +55,14 @@ class Application(models.Model):
         default='Pending'
     )
 
-    remarks = models.TextField(blank=True)
+    remarks = models.TextField(
+        blank=True
+    )
 
     def __str__(self):
         return self.application_name
+
+
 class ApplicationStatusHistory(models.Model):
 
     application = models.ForeignKey(
