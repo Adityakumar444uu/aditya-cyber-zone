@@ -216,21 +216,11 @@ def home(request):
 
     links = [
 
-        {"name": "Staff Login", "url": "/login/", "icon": "🔐", "admin": False},
+        {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
 
-        {"name": "Customer Register", "url": "/customer-register/", "icon": "📝", "admin": False},
+        {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
 
-        {"name": "Customer Login", "url": "/customer-login/", "icon": "👤", "admin": False},
-
-        {"name": "Check Status", "url": "/check-status/", "icon": "🔎", "admin": False},
-
-        {"name": "All Customers", "url": "/customers/", "icon": "📋", "admin": True},
-
-        {"name": "All Applications", "url": "/applications/", "icon": "📂", "admin": True},
-
-        {"name": "Add Application", "url": "/add-application/", "icon": "➕", "admin": True},
-
-        {"name": "Admin Panel", "url": "/admin/", "icon": "⚙️", "admin": True},
+        {"name": "Check Status", "url": "/check-status/", "icon": "🔎"},
 
     ]
 
