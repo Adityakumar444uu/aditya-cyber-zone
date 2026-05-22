@@ -105,6 +105,10 @@
         <input type="text" name="username" placeholder="CREATE USERNAME" required>
 
         <input type="password" name="password" placeholder="CREATE SECURITY PIN" required>
+<label style="display:block; margin-top:10px; color:white;">
+<input type="checkbox" onclick="togglePassword()">
+Show Password
+</label>
 
         <button type="submit">REGISTER & ACCESS</button>
     </form>
@@ -118,6 +122,30 @@
     </div>
 
 </div>
+<script>
 
+function togglePassword(){
+
+var pass =
+document.querySelector('input[name="password"]');
+
+if(pass.type=="password"){
+pass.type="text";
+}
+else{
+pass.type="password";
+}
+
+}
+
+{% if success %}
+alert("✅ Registration Successful");
+{% endif %}
+
+{% if error %}
+alert("❌ {{ error }}");
+{% endif %}
+
+</script>
 </body>
 </html>

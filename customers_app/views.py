@@ -142,7 +142,7 @@ def customer_register(request):
             contact_no=contact_no
         )
 
-        return redirect('customer_login')
+        return redirect('/customer-login/?success=1')
 
     return render(request, 'customer_register.html')
 
@@ -191,7 +191,7 @@ def customer_logout(request):
 
     logout(request)
 
-    return redirect('customer_login')
+    return redirect('/customer-login/?success=1')
 
 
 def user_login(request):
@@ -224,4 +224,4 @@ def home(request):
 
     ]
 
-    return render(request, "home.html", {"links": links})
+    return render(request, "home.html", {"links": links}) 
