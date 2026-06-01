@@ -18,28 +18,26 @@ def customer_list(request):
 
     total_customers = Customer.objects.count()
     total_applications = Application.objects.count()
-    pending_applications = Application.objects.filter(status="Pending").count()
-    delivered_applications = Application.objects.filter(status="Delivered").count()
 
-    return render(request, 'customer_list.html', {
-        'customers': customers,
-        'total_customers': total_customers,
-        'total_applications': total_applications,
-        'pending_applications': pending_applications,
-        'delivered_applications': delivered_applications,
+    pending_count = Application.objects.filter(status="Pending").count()
+    submitted_count = Application.objects.filter(status="Submitted").count()
+    in_process_count = Application.objects.filter(status="In Process").count()
+    approved_count = Application.objects.filter(status="Approved").count()
+    rejected_count = Application.objects.filter(status="Rejected").count()
+    delivered_count = Application.objects.filter(status="Delivered").count()
+
+    
+    return render(request, "customer_list.html", {
+        "customers": customers,
+        "total_customers": total_customers,
+        "total_applications": total_applications,
+        "pending_count": pending_count,
+        "submitted_count": submitted_count,
+        "in_process_count": in_process_count,
+        "approved_count": approved_count,
+        "rejected_count": rejected_count,
+        "delivered_count": delivered_count,
     })
-
-
-def customer_detail(request, customer_id):
-
-    customer = get_object_or_404(Customer, id=customer_id)
-    applications = Application.objects.filter(customer=customer)
-
-    return render(request, 'customer_detail.html', {
-        'customer': customer,
-        'applications': applications
-    })
-
 
 def all_applications(request):
 
@@ -48,8 +46,6 @@ def all_applications(request):
     return render(request, 'all_applications.html', {
         'applications': applications
     })
-
-
 def add_application(request):
 
     customers = Customer.objects.all()
