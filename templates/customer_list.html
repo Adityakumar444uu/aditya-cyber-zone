@@ -8,39 +8,36 @@
 
 <div style="margin-bottom:20px;">
 
-<a href="/admin/" style="
-background:#007bff;
-color:white;
-padding:12px 18px;
-text-decoration:none;
-border-radius:8px;
-font-size:18px;
-margin-right:10px;
-">
-← Admin Dashboard
-</a>
+    <a href="/admin/" style="
+    background:#007bff;
+    color:white;
+    padding:12px 18px;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:18px;
+    margin-right:10px;
+    ">
+    ← Admin Dashboard
+    </a>
 
-
-<a href="/check-status/" style="
-background:green;
-color:white;
-padding:12px 18px;
-text-decoration:none;
-border-radius:8px;
-font-size:18px;
-">
-Customer Status Check
-</a>
+    <a href="/check-status/" style="
+    background:green;
+    color:white;
+    padding:12px 18px;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:18px;
+    ">
+    Customer Status Check
+    </a>
 
 </div>
-
 
 <h1>All Customers</h1>
 
 <a href="/add-application/">➕ Add Application</a>
 
 <hr>
-
 
 <div style="
 display:flex;
@@ -50,86 +47,65 @@ margin-bottom:20px;
 flex-wrap:wrap;
 ">
 
-<div style="
-background:#17a2b8;
-color:white;
-padding:20px;
-border-radius:10px;
-min-width:200px;
-">
+    <div style="background:#17a2b8;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ total_customers }}</h2>
+        <p>Total Customers</p>
+    </div>
 
-<h2>{{ total_customers }}</h2>
-<p>Total Customers</p>
+    <div style="background:#007bff;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ total_applications }}</h2>
+        <p>Total Applications</p>
+    </div>
 
-</div>
+    <div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ pending_count }}</h2>
+        <p>Pending</p>
+    </div>
 
+    <div style="background:#00bcd4;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ submitted_count }}</h2>
+        <p>Submitted</p>
+    </div>
 
-<div style="
-background:#007bff;
-color:white;
-padding:20px;
-border-radius:10px;
-min-width:200px;
-">
+    <div style="background:#ff9800;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ in_process_count }}</h2>
+        <p>In Process</p>
+    </div>
 
-<h2>{{ total_applications }}</h2>
-<p>Total Applications</p>
+    <div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ approved_count }}</h2>
+        <p>Approved</p>
+    </div>
 
-</div>
+    <div style="background:#dc3545;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ rejected_count }}</h2>
+        <p>Rejected</p>
+    </div>
 
-
-<div style="
-background:#ffc107;
-color:black;
-padding:20px;
-border-radius:10px;
-min-width:200px;
-">
-
-<h2>{{ pending_applications }}</h2>
-<p>Pending Applications</p>
-
-</div>
-
-
-<div style="
-background:#28a745;
-color:white;
-padding:20px;
-border-radius:10px;
-min-width:200px;
-">
-
-<h2>{{ delivered_applications }}</h2>
-<p>Delivered Applications</p>
+    <div style="background:#6f42c1;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ delivered_count }}</h2>
+        <p>Delivered</p>
+    </div>
 
 </div>
-
-</div>
-
 
 <ul>
 
 {% for customer in customers %}
 
-<li>
-
-<a href="/customer/{{ customer.id }}/">
-
-{{ customer.name }}
-
-</a>
-
-</li>
+    <li>
+        <a href="/customer/{{ customer.id }}/">
+            {{ customer.name }}
+        </a>
+    </li>
 
 {% empty %}
 
-<li>No customers found</li>
+    <li>No customers found</li>
 
 {% endfor %}
 
 </ul>
-
 
 </body>
 </html>
