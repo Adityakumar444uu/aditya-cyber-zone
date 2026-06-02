@@ -126,3 +126,23 @@ def custom_admin_index(request, extra_context=None):
     return old_index(request, extra_context=extra_context)
 
 admin.site.index = custom_admin_index
+from django.contrib import admin
+from .models import Customer, Application
+
+old_index = admin.site.index
+
+def custom_admin_index(request, extra_context=None):
+    extra_context = extra_context or {}
+
+    extra_context["total_customers"] = Customer.objects.count()
+    extra_context["total_applications"] = Application.objects.count()
+    extra_context["pending_count"] = Application.objects.filter(status="Pending").count()
+    extra_context["submitted_count"] = Application.objects.filter(status="Submitted").count()
+    extra_context["in_process_count"] = Application.objects.filter(status="In Process").count()
+    extra_context["approved_count"] = Application.objects.filter(status="Approved").count()
+    extra_context["rejected_count"] = Application.objects.filter(status="Rejected").count()
+    extra_context["delivered_count"] = Application.objects.filter(status="Delivered").count()
+
+    return old_index(request, extra_context=extra_context)
+
+admin.site.index = custom_admin_index
