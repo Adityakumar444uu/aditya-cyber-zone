@@ -5,7 +5,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .models import Customer, Application, ApplicationStatusHistory
-from .google_sheet import sync_application_to_sheet
 
 
 class ApplicationInline(admin.TabularInline):
@@ -38,9 +37,11 @@ class ApplicationAdmin(admin.ModelAdmin):
         'status',
         'status_updated_at',
         'delivery_date',
+        'remarks',
         'mark_delivered_button',
     )
 
+    list_editable = ('status', 'remarks')
     list_filter = ('status',)
     search_fields = (
         'application_name',
@@ -56,6 +57,9 @@ class ApplicationAdmin(admin.ModelAdmin):
             old_obj = Application.objects.get(pk=obj.pk)
             old_status = old_obj.status
 
+        if obj.status == 'Delivered' and not obj.delivery_date:
+            obj.delivery_date = timezone.now()
+
         super().save_model(request, obj, form, change)
 
         if not change or old_status != obj.status:
@@ -64,8 +68,6 @@ class ApplicationAdmin(admin.ModelAdmin):
                 status=obj.status,
                 remark=obj.remarks,
             )
-
-            sync_application_to_sheet(obj, obj.remarks)
 
     def mark_delivered_button(self, obj):
         if obj.status != 'Delivered':
@@ -101,8 +103,6 @@ class ApplicationAdmin(admin.ModelAdmin):
             status='Delivered',
             remark=application.remarks,
         )
-
-        sync_application_to_sheet(application, application.remarks)
 
         return redirect('/admin/customers_app/application/')
 
