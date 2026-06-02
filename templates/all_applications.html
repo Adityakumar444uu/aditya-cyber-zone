@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <title>All Applications</title>
 
     <style>
-
         body{
             font-family:Arial;
             background:#f2f2f2;
@@ -55,112 +52,98 @@
             font-weight:bold;
         }
 
-    </style>
+        select{
+            padding:7px;
+            border-radius:6px;
+        }
 
+        button{
+            background:#007bff;
+            color:white;
+            border:none;
+            padding:8px 12px;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#0056b3;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
-<div style="margin-bottom:20px;">
 
-    <a href="/check-status/"
-    style="
-    background:green;
-    color:white;
-    padding:12px 18px;
-    text-decoration:none;
-    border-radius:8px;
-    font-size:18px;
-    ">
-        Customer Status Check
-    </a>
+    <div style="margin-bottom:20px;">
+        <a href="/check-status/"
+        style="
+        background:green;
+        color:white;
+        padding:12px 18px;
+        text-decoration:none;
+        border-radius:8px;
+        font-size:18px;
+        ">
+            Customer Status Check
+        </a>
+    </div>
 
-</div>
     <h1>All Applications</h1>
 
     <table>
-
         <tr>
-
             <th>Customer</th>
-
             <th>Application</th>
-
             <th>Application No</th>
-
             <th>Status</th>
-
             <th>Delivery Date</th>
-
+            <th>Update</th>
         </tr>
 
         {% for app in applications %}
-
         <tr>
-
             <td>{{ app.customer.name }}</td>
-
             <td>{{ app.application_name }}</td>
-
             <td>{{ app.application_no }}</td>
 
             <td>
+                <form method="POST" action="{% url 'update_status' app.id %}">
+                    {% csrf_token %}
 
-                {% if app.status == 'Delivered' %}
-
-                    <span class="delivered">
-
-                        {{ app.status }}
-
-                    </span>
-
-                {% else %}
-
-                    <span class="pending">
-
-                        {{ app.status }}
-
-                    </span>
-
-                {% endif %}
-
+                    <select name="status">
+                        <option value="Pending" {% if app.status == "Pending" %}selected{% endif %}>Pending</option>
+                        <option value="Submitted" {% if app.status == "Submitted" %}selected{% endif %}>Submitted</option>
+                        <option value="In Process" {% if app.status == "In Process" %}selected{% endif %}>In Process</option>
+                        <option value="Approved" {% if app.status == "Approved" %}selected{% endif %}>Approved</option>
+                        <option value="Rejected" {% if app.status == "Rejected" %}selected{% endif %}>Rejected</option>
+                        <option value="Delivered" {% if app.status == "Delivered" %}selected{% endif %}>Delivered</option>
+                    </select>
             </td>
 
             <td>
-
                 {% if app.delivery_date %}
-
                     {{ app.delivery_date }}
-
                 {% else %}
-
                     Not Delivered
-
                 {% endif %}
-
             </td>
 
+            <td>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
         </tr>
 
         {% empty %}
-
         <tr>
-
-            <td colspan="5">
-
-                No applications found.
-
-            </td>
-
+            <td colspan="6">No applications found.</td>
         </tr>
-
         {% endfor %}
-
     </table>
 
 </div>
 
 </body>
-
 </html>
