@@ -61,14 +61,14 @@ class ApplicationAdmin(admin.ModelAdmin):
             ApplicationStatusHistory.objects.create(
                 application=obj,
                 status=obj.status,
-                remark=obj.remarks
+                remark=obj.remarks,
             )
 
     def mark_delivered_button(self, obj):
         if obj.status != 'Delivered':
             return format_html(
                 '<a class="button" href="mark-delivered/{}/">Mark as Delivered</a>',
-                obj.id
+                obj.id,
             )
         return "Delivered"
 
@@ -96,7 +96,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         ApplicationStatusHistory.objects.create(
             application=application,
             status='Delivered',
-            remark=application.remarks
+            remark=application.remarks,
         )
 
         return redirect('/admin/customers_app/application/')
@@ -107,7 +107,9 @@ class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
     list_display = ('application', 'status', 'updated_at')
 
 
+# Admin dashboard cards count - keep this only ONCE
 old_index = admin.site.index
+
 
 def custom_admin_index(request, extra_context=None):
     extra_context = extra_context or {}
@@ -122,5 +124,6 @@ def custom_admin_index(request, extra_context=None):
     extra_context["delivered_count"] = Application.objects.filter(status="Delivered").count()
 
     return old_index(request, extra_context=extra_context)
+
 
 admin.site.index = custom_admin_index
