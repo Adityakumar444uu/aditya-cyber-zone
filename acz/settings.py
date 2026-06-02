@@ -84,7 +84,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Customers", "url": "/admin/customers_app/customer/"},
         {"name": "Applications", "url": "/admin/customers_app/application/"},
         {"name": "Check Status", "url": "/check-status/"},
-        {"name": "Dashboard Count", "url": "/"},
+        {"name": "Dashboard Count", "url": "/customers/"},
     ],
 
     "icons": {
