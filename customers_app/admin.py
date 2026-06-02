@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .models import Customer, Application, ApplicationStatusHistory
+from .google_sheet import sync_application_to_sheet
 
 
 class ApplicationInline(admin.TabularInline):
@@ -64,6 +65,8 @@ class ApplicationAdmin(admin.ModelAdmin):
                 remark=obj.remarks,
             )
 
+            sync_application_to_sheet(obj, obj.remarks)
+
     def mark_delivered_button(self, obj):
         if obj.status != 'Delivered':
             return format_html(
@@ -99,6 +102,8 @@ class ApplicationAdmin(admin.ModelAdmin):
             remark=application.remarks,
         )
 
+        sync_application_to_sheet(application, application.remarks)
+
         return redirect('/admin/customers_app/application/')
 
 
@@ -107,7 +112,6 @@ class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
     list_display = ('application', 'status', 'updated_at')
 
 
-# Admin dashboard cards count - keep this only ONCE
 old_index = admin.site.index
 
 
