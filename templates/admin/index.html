@@ -1,74 +1,55 @@
-{% extends "admin/index.html" %}
-
-{% load admin_counts %}
+{% extends "admin/base_site.html" %}
 
 {% block content %}
 
-<div style="
-display:flex;
-gap:20px;
-margin-bottom:30px;
-flex-wrap:wrap;
-">
+<h1>Aditya Cyber Zone Admin Dashboard</h1>
 
-    <div style="
-    background:#17a2b8;
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    min-width:220px;
-    ">
+<div style="display:flex;gap:15px;flex-wrap:wrap;margin:20px 0;">
 
-        <h1>{% total_customers %}</h1>
-
+    <div style="background:#17a2b8;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ total_customers }}</h2>
         <p>Total Customers</p>
-
     </div>
 
-    <div style="
-    background:#007bff;
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    min-width:220px;
-    ">
-
-        <h1>{% total_applications %}</h1>
-
+    <div style="background:#007bff;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ total_applications }}</h2>
         <p>Total Applications</p>
-
     </div>
 
-    <div style="
-    background:#ffc107;
-    color:black;
-    padding:20px;
-    border-radius:12px;
-    min-width:220px;
-    ">
-
-        <h1>{% pending_applications %}</h1>
-
-        <p>Pending Applications</p>
-
+    <div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ pending_count }}</h2>
+        <p>Pending</p>
     </div>
 
-    <div style="
-    background:#28a745;
-    color:white;
-    padding:20px;
-    border-radius:12px;
-    min-width:220px;
-    ">
+    <div style="background:#00bcd4;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ submitted_count }}</h2>
+        <p>Submitted</p>
+    </div>
 
-        <h1>{% delivered_applications %}</h1>
+    <div style="background:#ff9800;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ in_process_count }}</h2>
+        <p>In Process</p>
+    </div>
 
-        <p>Delivered Applications</p>
+    <div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ approved_count }}</h2>
+        <p>Approved</p>
+    </div>
 
+    <div style="background:#dc3545;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ rejected_count }}</h2>
+        <p>Rejected</p>
+    </div>
+
+    <div style="background:#6f42c1;color:white;padding:20px;border-radius:10px;min-width:200px;">
+        <h2>{{ delivered_count }}</h2>
+        <p>Delivered</p>
     </div>
 
 </div>
 
-{{ block.super }}
+<a href="/customers/" class="btn btn-primary">Open Full Dashboard</a>
+<a href="/admin/customers_app/customer/" class="btn btn-info">Customers</a>
+<a href="/admin/customers_app/application/" class="btn btn-success">Applications</a>
 
 {% endblock %}
