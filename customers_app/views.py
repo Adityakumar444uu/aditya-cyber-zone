@@ -44,13 +44,20 @@ def customer_list(request):
 
 def all_applications(request):
 
-    applications = Application.objects.all().order_by('-application_date')
+    status = request.GET.get('status')
+
+    if status:
+        applications = Application.objects.filter(status=status).order_by('-application_date')
+    else:
+        applications = Application.objects.all().order_by('-application_date')
 
     return render(request, 'all_applications.html', {
-        'applications': applications
+        'applications': applications,
+        'selected_status': status
     })
-def add_application(request):
 
+
+def add_application(request):
     customers = Customer.objects.all()
 
     if request.method == "POST":

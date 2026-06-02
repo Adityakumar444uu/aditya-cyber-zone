@@ -57,7 +57,8 @@ flex-wrap:wrap;
         <p>Total Applications</p>
     </div>
 
-    <div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
+  <a href="/applications/?status=Pending" style="text-decoration:none;">  
+<div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
         <h2>{{ pending_count }}</h2>
         <p>Pending</p>
     </div>
@@ -67,21 +68,24 @@ flex-wrap:wrap;
         <p>Submitted</p>
     </div>
 
+<a href="/applications/?status=In Process">
     <div style="background:#ff9800;color:white;padding:20px;border-radius:10px;min-width:200px;">
         <h2>{{ in_process_count }}</h2>
         <p>In Process</p>
     </div>
+<a href="/applications/?status=Approved">
 
     <div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
         <h2>{{ approved_count }}</h2>
         <p>Approved</p>
     </div>
 
+<a href="/applications/?status=Rejected">
     <div style="background:#dc3545;color:white;padding:20px;border-radius:10px;min-width:200px;">
         <h2>{{ rejected_count }}</h2>
         <p>Rejected</p>
     </div>
-
+<a href="/applications/?status=Delivered">
     <div style="background:#6f42c1;color:white;padding:20px;border-radius:10px;min-width:200px;">
         <h2>{{ delivered_count }}</h2>
         <p>Delivered</p>
