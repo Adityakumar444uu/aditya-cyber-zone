@@ -1,4 +1,4 @@
-from django.shortcuts import render
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -37,6 +37,9 @@ def customer_list(request):
         "approved_count": approved_count,
         "rejected_count": rejected_count,
         "delivered_count": delivered_count,
+
+"pending_applications": pending_count,
+"delivered_applications": delivered_count,
     })
 
 def all_applications(request):
@@ -211,13 +214,21 @@ def user_login(request):
 def home(request):
 
     links = [
-
         {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
-
         {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
-
         {"name": "Check Status", "url": "/check-status/", "icon": "🔎"},
-
     ]
 
-    return render(request, "home.html", {"links": links}) 
+    return render(request, "home.html", {"links": links})
+
+
+def customer_detail(request, customer_id):
+
+    customer = get_object_or_404(Customer, id=customer_id)
+
+    applications = Application.objects.filter(customer=customer)
+
+    return render(request, 'customer_detail.html', {
+        'customer': customer,
+        'applications': applications
+    })
