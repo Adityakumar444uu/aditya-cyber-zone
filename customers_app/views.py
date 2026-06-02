@@ -1,19 +1,14 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from .models import (
-    Customer,
-    Application,
-    ApplicationStatusHistory
-)
+from .models import Customer, Application, ApplicationStatusHistory
+from .google_sheet import sync_application_to_sheet
 
 
 def customer_list(request):
-
     customers = Customer.objects.all()
 
     total_customers = Customer.objects.count()
@@ -26,7 +21,6 @@ def customer_list(request):
     rejected_count = Application.objects.filter(status="Rejected").count()
     delivered_count = Application.objects.filter(status="Delivered").count()
 
-    
     return render(request, "customer_list.html", {
         "customers": customers,
         "total_customers": total_customers,
@@ -37,13 +31,12 @@ def customer_list(request):
         "approved_count": approved_count,
         "rejected_count": rejected_count,
         "delivered_count": delivered_count,
-
-"pending_applications": pending_count,
-"delivered_applications": delivered_count,
+        "pending_applications": pending_count,
+        "delivered_applications": delivered_count,
     })
 
-def all_applications(request):
 
+def all_applications(request):
     status = request.GET.get('status')
 
     if status:
@@ -61,16 +54,17 @@ def add_application(request):
     customers = Customer.objects.all()
 
     if request.method == "POST":
-
         customer_id = request.POST.get('customer')
         customer = Customer.objects.get(id=customer_id)
 
-        Application.objects.create(
+        application = Application.objects.create(
             customer=customer,
             application_name=request.POST.get('application_name'),
             application_no=request.POST.get('application_no'),
             status=request.POST.get('status')
         )
+
+        sync_application_to_sheet(application)
 
         return redirect('all_applications')
 
@@ -80,11 +74,9 @@ def add_application(request):
 
 
 def update_status(request, app_id):
-
     application = get_object_or_404(Application, id=app_id)
 
     if request.method == "POST":
-
         new_status = request.POST.get('status')
         remark = request.POST.get('remark')
 
@@ -101,21 +93,20 @@ def update_status(request, app_id):
             remark=remark
         )
 
+        sync_application_to_sheet(application, remark)
+
     return redirect('all_applications')
 
 
 def check_status(request):
-
     result = None
     error = None
 
     if request.method == "POST":
-
         application_no = request.POST.get("application_no")
 
         try:
             result = Application.objects.get(application_no=application_no)
-
         except Application.DoesNotExist:
             error = "Application not found"
 
@@ -126,9 +117,7 @@ def check_status(request):
 
 
 def customer_register(request):
-
     if request.method == "POST":
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -152,12 +141,11 @@ def customer_register(request):
 
     return render(request, 'customer_register.html')
 
-def customer_login(request):
 
+def customer_login(request):
     error = None
 
     if request.method == "POST":
-
         username = request.POST.get('username')
         password = request.POST.get('password')
 
@@ -168,10 +156,8 @@ def customer_login(request):
         )
 
         if user is not None:
-
             login(request, user)
             return redirect('customer_dashboard')
-
         else:
             error = "Invalid Username or Password"
 
@@ -182,9 +168,7 @@ def customer_login(request):
 
 @login_required
 def customer_dashboard(request):
-
     customer = Customer.objects.get(user=request.user)
-
     applications = Application.objects.filter(customer=customer)
 
     return render(request, 'customer_dashboard.html', {
@@ -194,16 +178,12 @@ def customer_dashboard(request):
 
 
 def customer_logout(request):
-
     logout(request)
-
     return redirect('/customer-login/?success=1')
 
 
 def user_login(request):
-
     if request.method == 'POST':
-
         username = request.POST['username']
         password = request.POST['password']
 
@@ -218,8 +198,9 @@ def user_login(request):
             return redirect('/admin/')
 
     return render(request, 'login.html')
-def home(request):
 
+
+def home(request):
     links = [
         {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
         {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
@@ -230,9 +211,7 @@ def home(request):
 
 
 def customer_detail(request, customer_id):
-
     customer = get_object_or_404(Customer, id=customer_id)
-
     applications = Application.objects.filter(customer=customer)
 
     return render(request, 'customer_detail.html', {
