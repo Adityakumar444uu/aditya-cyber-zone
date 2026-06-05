@@ -29,25 +29,12 @@ class Application(models.Model):
         ('Delivered', 'Delivered'),
     ]
 
-    customer = models.ForeignKey(
-        Customer,
-        on_delete=models.CASCADE
-    )
-
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     application_name = models.CharField(max_length=100)
-
     application_no = models.CharField(max_length=100)
-
     application_date = models.DateField()
-
-    status_updated_at = models.DateTimeField(
-        auto_now=True
-    )
-
-    delivery_date = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    status_updated_at = models.DateTimeField(auto_now=True)
+    delivery_date = models.DateTimeField(null=True, blank=True)
 
     status = models.CharField(
         max_length=20,
@@ -55,9 +42,7 @@ class Application(models.Model):
         default='Pending'
     )
 
-    remarks = models.TextField(
-        blank=True
-    )
+    remarks = models.TextField(blank=True)
 
     def __str__(self):
         return self.application_name
@@ -72,10 +57,53 @@ class ApplicationStatusHistory(models.Model):
     )
 
     status = models.CharField(max_length=50)
-
     remark = models.TextField(blank=True, null=True)
-
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.application} - {self.status}"
+
+
+class Grievance(models.Model):
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+        ('Closed', 'Closed'),
+    ]
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    ticket_no = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True
+    )
+
+    subject = models.CharField(max_length=200)
+    description = models.TextField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Pending'
+    )
+
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.ticket_no:
+            last_id = Grievance.objects.count() + 1
+            self.ticket_no = f"ACZ-GR-{last_id:04d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.ticket_no

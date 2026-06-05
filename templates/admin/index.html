@@ -60,6 +60,27 @@
 </div>
 </a>
 
+<a href="/grievances/" style="text-decoration:none;">
+<div style="background:#343a40;color:white;padding:20px;border-radius:10px;min-width:200px;">
+<h2>{{ total_grievances }}</h2>
+<p>Total Grievances</p>
+</div>
+</a>
+
+<a href="/grievances/?status=Pending" style="text-decoration:none;">
+<div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
+<h2>{{ grievance_pending }}</h2>
+<p>Pending Tickets</p>
+</div>
+</a>
+
+<a href="/grievances/?status=Resolved" style="text-decoration:none;">
+<div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
+<h2>{{ grievance_resolved }}</h2>
+<p>Resolved Tickets</p>
+</div>
+</a>
+
 </div>
 
 {{ block.super }}

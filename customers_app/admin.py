@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import Customer, Application, ApplicationStatusHistory
+from .models import Customer, Application, ApplicationStatusHistory, Grievance
 
 
 class ApplicationInline(admin.TabularInline):
@@ -112,6 +112,27 @@ class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
     list_display = ('application', 'status', 'updated_at')
 
 
+@admin.register(Grievance)
+class GrievanceAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'ticket_no',
+        'customer',
+        'subject',
+        'status',
+        'updated_at',
+    )
+
+    list_editable = ('status',)
+    list_filter = ('status',)
+    search_fields = (
+        'ticket_no',
+        'subject',
+        'customer__name',
+        'customer__aadhaar_no',
+    )
+
+
 old_index = admin.site.index
 
 
@@ -126,6 +147,10 @@ def custom_admin_index(request, extra_context=None):
     extra_context["approved_count"] = Application.objects.filter(status="Approved").count()
     extra_context["rejected_count"] = Application.objects.filter(status="Rejected").count()
     extra_context["delivered_count"] = Application.objects.filter(status="Delivered").count()
+
+    extra_context["total_grievances"] = Grievance.objects.count()
+    extra_context["grievance_pending"] = Grievance.objects.filter(status="Pending").count()
+    extra_context["grievance_resolved"] = Grievance.objects.filter(status="Resolved").count()
 
     return old_index(request, extra_context=extra_context)
 
