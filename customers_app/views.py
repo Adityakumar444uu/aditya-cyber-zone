@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from .models import Customer, Application, ApplicationStatusHistory
+from .models import Customer, Application, ApplicationStatusHistory, Grievance
 from .google_sheet import sync_application_to_sheet
 
 
@@ -170,10 +170,44 @@ def customer_login(request):
 def customer_dashboard(request):
     customer = Customer.objects.get(user=request.user)
     applications = Application.objects.filter(customer=customer)
+    grievances = Grievance.objects.filter(customer=customer).order_by('-created_at')
 
     return render(request, 'customer_dashboard.html', {
         'customer': customer,
-        'applications': applications
+        'applications': applications,
+        'grievances': grievances
+    })
+
+
+@login_required
+def raise_grievance(request):
+    customer = Customer.objects.get(user=request.user)
+
+    if request.method == "POST":
+        subject = request.POST.get('subject')
+        description = request.POST.get('description')
+
+        Grievance.objects.create(
+            customer=customer,
+            subject=subject,
+            description=description
+        )
+
+        return redirect('my_grievances')
+
+    return render(request, 'raise_grievance.html', {
+        'customer': customer
+    })
+
+
+@login_required
+def my_grievances(request):
+    customer = Customer.objects.get(user=request.user)
+    grievances = Grievance.objects.filter(customer=customer).order_by('-created_at')
+
+    return render(request, 'my_grievances.html', {
+        'customer': customer,
+        'grievances': grievances
     })
 
 

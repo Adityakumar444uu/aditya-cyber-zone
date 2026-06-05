@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raise Grievance</title>
+</head>
+<body>
+
+<h2>Raise Grievance</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <p>Subject</p>
+    <input type="text" name="subject" required>
+
+    <p>Description</p>
+    <textarea name="description" rows="6" required></textarea>
+
+    <br><br>
+
+    <button type="submit">Submit Ticket</button>
+</form>
+
+<br>
+
+<a href="/customer-dashboard/">Back to Dashboard</a>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Grievances</title>
+</head>
+<body>
+
+<h2>My Grievances</h2>
+
+<a href="/raise-grievance/">Raise New Grievance</a>
+
+<br><br>
+
+<table border="1" cellpadding="10">
+    <tr>
+        <th>Ticket No</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Remarks</th>
+    </tr>
+
+    {% for g in grievances %}
+    <tr>
+        <td>{{ g.ticket_no }}</td>
+        <td>{{ g.subject }}</td>
+        <td>{{ g.status }}</td>
+        <td>{{ g.remarks }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">No Grievances Found</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
+<a href="/customer-dashboard/">Back to Dashboard</a>
+
+</body>
+</html>
