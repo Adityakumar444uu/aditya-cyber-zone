@@ -4,47 +4,71 @@
 <title>Aditya Cyber Zone</title>
 
 <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
 
 body{
-background:#0f172a;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-font-family:Arial;
+    min-height:100vh;
+    background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
 }
 
 .box{
-background:white;
-padding:40px;
-border-radius:15px;
-width:300px;
-text-align:center;
-box-shadow:0 0 20px rgba(0,0,0,.2);
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(12px);
+    padding:35px;
+    border-radius:20px;
+    width:380px;
+    text-align:center;
+    box-shadow:0 0 30px rgba(0,255,255,0.4);
+    border:1px solid rgba(255,255,255,0.3);
 }
 
 h1{
-margin-bottom:30px;
+    color:#00f7ff;
+    margin-bottom:10px;
+}
+
+p{
+    color:white;
+    margin-bottom:25px;
 }
 
 a{
-text-decoration:none;
+    text-decoration:none;
 }
 
 button{
-width:100%;
-padding:15px;
-margin:10px 0;
-border:none;
-border-radius:10px;
-font-size:18px;
-cursor:pointer;
+    width:100%;
+    padding:15px;
+    margin:10px 0;
+    border:none;
+    border-radius:30px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(90deg,#00f7ff,#00ff88);
+    color:#001219;
+    transition:0.3s;
 }
 
 button:hover{
-transform:scale(1.03);
+    transform:scale(1.04);
+    box-shadow:0 0 18px #00f7ff;
 }
 
+.footer{
+    color:#ddd;
+    font-size:13px;
+    margin-top:20px;
+}
 </style>
 </head>
 
@@ -52,21 +76,16 @@ transform:scale(1.03);
 
 <div class="box">
 
-<h1>Aditya Cyber Zone</h1>
+    <h1>Aditya Cyber Zone</h1>
+    <p>Digital Service & Support Portal</p>
 
-{% for link in links %}
+    {% for link in links %}
+    <a href="{{ link.url }}">
+        <button>{{ link.icon }} {{ link.name }}</button>
+    </a>
+    {% endfor %}
 
-<a href="{{ link.url }}">
-
-<button>
-
-{{ link.icon }} {{ link.name }}
-
-</button>
-
-</a>
-
-{% endfor %}
+    <div class="footer">Secure • Fast • Reliable</div>
 
 </div>
 

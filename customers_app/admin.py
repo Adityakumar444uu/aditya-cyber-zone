@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import Customer, Application, ApplicationStatusHistory, Grievance
+from .models import Customer, Application, ApplicationStatusHistory, Grievance, GrievanceHistory
 
 
 class ApplicationInline(admin.TabularInline):
@@ -117,21 +117,24 @@ class GrievanceAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'ticket_no',
-        'customer',
-        'subject',
+        'name',
+        'mobile',
+        'category',
+        'priority',
         'status',
-        'updated_at',
+        'created_at',
     )
 
     list_editable = ('status',)
-    list_filter = ('status',)
+    list_filter = ('status', 'priority', 'category')
     search_fields = (
         'ticket_no',
-        'subject',
-        'customer__name',
-        'customer__aadhaar_no',
+        'name',
+        'mobile',
     )
-
+@admin.register(GrievanceHistory)
+class GrievanceHistoryAdmin(admin.ModelAdmin):
+    list_display = ('grievance', 'status', 'created_at')
 
 old_index = admin.site.index
 

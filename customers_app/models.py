@@ -107,3 +107,45 @@ class Grievance(models.Model):
 
     def __str__(self):
         return self.ticket_no
+class Grievance(models.Model):
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("In Process", "In Process"),
+        ("Resolved", "Resolved"),
+        ("Rejected", "Rejected"),
+    ]
+
+    PRIORITY_CHOICES = [
+        ("Normal", "Normal"),
+        ("High", "High"),
+        ("Urgent", "Urgent"),
+    ]
+
+    ticket_no = models.CharField(max_length=30, unique=True, blank=True)
+    name = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15)
+    category = models.CharField(max_length=100)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="Normal")
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.ticket_no:
+            last_id = Grievance.objects.count() + 1
+            self.ticket_no = f"GRV-{last_id:05d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.ticket_no
+
+
+class GrievanceHistory(models.Model):
+    grievance = models.ForeignKey(Grievance, on_delete=models.CASCADE)
+    status = models.CharField(max_length=50)
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.status

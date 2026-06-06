@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from .models import Customer, Application, ApplicationStatusHistory, Grievance
+from .models import Customer, Application, ApplicationStatusHistory, Grievance, GrievanceHistory
 from .google_sheet import sync_application_to_sheet
 
 
@@ -170,56 +170,70 @@ def customer_login(request):
 def customer_dashboard(request):
     customer = Customer.objects.get(user=request.user)
     applications = Application.objects.filter(customer=customer)
-    grievances = Grievance.objects.filter(customer=customer).order_by('-created_at')
 
     return render(request, 'customer_dashboard.html', {
         'customer': customer,
-        'applications': applications,
-        'grievances': grievances
+        'applications': applications
     })
 
 
-@login_required
 def raise_grievance(request):
-    customer = Customer.objects.get(user=request.user)
+    ticket_no = None
 
     if request.method == "POST":
-        subject = request.POST.get('subject')
-        description = request.POST.get('description')
-
-        Grievance.objects.create(
-            customer=customer,
-            subject=subject,
-            description=description
+        grievance = Grievance.objects.create(
+            name=request.POST.get("name"),
+            mobile=request.POST.get("mobile"),
+            category=request.POST.get("category"),
+            priority=request.POST.get("priority"),
+            description=request.POST.get("description"),
         )
 
-        return redirect('my_grievances')
+        GrievanceHistory.objects.create(
+            grievance=grievance,
+            status="Pending",
+            remarks="Grievance submitted successfully."
+        )
 
-    return render(request, 'raise_grievance.html', {
-        'customer': customer
+        ticket_no = grievance.ticket_no
+
+    return render(request, "raise_grievance.html", {
+        "ticket_no": ticket_no
     })
 
 
-@login_required
-def my_grievances(request):
-    customer = Customer.objects.get(user=request.user)
-    grievances = Grievance.objects.filter(customer=customer).order_by('-created_at')
+def grievance_status(request):
+    grievance = None
+    history = []
 
-    return render(request, 'my_grievances.html', {
-        'customer': customer,
-        'grievances': grievances
+    ticket_no = request.GET.get("ticket_no")
+
+    if ticket_no:
+        grievance = Grievance.objects.filter(ticket_no=ticket_no).first()
+
+        if grievance:
+            history = GrievanceHistory.objects.filter(
+                grievance=grievance
+            ).order_by("created_at")
+
+    return render(request, "grievance_status.html", {
+        "grievance": grievance,
+        "history": history
     })
+def home(request):
+    links = [
+        {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
+        {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
+        {"name": "Check Application Status", "url": "/check-status/", "icon": "🔎"},
+        {"name": "Raise Grievance", "url": "/raise-grievance/", "icon": "📢"},
+        {"name": "Track Grievance", "url": "/grievance-status/", "icon": "🎫"},
+    ]
 
-
-def customer_logout(request):
-    logout(request)
-    return redirect('/customer-login/?success=1')
-
-
+    return render(request, "home.html", {"links": links})
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         user = authenticate(
             request,
@@ -234,11 +248,18 @@ def user_login(request):
     return render(request, 'login.html')
 
 
+def customer_logout(request):
+    logout(request)
+    return redirect('/customer-login/?success=1')
+
+
 def home(request):
     links = [
         {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
         {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
-        {"name": "Check Status", "url": "/check-status/", "icon": "🔎"},
+        {"name": "Check Application Status", "url": "/check-status/", "icon": "🔎"},
+        {"name": "Raise Grievance", "url": "/raise-grievance/", "icon": "📢"},
+        {"name": "Track Grievance", "url": "/grievance-status/", "icon": "🎫"},
     ]
 
     return render(request, "home.html", {"links": links})
