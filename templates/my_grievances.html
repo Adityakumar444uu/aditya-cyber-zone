@@ -1,41 +1,185 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Grievances</title>
+<title>My Grievances | ACZ</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Arial;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+    padding:30px;
+}
+
+.box{
+    max-width:1000px;
+    margin:auto;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(12px);
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 30px rgba(0,255,255,0.4);
+}
+
+h1{
+    text-align:center;
+    color:#00f7ff;
+    margin-bottom:10px;
+}
+
+.sub{
+    text-align:center;
+    color:white;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+    box-shadow:0 0 15px rgba(0,0,0,.15);
+}
+
+.ticket{
+    font-size:20px;
+    font-weight:bold;
+    color:#004e92;
+}
+
+.row{
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #eee;
+    padding-bottom:8px;
+}
+
+.status{
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:bold;
+}
+
+.Pending{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.Resolved{
+    background:#d4edda;
+    color:#155724;
+}
+
+.Rejected{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.InProcess{
+    background:#cce5ff;
+    color:#004085;
+}
+
+.btn{
+    display:inline-block;
+    padding:12px 20px;
+    background:linear-gradient(90deg,#00f7ff,#00ff88);
+    color:black;
+    text-decoration:none;
+    border-radius:30px;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+
+.back{
+    display:block;
+    text-align:center;
+    margin-top:20px;
+    color:#00f7ff;
+    text-decoration:none;
+}
+
+.empty{
+    text-align:center;
+    color:white;
+    font-size:18px;
+}
+</style>
 </head>
+
 <body>
 
-<h2>My Grievances</h2>
+<div class="box">
 
-<a href="/raise-grievance/">Raise New Grievance</a>
+<h1>📋 My Grievances</h1>
+<p class="sub">All Complaint Records</p>
 
-<br><br>
+<a href="/raise-grievance/" class="btn">
+➕ Raise New Grievance
+</a>
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>Ticket No</th>
-        <th>Subject</th>
-        <th>Status</th>
-        <th>Remarks</th>
-    </tr>
+{% for g in grievances %}
 
-    {% for g in grievances %}
-    <tr>
-        <td>{{ g.ticket_no }}</td>
-        <td>{{ g.subject }}</td>
-        <td>{{ g.status }}</td>
-        <td>{{ g.remarks }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">No Grievances Found</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="card">
 
-<br>
+<div class="ticket">
+🎫 {{ g.ticket_no }}
+</div>
 
-<a href="/customer-dashboard/">Back to Dashboard</a>
+<div class="row">
+<strong>Name</strong>
+<span>{{ g.name }}</span>
+</div>
+
+<div class="row">
+<strong>Mobile</strong>
+<span>{{ g.mobile }}</span>
+</div>
+
+<div class="row">
+<strong>Category</strong>
+<span>{{ g.category }}</span>
+</div>
+
+<div class="row">
+<strong>Priority</strong>
+<span>{{ g.priority }}</span>
+</div>
+
+<div class="row">
+<strong>Status</strong>
+<span class="status {{ g.status|cut:' ' }}">
+{{ g.status }}
+</span>
+</div>
+
+<div class="row">
+<strong>Description</strong>
+<span>{{ g.description }}</span>
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="empty">
+❌ No Grievances Found
+</div>
+
+{% endfor %}
+
+<a href="/" class="back">
+⬅ Back to Home
+</a>
+
+</div>
 
 </body>
 </html>

@@ -227,6 +227,7 @@ def home(request):
         {"name": "Check Application Status", "url": "/check-status/", "icon": "🔎"},
         {"name": "Raise Grievance", "url": "/raise-grievance/", "icon": "📢"},
         {"name": "Track Grievance", "url": "/grievance-status/", "icon": "🎫"},
+{"name": "My Grievances", "url": "/my-grievances/", "icon": "📋"},
     ]
 
     return render(request, "home.html", {"links": links})
@@ -272,4 +273,17 @@ def customer_detail(request, customer_id):
     return render(request, 'customer_detail.html', {
         'customer': customer,
         'applications': applications
+    })
+def my_grievances(request):
+    grievances = []
+    mobile = request.GET.get("mobile")
+
+    if mobile:
+        grievances = Grievance.objects.filter(
+            mobile=mobile
+        ).order_by("-created_at")
+
+    return render(request, "my_grievances.html", {
+        "grievances": grievances,
+        "mobile": mobile
     })

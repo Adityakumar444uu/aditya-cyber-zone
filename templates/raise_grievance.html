@@ -1,29 +1,173 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Raise Grievance</title>
+    <title>Raise Grievance | ACZ</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Segoe UI',Arial;
+        }
+
+        body{
+            min-height:100vh;
+            background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+        }
+
+        .box{
+            width:100%;
+            max-width:650px;
+            background:rgba(255,255,255,0.13);
+            backdrop-filter:blur(14px);
+            border-radius:22px;
+            padding:35px;
+            box-shadow:0 0 35px rgba(0,255,255,0.45);
+            border:1px solid rgba(255,255,255,0.3);
+            animation:up .7s ease;
+        }
+
+        @keyframes up{
+            from{opacity:0;transform:translateY(35px);}
+            to{opacity:1;transform:translateY(0);}
+        }
+
+        h1{
+            text-align:center;
+            color:#00f7ff;
+            margin-bottom:8px;
+        }
+
+        .sub{
+            text-align:center;
+            color:white;
+            margin-bottom:25px;
+        }
+
+        label{
+            color:white;
+            font-weight:bold;
+            display:block;
+            margin-top:15px;
+        }
+
+        input,select,textarea{
+            width:100%;
+            padding:13px;
+            margin-top:8px;
+            border:none;
+            border-radius:12px;
+            outline:none;
+            font-size:15px;
+        }
+
+        textarea{
+            height:120px;
+            resize:none;
+        }
+
+        button{
+            width:100%;
+            margin-top:25px;
+            padding:15px;
+            border:none;
+            border-radius:30px;
+            background:linear-gradient(90deg,#00f7ff,#00ff88);
+            font-size:18px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:.3s;
+        }
+
+        button:hover{
+            transform:scale(1.04);
+            box-shadow:0 0 20px #00f7ff;
+        }
+
+        .success{
+            background:rgba(0,255,136,0.25);
+            border:1px solid #00ff88;
+            color:white;
+            padding:18px;
+            border-radius:15px;
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .ticket{
+            color:#00ff88;
+            font-size:25px;
+            font-weight:bold;
+            margin-top:8px;
+        }
+
+        .back{
+            display:block;
+            text-align:center;
+            margin-top:20px;
+            color:#00f7ff;
+            text-decoration:none;
+            font-weight:bold;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Raise Grievance</h2>
+<div class="box">
 
-<form method="POST">
-    {% csrf_token %}
+    <h1>📢 Raise Grievance</h1>
+    <p class="sub">Aditya Cyber Zone Support Portal</p>
 
-    <p>Subject</p>
-    <input type="text" name="subject" required>
+    {% if ticket_no %}
+    <div class="success">
+        <h3>✅ Complaint Registered Successfully</h3>
+        <p>Your Ticket Reference Number</p>
+        <div class="ticket">{{ ticket_no }}</div>
+        <p>Is ticket number ko save kar lo.</p>
+    </div>
+    {% endif %}
 
-    <p>Description</p>
-    <textarea name="description" rows="6" required></textarea>
+    <form method="POST">
+        {% csrf_token %}
 
-    <br><br>
+        <label>Full Name</label>
+        <input type="text" name="name" placeholder="Enter customer name" required>
 
-    <button type="submit">Submit Ticket</button>
-</form>
+        <label>Mobile Number</label>
+        <input type="text" name="mobile" placeholder="Enter mobile number" required>
 
-<br>
+        <label>Complaint Category</label>
+        <select name="category" required>
+            <option value="">Select Category</option>
+            <option value="Application Issue">Application Issue</option>
+            <option value="Payment Issue">Payment Issue</option>
+            <option value="Document Issue">Document Issue</option>
+            <option value="Status Update Issue">Status Update Issue</option>
+            <option value="Other">Other</option>
+        </select>
 
-<a href="/customer-dashboard/">Back to Dashboard</a>
+        <label>Priority</label>
+        <select name="priority" required>
+            <option value="Normal">Normal</option>
+            <option value="High">High</option>
+            <option value="Urgent">Urgent</option>
+        </select>
+
+        <label>Complaint Details</label>
+        <textarea name="description" placeholder="Write your complaint here..." required></textarea>
+
+        <button type="submit">🚀 Submit Grievance</button>
+    </form>
+
+    <a class="back" href="/">⬅ Back to Home</a>
+
+</div>
 
 </body>
 </html>
