@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Grievance | ACZ</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Segoe UI',Arial;
+        }
+
+        body{
+            min-height:100vh;
+            background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+            padding:30px;
+        }
+
+        .box{
+            max-width:1000px;
+            margin:auto;
+            background:rgba(255,255,255,0.12);
+            backdrop-filter:blur(12px);
+            border-radius:20px;
+            padding:30px;
+            box-shadow:0 0 30px rgba(0,255,255,0.4);
+        }
+
+        h1{
+            text-align:center;
+            color:#00f7ff;
+            margin-bottom:10px;
+        }
+
+        .sub{
+            text-align:center;
+            color:white;
+            margin-bottom:25px;
+        }
+
+        .search{
+            display:flex;
+            gap:10px;
+            margin-bottom:25px;
+        }
+
+        .search input{
+            flex:1;
+            padding:14px;
+            border:none;
+            border-radius:30px;
+            outline:none;
+            font-size:16px;
+        }
+
+        .search button{
+            padding:14px 25px;
+            border:none;
+            border-radius:30px;
+            background:linear-gradient(90deg,#00f7ff,#00ff88);
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .card{
+            background:white;
+            border-radius:15px;
+            padding:20px;
+            margin-top:20px;
+            box-shadow:0 0 15px rgba(0,0,0,.15);
+        }
+
+        .row{
+            display:flex;
+            justify-content:space-between;
+            border-bottom:1px solid #eee;
+            padding:10px 0;
+        }
+
+        .status{
+            padding:6px 14px;
+            border-radius:20px;
+            font-weight:bold;
+        }
+
+        .Pending{
+            background:#fff3cd;
+            color:#856404;
+        }
+
+        .Resolved{
+            background:#d4edda;
+            color:#155724;
+        }
+
+        .Rejected{
+            background:#f8d7da;
+            color:#721c24;
+        }
+
+        .InProcess{
+            background:#cce5ff;
+            color:#004085;
+        }
+
+        .timeline{
+            margin-top:30px;
+        }
+
+        .step{
+            background:white;
+            padding:15px;
+            border-left:5px solid #00f7ff;
+            border-radius:10px;
+            margin-bottom:15px;
+        }
+
+        .empty{
+            text-align:center;
+            color:white;
+            margin-top:20px;
+        }
+
+        .back{
+            display:block;
+            text-align:center;
+            margin-top:25px;
+            color:#00f7ff;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        @media(max-width:650px){
+            .search{
+                flex-direction:column;
+            }
+
+            .row{
+                flex-direction:column;
+                gap:5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>🎫 Track Grievance</h1>
+    <p class="sub">Check Complaint Status Using Ticket Number</p>
+
+    <form method="GET" class="search">
+        <input type="text"
+               name="ticket_no"
+               placeholder="Enter Ticket Number"
+               value="{{ request.GET.ticket_no }}">
+
+        <button type="submit">Search</button>
+    </form>
+
+    {% if grievance %}
+
+    <div class="card">
+
+        <div class="row">
+            <strong>Ticket Number</strong>
+            <span>{{ grievance.ticket_no }}</span>
+        </div>
+
+        <div class="row">
+            <strong>Name</strong>
+            <span>{{ grievance.name }}</span>
+        </div>
+
+        <div class="row">
+            <strong>Mobile</strong>
+            <span>{{ grievance.mobile }}</span>
+        </div>
+
+        <div class="row">
+            <strong>Category</strong>
+            <span>{{ grievance.category }}</span>
+        </div>
+
+        <div class="row">
+            <strong>Priority</strong>
+            <span>{{ grievance.priority }}</span>
+        </div>
+
+        <div class="row">
+            <strong>Status</strong>
+            <span class="status {{ grievance.status|cut:' ' }}">
+                {{ grievance.status }}
+            </span>
+        </div>
+
+        <div class="row">
+            <strong>Description</strong>
+            <span>{{ grievance.description }}</span>
+        </div>
+
+    </div>
+
+    <div class="timeline">
+
+        <h2 style="color:white;margin-bottom:15px;">
+            📍 Status Timeline
+        </h2>
+
+        {% for item in history %}
+
+        <div class="step">
+            <h3>{{ item.status }}</h3>
+            <p>{{ item.remarks }}</p>
+            <small>{{ item.created_at }}</small>
+        </div>
+
+        {% empty %}
+
+        <div class="empty">
+            No timeline available.
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% elif request.GET.ticket_no %}
+
+    <div class="empty">
+        ❌ No grievance found with this ticket number.
+    </div>
+
+    {% endif %}
+
+    <a href="/" class="back">
+        ⬅ Back to Home
+    </a>
+
+</div>
+
+</body>
+</html>
