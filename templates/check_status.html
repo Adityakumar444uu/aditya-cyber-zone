@@ -1,47 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Check Application Status</title>
+    <title>Status Check</title>
 
     <style>
         body{
-            font-family: Arial;
-            background:#f2f2f2;
-            padding:40px;
+            margin:0;
+            font-family:Arial;
+            min-height:100vh;
+            background:linear-gradient(135deg,#06121f,#003b73);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            color:white;
         }
 
         .box{
-            max-width:500px;
-            margin:auto;
-            background:white;
-            padding:25px;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
+            width:90%;
+            max-width:750px;
+            background:rgba(255,255,255,0.12);
+            padding:35px;
+            border-radius:25px;
+            box-shadow:0 0 35px rgba(0,229,255,0.35);
+            backdrop-filter:blur(12px);
+            animation:zoom 0.7s ease;
         }
 
-        input,button{
-            width:100%;
-            padding:12px;
-            margin-top:10px;
+        @keyframes zoom{
+            from{opacity:0; transform:scale(0.9);}
+            to{opacity:1; transform:scale(1);}
+        }
+
+        h2{
+            text-align:center;
+            color:#00e5ff;
+            margin-bottom:25px;
+        }
+
+        form{
+            display:flex;
+            gap:10px;
+        }
+
+        input{
+            flex:1;
+            padding:14px;
+            border:none;
+            border-radius:10px;
+            outline:none;
+            font-size:16px;
         }
 
         button{
-            background:#0d6efd;
-            color:white;
+            padding:14px 25px;
             border:none;
-            border-radius:6px;
+            border-radius:10px;
+            background:#00e5ff;
+            color:#00111f;
+            font-weight:bold;
+            cursor:pointer;
         }
 
-        .result{
-            margin-top:20px;
-            background:#e8f5e9;
-            padding:15px;
-            border-radius:8px;
+        button:hover{
+            box-shadow:0 0 20px #00e5ff;
+            transform:scale(1.03);
+        }
+
+        #loader{
+            display:none;
+            text-align:center;
+            margin-top:30px;
+        }
+
+        .spinner{
+            width:65px;
+            height:65px;
+            border:6px solid rgba(255,255,255,0.2);
+            border-top:6px solid #00e5ff;
+            border-radius:50%;
+            margin:0 auto 15px;
+            animation:spin 1s linear infinite;
+        }
+
+        @keyframes spin{
+            100%{transform:rotate(360deg);}
+        }
+
+        #resultBox{
+            display:none;
+            margin-top:30px;
+            background:white;
+            color:#111;
+            padding:25px;
+            border-radius:20px;
+            animation:slide 0.6s ease;
+        }
+
+        @keyframes slide{
+            from{opacity:0; transform:translateY(25px);}
+            to{opacity:1; transform:translateY(0);}
+        }
+
+        .status-badge{
+            display:inline-block;
+            margin:15px 0;
+            padding:12px 28px;
+            border-radius:30px;
+            color:white;
+            font-weight:bold;
+            font-size:18px;
+        }
+
+        .Pending{background:orange;}
+        .Submitted{background:#007bff;}
+        .InProcess{background:#6f42c1;}
+        .Approved{background:#17a2b8;}
+        .Rejected{background:#dc3545;}
+        .Delivered{background:#28a745;}
+
+        .timeline{
+            display:flex;
+            justify-content:space-between;
+            margin-top:30px;
+            gap:8px;
+        }
+
+        .step{
+            flex:1;
+            text-align:center;
+            padding:10px;
+            border-radius:20px;
+            background:#ddd;
+            color:#555;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .step.active{
+            background:#28a745;
+            color:white;
+            box-shadow:0 0 12px #28a745;
+            transform:scale(1.05);
         }
 
         .error{
-            color:red;
-            margin-top:15px;
+            margin-top:20px;
+            color:#ffb3b3;
+            text-align:center;
+            font-weight:bold;
         }
     </style>
 </head>
@@ -51,96 +157,86 @@
 <div class="box">
 
     <h2>Check Application Status</h2>
-<div style="margin-bottom:20px;">
 
-    <a href="/" style="
-background:#007bff;
-color:white;
-padding:10px 15px;
-text-decoration:none;
-border-radius:6px;
-display:inline-block;
-margin-bottom:10px;
-">
-← Back to Home
-</a>
-</div>
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <input type="text" name="application_no"
-        placeholder="Enter Application Number" required>
-
-        <button type="submit">
-            Check Status
-        </button>
+    <form method="GET" onsubmit="showLoader()">
+        <input type="text" name="application_no" placeholder="Enter Application Number" required>
+        <button type="submit">Check Status</button>
     </form>
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Loading your status...</p>
+    </div>
 
-    {% if result %}
+    {% if application %}
+    <div id="resultBox">
 
-    <div class="result">
+        <h3>{{ application.application_name }}</h3>
 
-        <p>
-            <b>Customer Name:</b>
-            {{ result.customer.name }}
-        </p>
+        <p><b>Customer Name:</b> {{ application.customer.name }}</p>
+        <p><b>Application No:</b> {{ application.application_no }}</p>
+        <p><b>Remarks:</b> {{ application.remarks }}</p>
 
-        <p>
-            <b>Application:</b>
-            {{ result.application_name }}
-        </p>
+        <div class="status-badge 
+{% if application.status == 'Pending' %}Pending
+{% elif application.status == 'Submitted' %}Submitted
+{% elif application.status == 'In Process' %}InProcess
+{% elif application.status == 'Approved' %}Approved
+{% elif application.status == 'Rejected' %}Rejected
+{% elif application.status == 'Delivered' %}Delivered
+{% endif %}
+">
+            {{ application.status }}
+        </div>
 
-        <p>
-            <b>Application No:</b>
-            {{ result.application_no }}
-        </p>
+        <div class="timeline">
+            <div class="step active">Submitted</div>
 
-        
-<p>
-    <b>Status:</b>
-    {{ result.status }}
-</p>
+            <div class="step {% if application.status == 'In Process' or application.status == 'Approved' or application.status == 'Delivered' %}active{% endif %}">
+                In Process
+            </div>
 
-<p>
-    <b>Last Updated:</b>
-    {{ result.status_updated_at|date:"d M Y, h:i A" }}
-</p>        
-<h3>Application Timeline</h3>
+            <div class="step {% if application.status == 'Approved' or application.status == 'Delivered' %}active{% endif %}">
+                Approved
+            </div>
 
-{% for history in result.status_history.all %}
+            <div class="step {% if application.status == 'Delivered' %}active{% endif %}">
+                Delivered
+            </div>
+        </div>
 
-<div style="border-left:3px solid green; padding-left:10px; margin-bottom:15px;">
-
-    <b>{{ history.status }}</b><br>
-
-    <small>
-{{ history.updated_at|date:"d M Y, h:i A" }}
-</small><br>
-
-    <p>{{ history.remark }}</p>
-
-</div>
-
-{% empty %}
-
-<p>No status updates yet.</p>
-
-{% endfor %}
-        <p>
-            <b>Delivery Date:</b>
-            {{ result.delivery_date }}
+        <p style="text-align:center;margin-top:25px;color:#777;">
+            Last Updated: {{ application.status_updated_at }}
         </p>
 
     </div>
+    {% endif %}
 
+    {% if error %}
+        <div class="error">{{ error }}</div>
     {% endif %}
 
 </div>
+
+<script>
+    function showLoader(){
+        document.getElementById("loader").style.display = "block";
+    }
+
+    window.onload = function(){
+        let resultBox = document.getElementById("resultBox");
+        let loader = document.getElementById("loader");
+
+        if(resultBox){
+            loader.style.display = "block";
+
+            setTimeout(function(){
+                loader.style.display = "none";
+                resultBox.style.display = "block";
+            }, 1200);
+        }
+    }
+</script>
 
 </body>
 </html>
