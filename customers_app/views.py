@@ -99,22 +99,30 @@ def update_status(request, app_id):
 
 
 def check_status(request):
-    result = None
+
+    application = None
     error = None
 
-    if request.method == "POST":
-        application_no = request.POST.get("application_no")
+    application_no = request.GET.get("application_no")
+
+    if application_no:
 
         try:
-            result = Application.objects.get(application_no=application_no)
+            application = Application.objects.get(
+                application_no=application_no
+            )
+
         except Application.DoesNotExist:
-            error = "Application not found"
+            error = "Application Not Found"
 
-    return render(request, 'check_status.html', {
-        'result': result,
-        'error': error
-    })
-
+    return render(
+        request,
+        "check_status.html",
+        {
+            "application": application,
+            "error": error
+        }
+    )
 
 def customer_register(request):
     if request.method == "POST":
