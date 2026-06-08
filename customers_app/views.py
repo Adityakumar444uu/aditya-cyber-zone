@@ -9,7 +9,10 @@ from .google_sheet import sync_application_to_sheet
 
 
 def customer_list(request):
-    customers = Customer.objects.all()
+    customers = Customer.objects.all().order_by("-id")
+
+    recent_applications = Application.objects.all().order_by("-id")[:5]
+    recent_grievances = Grievance.objects.all().order_by("-id")[:5]
 
     total_customers = Customer.objects.count()
     total_applications = Application.objects.count()
@@ -21,20 +24,33 @@ def customer_list(request):
     rejected_count = Application.objects.filter(status="Rejected").count()
     delivered_count = Application.objects.filter(status="Delivered").count()
 
+    total_grievances = Grievance.objects.count()
+    open_grievances = Grievance.objects.exclude(status="Resolved").count()
+    resolved_grievances = Grievance.objects.filter(status="Resolved").count()
+
     return render(request, "customer_list.html", {
         "customers": customers,
+
+        "recent_applications": recent_applications,
+        "recent_grievances": recent_grievances,
+
         "total_customers": total_customers,
         "total_applications": total_applications,
+
         "pending_count": pending_count,
         "submitted_count": submitted_count,
         "in_process_count": in_process_count,
         "approved_count": approved_count,
         "rejected_count": rejected_count,
         "delivered_count": delivered_count,
+
         "pending_applications": pending_count,
         "delivered_applications": delivered_count,
-    })
 
+        "total_grievances": total_grievances,
+        "open_grievances": open_grievances,
+        "resolved_grievances": resolved_grievances,
+    })
 
 def all_applications(request):
     status = request.GET.get('status')

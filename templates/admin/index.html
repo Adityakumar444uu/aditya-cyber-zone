@@ -2,84 +2,93 @@
 
 {% block content %}
 
-<div style="display:flex;gap:15px;flex-wrap:wrap;margin:20px 0;">
+<style>
+.acz-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:12px;
+    margin-bottom:20px;
+}
 
-<a href="/customers/" style="text-decoration:none;">
-<div style="background:#17a2b8;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ total_customers }}</h2>
-<p>Total Customers</p>
-</div>
-</a>
+.acz-card{
+    display:block;
+    background:white;
+    padding:14px;
+    border-radius:10px;
+    border-left:5px solid #0f4c81;
+    box-shadow:0 2px 10px rgba(0,0,0,0.10);
+    text-decoration:none !important;
+    transition:.2s;
+}
 
-<a href="/applications/" style="text-decoration:none;">
-<div style="background:#007bff;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ total_applications }}</h2>
-<p>Total Applications</p>
-</div>
-</a>
+.acz-card:hover{
+    transform:translateY(-2px);
+    background:#f8fbff;
+}
 
-<a href="/applications/?status=Pending" style="text-decoration:none;">
-<div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ pending_count }}</h2>
-<p>Pending</p>
-</div>
-</a>
+.acz-card h3{
+    color:#444;
+    font-size:13px;
+    margin-bottom:8px;
+}
 
-<a href="/applications/?status=Submitted" style="text-decoration:none;">
-<div style="background:#00bcd4;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ submitted_count }}</h2>
-<p>Submitted</p>
-</div>
-</a>
+.acz-card p{
+    font-size:24px;
+    font-weight:bold;
+    color:#0f4c81;
+    margin:0;
+}
 
-<a href="/applications/?status=In Process" style="text-decoration:none;">
-<div style="background:#ff9800;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ in_process_count }}</h2>
-<p>In Process</p>
-</div>
-</a>
+.pending{border-left-color:#f59e0b;}
+.submitted{border-left-color:#2563eb;}
+.process{border-left-color:#7c3aed;}
+.approved{border-left-color:#0891b2;}
+.rejected{border-left-color:#dc2626;}
+.delivered{border-left-color:#16a34a;}
+.grievance{border-left-color:#e11d48;}
+</style>
 
-<a href="/applications/?status=Approved" style="text-decoration:none;">
-<div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ approved_count }}</h2>
-<p>Approved</p>
-</div>
-</a>
+<div class="acz-cards">
 
-<a href="/applications/?status=Rejected" style="text-decoration:none;">
-<div style="background:#dc3545;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ rejected_count }}</h2>
-<p>Rejected</p>
-</div>
-</a>
+    <a class="acz-card" href="/applications/">
+        <h3>Total Applications</h3>
+        <p>{{ total_applications }}</p>
+    </a>
 
-<a href="/applications/?status=Delivered" style="text-decoration:none;">
-<div style="background:#6f42c1;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ delivered_count }}</h2>
-<p>Delivered</p>
-</div>
-</a>
+    <a class="acz-card pending" href="/applications/?status=Pending">
+        <h3>Pending</h3>
+        <p>{{ pending_count }}</p>
+    </a>
 
-<a href="/grievances/" style="text-decoration:none;">
-<div style="background:#343a40;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ total_grievances }}</h2>
-<p>Total Grievances</p>
-</div>
-</a>
+    <a class="acz-card submitted" href="/applications/?status=Submitted">
+        <h3>Submitted</h3>
+        <p>{{ submitted_count }}</p>
+    </a>
 
-<a href="/grievances/?status=Pending" style="text-decoration:none;">
-<div style="background:#ffc107;color:black;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ grievance_pending }}</h2>
-<p>Pending Tickets</p>
-</div>
-</a>
+    <a class="acz-card process" href="/applications/?status=In Process">
+        <h3>In Process</h3>
+        <p>{{ in_process_count }}</p>
+    </a>
 
-<a href="/grievances/?status=Resolved" style="text-decoration:none;">
-<div style="background:#28a745;color:white;padding:20px;border-radius:10px;min-width:200px;">
-<h2>{{ grievance_resolved }}</h2>
-<p>Resolved Tickets</p>
-</div>
-</a>
+    <a class="acz-card approved" href="/applications/?status=Approved">
+        <h3>Approved</h3>
+        <p>{{ approved_count }}</p>
+    </a>
+
+    <a class="acz-card rejected" href="/applications/?status=Rejected">
+        <h3>Rejected</h3>
+        <p>{{ rejected_count }}</p>
+    </a>
+
+    <a class="acz-card delivered" href="/applications/?status=Delivered">
+        <h3>Delivered</h3>
+        <p>{{ delivered_count }}</p>
+    </a>
+
+    <a class="acz-card grievance" href="/grievance-status/">
+        <h3>Total Grievances</h3>
+        <p>{{ total_grievances }}</p>
+    </a>
 
 </div>
 
