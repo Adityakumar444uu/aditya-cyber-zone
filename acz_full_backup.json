@@ -1,0 +1,96 @@
+[
+{
+    "model": "customers_app.customer",
+    "pk": 3,
+    "fields": {
+        "user": null,
+        "name": "TAPOSHI BURMAN",
+        "aadhaar_no": "381864235416",
+        "contact_no": "7542802345"
+    }
+},
+{
+    "model": "customers_app.customer",
+    "pk": 4,
+    "fields": {
+        "user": 7,
+        "name": "Madhu Kumari",
+        "aadhaar_no": "547854262147",
+        "contact_no": "2479654780"
+    }
+},
+{
+    "model": "customers_app.customer",
+    "pk": 5,
+    "fields": {
+        "user": 8,
+        "name": "Satyanarayan Kumar",
+        "aadhaar_no": "578942145267",
+        "contact_no": "784521452"
+    }
+},
+{
+    "model": "customers_app.application",
+    "pk": 10,
+    "fields": {
+        "customer": 3,
+        "application_name": "IRCTC BOOKING",
+        "application_no": "5479124820",
+        "application_date": "2026-06-20",
+        "status_updated_at": "2026-06-20T13:50:11.122Z",
+        "delivery_date": null,
+        "status": "Rejected",
+        "remarks": ""
+    }
+},
+{
+    "model": "customers_app.applicationstatushistory",
+    "pk": 1,
+    "fields": {
+        "application": 10,
+        "status": "Pending",
+        "remark": "",
+        "updated_at": "2026-06-20T13:24:33.117Z"
+    }
+},
+{
+    "model": "customers_app.applicationstatushistory",
+    "pk": 2,
+    "fields": {
+        "application": 10,
+        "status": "Submitted",
+        "remark": "",
+        "updated_at": "2026-06-20T13:29:27.003Z"
+    }
+},
+{
+    "model": "customers_app.applicationstatushistory",
+    "pk": 3,
+    "fields": {
+        "application": 10,
+        "status": "In Process",
+        "remark": "",
+        "updated_at": "2026-06-20T13:33:53.921Z"
+    }
+},
+{
+    "model": "customers_app.applicationstatushistory",
+    "pk": 4,
+    "fields": {
+        "application": 10,
+        "status": "Approved",
+        "remark": "",
+        "updated_at": "2026-06-20T13:46:03.196Z"
+    }
+},
+{
+    "model": "customers_app.applicationstatushistory",
+    "pk": 5,
+    "fields": {
+        "application": 10,
+        "status": "Rejected",
+        "remark": "",
+        "updated_at": "2026-06-20T13:50:11.198Z"
+    }
+}
+]

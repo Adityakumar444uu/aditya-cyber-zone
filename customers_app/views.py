@@ -1,3 +1,4 @@
+from .excel_sync import sync_application_to_excel
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -81,6 +82,8 @@ def add_application(request):
         )
 
         sync_application_to_sheet(application)
+        print("EXCEL SYNC RUNNING")
+        sync_application_to_excel(application)
 
         return redirect('all_applications')
 
@@ -97,11 +100,14 @@ def update_status(request, app_id):
         remark = request.POST.get('remark')
 
         application.status = new_status
+        application.remarks = remark
 
         if new_status == "Delivered":
             application.delivery_date = timezone.now()
 
         application.save()
+        print("EXCEL SYNC RUNNING")
+        sync_application_to_excel(application)
 
         ApplicationStatusHistory.objects.create(
             application=application,
@@ -112,7 +118,6 @@ def update_status(request, app_id):
         sync_application_to_sheet(application, remark)
 
     return redirect('all_applications')
-
 
 def check_status(request):
 
@@ -244,17 +249,8 @@ def grievance_status(request):
         "grievance": grievance,
         "history": history
     })
-def home(request):
-    links = [
-        {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
-        {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
-        {"name": "Check Application Status", "url": "/check-status/", "icon": "🔎"},
-        {"name": "Raise Grievance", "url": "/raise-grievance/", "icon": "📢"},
-        {"name": "Track Grievance", "url": "/grievance-status/", "icon": "🎫"},
-{"name": "My Grievances", "url": "/my-grievances/", "icon": "📋"},
-    ]
 
-    return render(request, "home.html", {"links": links})
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -285,6 +281,7 @@ def home(request):
         {"name": "Check Application Status", "url": "/check-status/", "icon": "🔎"},
         {"name": "Raise Grievance", "url": "/raise-grievance/", "icon": "📢"},
         {"name": "Track Grievance", "url": "/grievance-status/", "icon": "🎫"},
+        {"name": "My Grievances", "url": "/my-grievances/", "icon": "📋"},
     ]
 
     return render(request, "home.html", {"links": links})

@@ -1,3 +1,9 @@
+import os
+import json
+from django.conf import settings
+from django.core import serializers
+from django.http import FileResponse
+from .excel_sync import sync_application_to_excel
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import redirect
@@ -61,7 +67,7 @@ class ApplicationAdmin(admin.ModelAdmin):
             obj.delivery_date = timezone.now()
 
         super().save_model(request, obj, form, change)
-
+        sync_application_to_excel(obj)
         if not change or old_status != obj.status:
             ApplicationStatusHistory.objects.create(
                 application=obj,
@@ -97,6 +103,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         application.status = 'Delivered'
         application.delivery_date = timezone.now()
         application.save()
+        sync_application_to_excel(application)
 
         ApplicationStatusHistory.objects.create(
             application=application,
@@ -132,6 +139,8 @@ class GrievanceAdmin(admin.ModelAdmin):
         'name',
         'mobile',
     )
+
+
 @admin.register(GrievanceHistory)
 class GrievanceHistoryAdmin(admin.ModelAdmin):
     list_display = ('grievance', 'status', 'created_at')
@@ -159,3 +168,36 @@ def custom_admin_index(request, extra_context=None):
 
 
 admin.site.index = custom_admin_index
+def backup_database(request):
+    backup_file = os.path.join(settings.BASE_DIR, "acz_full_backup.json")
+
+    data = serializers.serialize(
+        "json",
+        list(Customer.objects.all()) +
+        list(Application.objects.all()) +
+        list(ApplicationStatusHistory.objects.all()) +
+        list(Grievance.objects.all()) +
+        list(GrievanceHistory.objects.all()),
+        indent=4
+    )
+
+    with open(backup_file, "w", encoding="utf-8") as f:
+        f.write(data)
+
+    return FileResponse(
+        open(backup_file, "rb"),
+        as_attachment=True,
+        filename="acz_full_backup.json"
+    )
+
+
+old_get_urls = admin.site.get_urls
+
+def custom_get_urls():
+    urls = old_get_urls()
+    custom_urls = [
+        path("backup-database/", admin.site.admin_view(backup_database), name="backup_database"),
+    ]
+    return custom_urls + urls
+
+admin.site.get_urls = custom_get_urls
