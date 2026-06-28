@@ -23,5 +23,5 @@ urlpatterns = [
     path('raise-grievance/', views.raise_grievance, name='raise_grievance'),
     path('grievance-status/', views.grievance_status, name='grievance_status'),
 path('my-grievances/', views.my_grievances, name='my_grievances'),
-
+path('bulk-update-status/', views.bulk_update_status, name='bulk_update_status'),
 ]

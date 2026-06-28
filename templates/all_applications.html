@@ -21,6 +21,34 @@
             color:#333;
         }
 
+        .top-buttons{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .btn-link{
+            color:white;
+            padding:12px 18px;
+            text-decoration:none;
+            border-radius:8px;
+            font-size:16px;
+            display:inline-block;
+        }
+
+        .green{ background:green; }
+        .dark{ background:#343a40; }
+        .blue{ background:#007bff; }
+
+        .bulk-box{
+            background:#eef4ff;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:15px;
+            border:1px solid #cfe0ff;
+        }
+
         table{
             width:100%;
             border-collapse:collapse;
@@ -42,19 +70,10 @@
             background:#f5f5f5;
         }
 
-        .pending{
-            color:orange;
-            font-weight:bold;
-        }
-
-        .delivered{
-            color:green;
-            font-weight:bold;
-        }
-
-        select{
+        select, input{
             padding:7px;
             border-radius:6px;
+            border:1px solid #aaa;
         }
 
         button{
@@ -69,6 +88,12 @@
         button:hover{
             background:#0056b3;
         }
+
+        .single-form{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
     </style>
 </head>
 
@@ -76,74 +101,104 @@
 
 <div class="container">
 
-    <div style="margin-bottom:20px;">
-        <a href="/check-status/"
-        style="
-        background:green;
-        color:white;
-        padding:12px 18px;
-        text-decoration:none;
-        border-radius:8px;
-        font-size:18px;
-        ">
-            Customer Status Check
-        </a>
+    <div class="top-buttons">
+        <a href="/check-status/" class="btn-link green">Customer Status Check</a>
+        <a href="/admin/" class="btn-link dark">Django Admin</a>
+        <a href="/add-application/" class="btn-link blue">Add Application</a>
     </div>
 
     <h1>All Applications</h1>
 
-    <table>
-        <tr>
-            <th>Customer</th>
-            <th>Application</th>
-            <th>Application No</th>
-            <th>Status</th>
-            <th>Delivery Date</th>
-            <th>Update</th>
-        </tr>
+    <form method="POST" action="{% url 'bulk_update_status' %}">
+        {% csrf_token %}
 
-        {% for app in applications %}
-        <tr>
-            <td>{{ app.customer.name }}</td>
-            <td>{{ app.application_name }}</td>
-            <td>{{ app.application_no }}</td>
+        <div class="bulk-box">
+            <b>Universal Status Update:</b>
 
-            <td>
-                <form method="POST" action="{% url 'update_status' app.id %}">
-                    {% csrf_token %}
+            <select name="bulk_status" required>
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Submitted">Submitted</option>
+                <option value="In Process">In Process</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Delivered">Delivered</option>
+            </select>
 
-                    <select name="status">
-                        <option value="Pending" {% if app.status == "Pending" %}selected{% endif %}>Pending</option>
-                        <option value="Submitted" {% if app.status == "Submitted" %}selected{% endif %}>Submitted</option>
-                        <option value="In Process" {% if app.status == "In Process" %}selected{% endif %}>In Process</option>
-                        <option value="Approved" {% if app.status == "Approved" %}selected{% endif %}>Approved</option>
-                        <option value="Rejected" {% if app.status == "Rejected" %}selected{% endif %}>Rejected</option>
-                        <option value="Delivered" {% if app.status == "Delivered" %}selected{% endif %}>Delivered</option>
-                    </select>
-            </td>
+            <input type="text" name="bulk_remark" placeholder="Remark optional">
 
-            <td>
-                {% if app.delivery_date %}
-                    {{ app.delivery_date }}
-                {% else %}
-                    Not Delivered
-                {% endif %}
-            </td>
+            <button type="submit">Update Selected</button>
+        </div>
 
-            <td>
-                    <button type="submit">Update</button>
-                </form>
-            </td>
-        </tr>
+        <table>
+            <tr>
+                <th>
+                    <input type="checkbox" onclick="toggleAll(this)">
+                </th>
+                <th>Customer</th>
+                <th>Application</th>
+                <th>Application No</th>
+                <th>Status</th>
+                <th>Delivery Date</th>
+                <th>Update</th>
+            </tr>
 
-        {% empty %}
-        <tr>
-            <td colspan="6">No applications found.</td>
-        </tr>
-        {% endfor %}
-    </table>
+            {% for app in applications %}
+            <tr>
+                <td>
+                    <input type="checkbox" name="selected_applications" value="{{ app.id }}">
+                </td>
+
+                <td>{{ app.customer.name }}</td>
+                <td>{{ app.application_name }}</td>
+                <td>{{ app.application_no }}</td>
+
+                <td>
+                    <form method="POST" action="{% url 'update_status' app.id %}" class="single-form">
+                        {% csrf_token %}
+
+                        <select name="status">
+                            <option value="Pending" {% if app.status == "Pending" %}selected{% endif %}>Pending</option>
+                            <option value="Submitted" {% if app.status == "Submitted" %}selected{% endif %}>Submitted</option>
+                            <option value="In Process" {% if app.status == "In Process" %}selected{% endif %}>In Process</option>
+                            <option value="Approved" {% if app.status == "Approved" %}selected{% endif %}>Approved</option>
+                            <option value="Rejected" {% if app.status == "Rejected" %}selected{% endif %}>Rejected</option>
+                            <option value="Delivered" {% if app.status == "Delivered" %}selected{% endif %}>Delivered</option>
+                        </select>
+                </td>
+
+                <td>
+                    {% if app.delivery_date %}
+                        {{ app.delivery_date }}
+                    {% else %}
+                        Not Delivered
+                    {% endif %}
+                </td>
+
+                <td>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="7">No applications found.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </form>
 
 </div>
+
+<script>
+function toggleAll(source) {
+    let checkboxes = document.querySelectorAll('input[name="selected_applications"]');
+    for (let i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
 
 </body>
 </html>

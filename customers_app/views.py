@@ -310,3 +310,33 @@ def my_grievances(request):
         "grievances": grievances,
         "mobile": mobile
     })
+def bulk_update_status(request):
+    if request.method == "POST":
+        selected_ids = request.POST.getlist("selected_applications")
+        new_status = request.POST.get("bulk_status")
+        remark = request.POST.get("bulk_remark") or ""
+
+        if selected_ids and new_status:
+            applications = Application.objects.filter(id__in=selected_ids)
+
+            for application in applications:
+                application.status = new_status
+                application.remarks = remark
+
+                if new_status == "Delivered":
+                    application.delivery_date = timezone.now()
+                else:
+                    application.delivery_date = None
+
+                application.save()
+
+                ApplicationStatusHistory.objects.create(
+                    application=application,
+                    status=new_status,
+                    remark=remark
+                )
+
+                sync_application_to_excel(application)
+                sync_application_to_sheet(application, remark)
+
+    return redirect("all_applications")
