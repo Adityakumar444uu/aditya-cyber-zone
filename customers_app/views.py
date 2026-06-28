@@ -97,15 +97,18 @@ def update_status(request, app_id):
 
     if request.method == "POST":
         new_status = request.POST.get('status')
-        remark = request.POST.get('remark')
+        remark = request.POST.get('remark') or request.POST.get('remarks') or ""
 
         application.status = new_status
         application.remarks = remark
 
         if new_status == "Delivered":
             application.delivery_date = timezone.now()
+        else:
+            application.delivery_date = None
 
         application.save()
+
         print("EXCEL SYNC RUNNING")
         sync_application_to_excel(application)
 
@@ -118,7 +121,6 @@ def update_status(request, app_id):
         sync_application_to_sheet(application, remark)
 
     return redirect('all_applications')
-
 def check_status(request):
 
     application = None
