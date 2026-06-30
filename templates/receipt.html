@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Receipt</title>
+    <style>
+        body{
+            font-family:Arial;
+            background:#f2f2f2;
+            padding:30px;
+        }
+        .receipt{
+            width:700px;
+            margin:auto;
+            background:white;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 0 10px #ccc;
+        }
+        h2,h3{
+            text-align:center;
+            margin:5px;
+        }
+        table{
+            width:100%;
+            margin-top:25px;
+            border-collapse:collapse;
+        }
+        td{
+            padding:12px;
+            border-bottom:1px solid #ddd;
+        }
+        .label{
+            font-weight:bold;
+            width:40%;
+        }
+        .paid{
+            color:green;
+            font-weight:bold;
+        }
+        .btn{
+            display:inline-block;
+            margin-top:20px;
+            padding:10px 15px;
+            background:#007bff;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+        }
+        @media print{
+            .no-print{
+                display:none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="receipt">
+
+    <h2>ADITYA CYBER ZONE</h2>
+    <h3>Payment Receipt</h3>
+
+    <table>
+        <tr>
+            <td class="label">Receipt No</td>
+            <td>{{ application.receipt_no }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Payment Reference No</td>
+            <td>{{ application.payment_reference_no }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Customer Name</td>
+            <td>{{ application.customer.name }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Mobile No</td>
+            <td>{{ application.customer.contact_no }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Application</td>
+            <td>{{ application.application_name }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Application No</td>
+            <td>{{ application.application_no }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Amount</td>
+            <td>₹{{ application.amount }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Paid Amount</td>
+            <td>₹{{ application.paid_amount }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Due Amount</td>
+            <td>₹{{ application.due_amount }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Payment Status</td>
+            <td class="paid">{{ application.payment_status }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Payment Mode</td>
+            <td>{{ application.payment_mode }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Application Status</td>
+            <td>{{ application.status }}</td>
+        </tr>
+
+        <tr>
+            <td class="label">Payment Date</td>
+            <td>{{ application.status_updated_at }}</td>
+        </tr>
+    </table>
+
+    <p style="text-align:center;margin-top:25px;">
+        Thank you for choosing Aditya Cyber Zone.
+    </p>
+
+    <div class="no-print" style="text-align:center;">
+        <a href="/customer-dashboard/" class="btn">Back</a>
+        <a href="#" onclick="window.print()" class="btn">Print Receipt</a>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,57 +1,50 @@
+import razorpay
+from decimal import Decimal
+
 from .excel_sync import sync_application_to_excel
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from .models import Customer, Application, ApplicationStatusHistory, Grievance, GrievanceHistory
+from .models import (
+    Customer,
+    Application,
+    ApplicationStatusHistory,
+    PaymentHistory,
+    Grievance,
+    GrievanceHistory,
+)
+
 from .google_sheet import sync_application_to_sheet
 
 
 def customer_list(request):
     customers = Customer.objects.all().order_by("-id")
-
     recent_applications = Application.objects.all().order_by("-id")[:5]
     recent_grievances = Grievance.objects.all().order_by("-id")[:5]
 
-    total_customers = Customer.objects.count()
-    total_applications = Application.objects.count()
-
-    pending_count = Application.objects.filter(status="Pending").count()
-    submitted_count = Application.objects.filter(status="Submitted").count()
-    in_process_count = Application.objects.filter(status="In Process").count()
-    approved_count = Application.objects.filter(status="Approved").count()
-    rejected_count = Application.objects.filter(status="Rejected").count()
-    delivered_count = Application.objects.filter(status="Delivered").count()
-
-    total_grievances = Grievance.objects.count()
-    open_grievances = Grievance.objects.exclude(status="Resolved").count()
-    resolved_grievances = Grievance.objects.filter(status="Resolved").count()
-
     return render(request, "customer_list.html", {
         "customers": customers,
-
         "recent_applications": recent_applications,
         "recent_grievances": recent_grievances,
-
-        "total_customers": total_customers,
-        "total_applications": total_applications,
-
-        "pending_count": pending_count,
-        "submitted_count": submitted_count,
-        "in_process_count": in_process_count,
-        "approved_count": approved_count,
-        "rejected_count": rejected_count,
-        "delivered_count": delivered_count,
-
-        "pending_applications": pending_count,
-        "delivered_applications": delivered_count,
-
-        "total_grievances": total_grievances,
-        "open_grievances": open_grievances,
-        "resolved_grievances": resolved_grievances,
+        "total_customers": Customer.objects.count(),
+        "total_applications": Application.objects.count(),
+        "pending_count": Application.objects.filter(status="Pending").count(),
+        "submitted_count": Application.objects.filter(status="Submitted").count(),
+        "in_process_count": Application.objects.filter(status="In Process").count(),
+        "approved_count": Application.objects.filter(status="Approved").count(),
+        "rejected_count": Application.objects.filter(status="Rejected").count(),
+        "delivered_count": Application.objects.filter(status="Delivered").count(),
+        "pending_applications": Application.objects.filter(status="Pending").count(),
+        "delivered_applications": Application.objects.filter(status="Delivered").count(),
+        "total_grievances": Grievance.objects.count(),
+        "open_grievances": Grievance.objects.exclude(status="Resolved").count(),
+        "resolved_grievances": Grievance.objects.filter(status="Resolved").count(),
     })
+
 
 def all_applications(request):
     status = request.GET.get('status')
@@ -78,11 +71,11 @@ def add_application(request):
             customer=customer,
             application_name=request.POST.get('application_name'),
             application_no=request.POST.get('application_no'),
-            status=request.POST.get('status')
+            application_date=timezone.now().date(),
+            status=request.POST.get('status') or "Pending"
         )
 
         sync_application_to_sheet(application)
-        print("EXCEL SYNC RUNNING")
         sync_application_to_excel(application)
 
         return redirect('all_applications')
@@ -108,8 +101,6 @@ def update_status(request, app_id):
             application.delivery_date = None
 
         application.save()
-
-        print("EXCEL SYNC RUNNING")
         sync_application_to_excel(application)
 
         ApplicationStatusHistory.objects.create(
@@ -121,37 +112,29 @@ def update_status(request, app_id):
         sync_application_to_sheet(application, remark)
 
     return redirect('all_applications')
-def check_status(request):
 
+
+def check_status(request):
     application = None
     error = None
-
     application_no = request.GET.get("application_no")
 
     if application_no:
-
         try:
-            application = Application.objects.get(
-                application_no=application_no
-            )
-
+            application = Application.objects.get(application_no=application_no)
         except Application.DoesNotExist:
             error = "Application Not Found"
 
-    return render(
-        request,
-        "check_status.html",
-        {
-            "application": application,
-            "error": error
-        }
-    )
+    return render(request, "check_status.html", {
+        "application": application,
+        "error": error
+    })
+
 
 def customer_register(request):
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         name = request.POST.get('name')
         aadhaar_no = request.POST.get('aadhaar_no')
         contact_no = request.POST.get('contact_no')
@@ -200,11 +183,147 @@ def customer_login(request):
 @login_required
 def customer_dashboard(request):
     customer = Customer.objects.get(user=request.user)
-    applications = Application.objects.filter(customer=customer)
+
+    applications = Application.objects.filter(
+        customer=customer
+    ).order_by("-application_date")
+
+    total_amount = sum(app.amount for app in applications)
+    total_paid = sum(app.paid_amount for app in applications)
+    total_due = sum(app.due_amount for app in applications)
 
     return render(request, 'customer_dashboard.html', {
         'customer': customer,
-        'applications': applications
+        'applications': applications,
+        'total_amount': total_amount,
+        'total_paid': total_paid,
+        'total_due': total_due,
+    })
+
+
+@login_required
+def create_payment(request, app_id):
+    application = get_object_or_404(
+        Application,
+        id=app_id,
+        customer__user=request.user
+    )
+
+    if application.payment_status == "Paid":
+        return redirect("receipt", app_id=application.id)
+
+    if application.due_amount <= 0:
+        return redirect("customer_dashboard")
+
+    amount_paise = int(application.due_amount * Decimal("100"))
+
+    client = razorpay.Client(auth=(
+        settings.RAZORPAY_KEY_ID,
+        settings.RAZORPAY_KEY_SECRET
+    ))
+
+    order = client.order.create({
+        "amount": amount_paise,
+        "currency": "INR",
+        "payment_capture": 1,
+        "notes": {
+            "application_id": str(application.id),
+            "application_no": application.application_no,
+            "customer": application.customer.name,
+        }
+    })
+
+    application.razorpay_order_id = order["id"]
+    application.save()
+
+    return render(request, "pay_now.html", {
+        "application": application,
+        "order_id": order["id"],
+        "razorpay_key": settings.RAZORPAY_KEY_ID,
+        "amount_paise": amount_paise,
+    })
+
+
+@login_required
+@login_required
+def payment_success(request, app_id):
+    application = get_object_or_404(
+        Application,
+        id=app_id,
+        customer__user=request.user
+    )
+
+    if application.payment_status == "Paid":
+        return redirect("receipt", app_id=application.id)
+
+    payment_id = request.GET.get("payment_id")
+    order_id = request.GET.get("order_id")
+    signature = request.GET.get("signature")
+
+    if not payment_id or not order_id or not signature:
+        return redirect("customer_dashboard")
+
+    client = razorpay.Client(auth=(
+        settings.RAZORPAY_KEY_ID,
+        settings.RAZORPAY_KEY_SECRET
+    ))
+
+    try:
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": payment_id,
+            "razorpay_signature": signature,
+        })
+    except Exception:
+        return render(request, "payment_failed.html", {
+            "message": "Payment verification failed. Please contact admin."
+        })
+
+    application.paid_amount = application.amount
+    application.due_amount = 0
+    application.payment_status = "Paid"
+    application.payment_mode = "Online"
+    application.razorpay_payment_id = payment_id
+    application.razorpay_order_id = order_id
+    application.razorpay_signature = signature
+    application.save()
+
+    PaymentHistory.objects.create(
+        application=application,
+        amount=application.amount,
+        payment_mode="Online",
+        payment_status="Paid",
+        payment_reference_no=application.payment_reference_no,
+        receipt_no=application.receipt_no,
+    )
+
+    sync_application_to_excel(application)
+
+    return redirect("receipt", app_id=application.id)
+
+@login_required
+def payment_history(request):
+    customer = Customer.objects.get(user=request.user)
+
+    history = PaymentHistory.objects.filter(
+        application__customer=customer
+    ).order_by("-created_at")
+
+    return render(request, "payment_history.html", {
+        "history": history
+    })
+
+
+@login_required
+def receipt(request, app_id):
+    application = get_object_or_404(
+        Application,
+        id=app_id,
+        customer__user=request.user
+    )
+
+    return render(request, "receipt.html", {
+        "application": application
     })
 
 
@@ -236,7 +355,6 @@ def raise_grievance(request):
 def grievance_status(request):
     grievance = None
     history = []
-
     ticket_no = request.GET.get("ticket_no")
 
     if ticket_no:
@@ -297,6 +415,8 @@ def customer_detail(request, customer_id):
         'customer': customer,
         'applications': applications
     })
+
+
 def my_grievances(request):
     grievances = []
     mobile = request.GET.get("mobile")
@@ -310,6 +430,8 @@ def my_grievances(request):
         "grievances": grievances,
         "mobile": mobile
     })
+
+
 def bulk_update_status(request):
     if request.method == "POST":
         selected_ids = request.POST.getlist("selected_applications")

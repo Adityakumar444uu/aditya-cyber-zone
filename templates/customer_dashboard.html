@@ -5,7 +5,7 @@
     <style>
         body{
             font-family:Arial;
-            background:#f2f2f2;
+            background:#eef2f7;
             padding:30px;
         }
         .box{
@@ -14,21 +14,6 @@
             border-radius:12px;
             box-shadow:0 0 10px #ccc;
         }
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:20px;
-        }
-        th{
-            background:#007bff;
-            color:white;
-            padding:12px;
-        }
-        td{
-            padding:12px;
-            border-bottom:1px solid #ddd;
-            text-align:center;
-        }
         .logout{
             background:red;
             color:white;
@@ -36,6 +21,68 @@
             border-radius:6px;
             text-decoration:none;
             float:right;
+        }
+        .btn{
+            color:white;
+            padding:10px 14px;
+            border-radius:7px;
+            text-decoration:none;
+            display:inline-block;
+            margin:4px;
+            font-size:14px;
+        }
+        .blue{background:#007bff;}
+        .green{background:#28a745;}
+        .red{background:#dc3545;}
+        .dark{background:#343a40;}
+        .orange{background:#ff9800;}
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+            gap:15px;
+            margin:20px 0;
+        }
+        .card{
+            background:#f8f9fa;
+            padding:18px;
+            border-radius:10px;
+            text-align:center;
+            border-left:5px solid #007bff;
+        }
+        .card h3{
+            margin:0;
+            color:#333;
+        }
+        .card p{
+            font-size:22px;
+            font-weight:bold;
+            margin:8px 0 0;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:20px;
+            background:white;
+        }
+        th{
+            background:#007bff;
+            color:white;
+            padding:12px;
+        }
+        td{
+            padding:10px;
+            border-bottom:1px solid #ddd;
+            text-align:center;
+            font-size:14px;
+        }
+        .paid{
+            color:green;
+            font-weight:bold;
+        }
+        .unpaid{
+            color:red;
+            font-weight:bold;
         }
     </style>
 </head>
@@ -46,58 +93,87 @@
     <a class="logout" href="/customer-logout/">Logout</a>
 
     <h2>Welcome, {{ customer.name }}</h2>
+    <p><b>Aadhaar:</b> {{ customer.aadhaar_no }} | <b>Mobile:</b> {{ customer.contact_no }}</p>
+
+    <div>
+        <a href="/raise-grievance/" class="btn red">Raise Grievance</a>
+        <a href="/my-grievances/" class="btn green">My Grievances</a>
+        <a href="/payment-history/" class="btn dark">Payment History</a>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Total Amount</h3>
+            <p>₹{{ total_amount }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Paid Amount</h3>
+            <p>₹{{ total_paid }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Due Amount</h3>
+            <p>₹{{ total_due }}</p>
+        </div>
+    </div>
 
     <h3>Your Applications</h3>
-<div style="margin-top:20px;margin-bottom:20px;">
 
-    <a href="/raise-grievance/"
-       style="background:#dc3545;
-              color:white;
-              padding:12px 18px;
-              border-radius:8px;
-              text-decoration:none;
-              margin-right:10px;">
-        Raise Grievance
-    </a>
-
-    <a href="/my-grievances/"
-       style="background:#28a745;
-              color:white;
-              padding:12px 18px;
-              border-radius:8px;
-              text-decoration:none;">
-        My Grievances
-    </a>
-
-</div>
     <table>
         <tr>
-            <th>Application Name</th>
+            <th>Application</th>
             <th>Application No</th>
-            <th>Status</th>
-            <th>Application Date</th>
-            <th>Delivery Date</th>
-            <th>Remarks</th>
+            <th>Amount</th>
+            <th>Paid</th>
+            <th>Due</th>
+            <th>Payment Status</th>
+            <th>Payment Mode</th>
+            <th>Reference No</th>
+            <th>App Status</th>
+            <th>Receipt</th>
         </tr>
 
         {% for app in applications %}
         <tr>
             <td>{{ app.application_name }}</td>
             <td>{{ app.application_no }}</td>
-            <td>{{ app.status }}</td>
-            <td>{{ app.application_date }}</td>
+            <td>₹{{ app.amount }}</td>
+            <td>₹{{ app.paid_amount }}</td>
+            <td>₹{{ app.due_amount }}</td>
+
             <td>
-                {% if app.delivery_date %}
-                    {{ app.delivery_date }}
+                {% if app.payment_status == "Paid" %}
+                    <span class="paid">Paid</span>
                 {% else %}
-                    Not Delivered
+                    <span class="unpaid">Unpaid</span>
                 {% endif %}
             </td>
-            <td>{{ app.remarks }}</td>
+
+            <td>{{ app.payment_mode }}</td>
+
+            <td>
+                {% if app.payment_reference_no %}
+                    {{ app.payment_reference_no }}
+                {% else %}
+                    Not Generated
+                {% endif %}
+            </td>
+
+            <td>{{ app.status }}</td>
+
+            <td>
+                {% if app.payment_status == "Paid" %}
+                    <a class="btn blue" href="/receipt/{{ app.id }}/">Receipt</a>
+                {% else %}
+                    <a class="btn orange" href="#">Pay Now</a>
+                {% endif %}
+            </td>
         </tr>
+
         {% empty %}
         <tr>
-            <td colspan="6">No application found</td>
+            <td colspan="10">No application found</td>
         </tr>
         {% endfor %}
     </table>

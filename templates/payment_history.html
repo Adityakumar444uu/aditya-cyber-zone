@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment History</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#f2f2f2;
+            padding:30px;
+        }
+
+        .container{
+            background:white;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 0 10px #ccc;
+        }
+
+        h2{
+            margin-bottom:20px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th{
+            background:#007bff;
+            color:white;
+            padding:12px;
+        }
+
+        td{
+            padding:12px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+        }
+
+        tr:hover{
+            background:#f8f9fa;
+        }
+
+        .paid{
+            color:green;
+            font-weight:bold;
+        }
+
+        .btn{
+            display:inline-block;
+            padding:8px 12px;
+            background:#007bff;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+        }
+
+        .back{
+            background:#343a40;
+            margin-bottom:20px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+<a href="/customer-dashboard/" class="btn back">
+← Back to Dashboard
+</a>
+
+<h2>Payment History</h2>
+
+<table>
+
+<tr>
+
+<th>Date</th>
+
+<th>Application</th>
+
+<th>Amount</th>
+
+<th>Payment Mode</th>
+
+<th>Status</th>
+
+<th>Reference No</th>
+
+<th>Receipt No</th>
+
+<th>Receipt</th>
+
+</tr>
+
+{% for payment in history %}
+
+<tr>
+
+<td>{{ payment.created_at }}</td>
+
+<td>{{ payment.application.application_name }}</td>
+
+<td>₹{{ payment.amount }}</td>
+
+<td>{{ payment.payment_mode }}</td>
+
+<td class="paid">
+{{ payment.payment_status }}
+</td>
+
+<td>{{ payment.payment_reference_no }}</td>
+
+<td>{{ payment.receipt_no }}</td>
+
+<td>
+
+<a
+href="/receipt/{{ payment.application.id }}/"
+class="btn">
+
+View Receipt
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="8">
+
+No Payment History Found
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>

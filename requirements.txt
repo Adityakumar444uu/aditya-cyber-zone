@@ -19,6 +19,7 @@ psycopg2-binary==2.9.12
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pycparser==3.0
+razorpay==2.0.1
 requests==2.34.2
 requests-oauthlib==2.0.0
 sqlparse==0.5.5
