@@ -118,6 +118,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-RAZORPAY_KEY_ID = "rzp_live_T87lVzhSFKKE3y"
-RAZORPAY_KEY_SECRET = "UNRGw1noMIAxPBBr4X0YUV5x"
-RAZORPAY_WEBHOOK_SECRET = "your_webhook_secret"
+RAZORPAY_KEY_ID = os.environ.get("rzp_live_T8HGoswPNJPpZH")
+RAZORPAY_KEY_SECRET = os.environ.get("FLIFqomvrbakoDjyGbC8T0N3")
+RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
