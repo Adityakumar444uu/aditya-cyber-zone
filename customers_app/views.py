@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 import razorpay
 from decimal import Decimal
 
@@ -16,8 +17,8 @@ from .models import (
     PaymentHistory,
     Grievance,
     GrievanceHistory,
+    Notice,
 )
-
 from .google_sheet import sync_application_to_sheet
 
 
@@ -243,25 +244,21 @@ def create_payment(request, app_id):
         "amount_paise": amount_paise,
     })
 
-
-@login_required
-@login_required
+@csrf_exempt
 def payment_success(request, app_id):
-    application = get_object_or_404(
-        Application,
-        id=app_id,
-        customer__user=request.user
-    )
+    application = get_object_or_404(Application, id=app_id)
 
     if application.payment_status == "Paid":
         return redirect("receipt", app_id=application.id)
 
-    payment_id = request.GET.get("payment_id")
-    order_id = request.GET.get("order_id")
-    signature = request.GET.get("signature")
+    payment_id = request.POST.get("razorpay_payment_id") or request.GET.get("payment_id")
+    order_id = request.POST.get("razorpay_order_id") or request.GET.get("order_id")
+    signature = request.POST.get("razorpay_signature") or request.GET.get("signature")
 
     if not payment_id or not order_id or not signature:
-        return redirect("customer_dashboard")
+        return render(request, "payment_failed.html", {
+            "message": "Payment details missing. Please contact admin."
+        })
 
     client = razorpay.Client(auth=(
         settings.RAZORPAY_KEY_ID,
@@ -288,19 +285,26 @@ def payment_success(request, app_id):
     application.razorpay_signature = signature
     application.save()
 
-    PaymentHistory.objects.create(
+    already_exists = PaymentHistory.objects.filter(
         application=application,
-        amount=application.amount,
-        payment_mode="Online",
-        payment_status="Paid",
-        payment_reference_no=application.payment_reference_no,
-        receipt_no=application.receipt_no,
-    )
+        payment_reference_no=application.payment_reference_no
+    ).exists()
+
+    if not already_exists:
+        PaymentHistory.objects.create(
+            application=application,
+            amount=application.amount,
+            payment_mode="Online",
+            payment_status="Paid",
+            payment_reference_no=application.payment_reference_no,
+            receipt_no=application.receipt_no,
+        )
 
     sync_application_to_excel(application)
 
-    return redirect("receipt", app_id=application.id)
-
+    return render(request, "payment_success.html", {
+        "application": application
+    })
 @login_required
 def payment_history(request):
     customer = Customer.objects.get(user=request.user)
@@ -395,6 +399,9 @@ def customer_logout(request):
 
 
 def home(request):
+
+    notices = Notice.objects.filter(active=True).order_by("-created_at")
+
     links = [
         {"name": "Admin Login", "url": "/admin/", "icon": "🔐"},
         {"name": "Customer Login", "url": "/customer-login/", "icon": "👤"},
@@ -404,8 +411,10 @@ def home(request):
         {"name": "My Grievances", "url": "/my-grievances/", "icon": "📋"},
     ]
 
-    return render(request, "home.html", {"links": links})
-
+    return render(request, "home.html", {
+        "notices": notices,
+        "links": links,
+    })
 
 def customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)

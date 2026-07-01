@@ -166,7 +166,7 @@
                 {% if app.payment_status == "Paid" %}
                     <a class="btn blue" href="/receipt/{{ app.id }}/">Receipt</a>
                 {% else %}
-                    <a class="btn orange" href="#">Pay Now</a>
+                    <a class="btn orange" href="/pay-now/{{ app.id }}/">Pay Now</a>
                 {% endif %}
             </td>
         </tr>

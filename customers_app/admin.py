@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from .excel_sync import sync_application_to_excel
 
 from .models import (
+    Notice,
     Customer,
     ApplicationPart,
     ApplicationSubPart,
@@ -334,3 +335,9 @@ def custom_get_urls():
 
 
 admin.site.get_urls = custom_get_urls
+@admin.register(Notice)
+class NoticeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'priority', 'active', 'created_at')
+    list_editable = ('active',)
+    list_filter = ('priority', 'active')
+    search_fields = ('title', 'message')

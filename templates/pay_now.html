@@ -1,174 +1,78 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <title>Online Payment</title>
-
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-    <style>
-
-        body{
-            font-family:Arial;
-            background:#f2f2f2;
-            padding:40px;
-        }
-
-        .box{
-            width:500px;
-            margin:auto;
-            background:white;
-            padding:30px;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
-            text-align:center;
-        }
-
-        h2{
-            color:#333;
-        }
-
-        table{
-            width:100%;
-            margin-top:20px;
-            border-collapse:collapse;
-        }
-
-        td{
-            padding:10px;
-            border-bottom:1px solid #ddd;
-            text-align:left;
-        }
-
-        button{
-
-            margin-top:25px;
-
-            background:#28a745;
-
-            color:white;
-
-            border:none;
-
-            padding:14px 25px;
-
-            border-radius:8px;
-
-            font-size:17px;
-
-            cursor:pointer;
-
-        }
-
-        button:hover{
-
-            background:#218838;
-
-        }
-
-    </style>
-
 </head>
 
-<body>
+<body style="font-family:Arial;background:#f2f2f2;padding:40px;">
 
-<div class="box">
+<div style="width:500px;margin:auto;background:white;padding:30px;border-radius:12px;text-align:center;box-shadow:0 0 10px #ccc;">
+    <h2>ADITYA CYBER ZONE</h2>
+    <h3>Online Payment</h3>
 
-<h2>ADITYA CYBER ZONE</h2>
+    <p><b>Customer:</b> {{ application.customer.name }}</p>
+    <p><b>Application:</b> {{ application.application_name }}</p>
+    <p><b>Application No:</b> {{ application.application_no }}</p>
+    <p><b>Amount:</b> ₹{{ application.due_amount }}</p>
 
-<h3>Online Payment</h3>
-
-<table>
-
-<tr>
-
-<td><b>Customer</b></td>
-
-<td>{{ application.customer.name }}</td>
-
-</tr>
-
-<tr>
-
-<td><b>Application</b></td>
-
-<td>{{ application.application_name }}</td>
-
-</tr>
-
-<tr>
-
-<td><b>Application No</b></td>
-
-<td>{{ application.application_no }}</td>
-
-</tr>
-
-<tr>
-
-<td><b>Amount</b></td>
-
-<td>₹{{ application.due_amount }}</td>
-
-</tr>
-
-</table>
-
-<button id="pay-btn">
-
-Pay ₹{{ application.due_amount }}
-
-</button>
-
+    <button id="pay-btn" style="background:#28a745;color:white;border:none;padding:14px 25px;border-radius:8px;font-size:17px;cursor:pointer;">
+        Pay Now
+    </button>
 </div>
 
 <script>
-
 var options = {
+    "key": "{{ razorpay_key }}",
+    "amount": "{{ amount_paise }}",
+    "currency": "INR",
+    "name": "Aditya Cyber Zone",
+    "description": "Application Payment",
+    "order_id": "{{ order_id }}",
+"callback_url": "http://127.0.0.1:8000/payment-success/{{ application.id }}/",
+"redirect": true,
+    "method": {
+        "card": true,
+        "netbanking": true,
+        "upi": true,
+        "wallet": true
+    },
 
-"key":"{{ razorpay_key }}",
+    "handler": function (response){
+        window.location.href =
+            "/payment-success/{{ application.id }}/?payment_id=" + response.razorpay_payment_id +
+            "&order_id=" + response.razorpay_order_id +
+            "&signature=" + response.razorpay_signature;
+    },
 
-"amount":"{{ amount_paise }}",
+    "prefill": {
+        "name": "{{ application.customer.name }}",
+        "contact": "{{ application.customer.contact_no }}"
+    },
 
-"currency":"INR",
+    "modal": {
+        "ondismiss": function(){
+            alert("Payment window closed.");
+        }
+    },
 
-"name":"Aditya Cyber Zone",
+    "theme": {
+        "color": "#007bff"
+    }
+};
 
-"description":"Application Payment",
+var rzp = new Razorpay(options);
 
-"order_id":"{{ order_id }}",
+rzp.on('payment.failed', function (response){
+    alert("Payment Failed: " + response.error.description);
+    console.log(response.error);
+});
 
-"handler":function(response){
-
-window.location.href="/payment-success/{{ application.id }}/?payment_id="+response.razorpay_payment_id+
-
-"&order_id="+response.razorpay_order_id+
-
-"&signature="+response.razorpay_signature;
-
-},
-
-"theme":{
-
-"color":"#007bff"
-
+document.getElementById('pay-btn').onclick = function(e){
+    rzp.open();
+    e.preventDefault();
 }
-
-};
-
-var rzp=new Razorpay(options);
-
-document.getElementById("pay-btn").onclick=function(e){
-
-rzp.open();
-
-e.preventDefault();
-
-};
-
 </script>
 
 </body>
-
 </html>

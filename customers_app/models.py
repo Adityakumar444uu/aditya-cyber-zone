@@ -270,3 +270,27 @@ class GrievanceHistory(models.Model):
 
     def __str__(self):
         return self.status
+
+
+class Notice(models.Model):
+
+    PRIORITY = [
+        ("Normal", "Normal"),
+        ("Important", "Important"),
+        ("Urgent", "Urgent"),
+    ]
+
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY,
+        default="Normal"
+    )
+
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
