@@ -1,4 +1,4 @@
-from django.contrib import messages
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import razorpay
 from decimal import Decimal
@@ -225,18 +225,19 @@ def create_payment(request, app_id):
     ))
 
     try:
-    order = client.order.create({
-        "amount": amount_paise,
-        "currency": "INR",
-        "payment_capture": 1,
-        "notes": {
-            "application_id": str(application.id),
-            "application_no": application.application_no,
-            "customer": application.customer.name,
-        }
-    })
-except Exception as e:
-    return HttpResponse(f"Razorpay Error: {str(e)}")
+        order = client.order.create({
+            "amount": amount_paise,
+            "currency": "INR",
+            "payment_capture": 1,
+            "notes": {
+                "application_id": str(application.id),
+                "application_no": application.application_no,
+                "customer": application.customer.name,
+            }
+        })
+    except Exception as e:
+        return HttpResponse(f"Razorpay Error: {str(e)}")
+
     application.razorpay_order_id = order["id"]
     application.save()
 
@@ -246,7 +247,6 @@ except Exception as e:
         "razorpay_key": settings.RAZORPAY_KEY_ID,
         "amount_paise": amount_paise,
     })
-
 @csrf_exempt
 def payment_success(request, app_id):
     application = get_object_or_404(Application, id=app_id)
