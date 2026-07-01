@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-lmq-*5^5*$4+9$#c4e^yd0eanw@!wck0ddo@re@&jcquxv#1xb'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -118,6 +118,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-RAZORPAY_KEY_ID = os.environ.get("rzp_live_T8HGoswPNJPpZH")
+RAZORPAY_KEY_ID = os.environ.get("T8HGoswPNJPpZH")
 RAZORPAY_KEY_SECRET = os.environ.get("FLIFqomvrbakoDjyGbC8T0N3")
 RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
