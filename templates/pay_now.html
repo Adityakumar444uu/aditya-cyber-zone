@@ -31,13 +31,7 @@ var options = {
     "order_id": "{{ order_id }}",
 
 
-    "method": {
-        "card": true,
-        "netbanking": true,
-        "upi": true,
-        "wallet": true
-    },
-
+    
     "handler": function (response){
         window.location.href =
             "/payment-success/{{ application.id }}/?payment_id=" + response.razorpay_payment_id +
