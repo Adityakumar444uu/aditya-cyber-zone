@@ -1,15 +1,19 @@
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+import hashlib
+import time
 import razorpay
 from decimal import Decimal
 
-from .excel_sync import sync_application_to_excel
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+
+from .excel_sync import sync_application_to_excel
+from .google_sheet import sync_application_to_sheet
 
 from .models import (
     Customer,
@@ -20,7 +24,6 @@ from .models import (
     GrievanceHistory,
     Notice,
 )
-from .google_sheet import sync_application_to_sheet
 
 
 def customer_list(request):
@@ -49,16 +52,16 @@ def customer_list(request):
 
 
 def all_applications(request):
-    status = request.GET.get('status')
+    status = request.GET.get("status")
 
     if status:
-        applications = Application.objects.filter(status=status).order_by('-application_date')
+        applications = Application.objects.filter(status=status).order_by("-application_date")
     else:
-        applications = Application.objects.all().order_by('-application_date')
+        applications = Application.objects.all().order_by("-application_date")
 
-    return render(request, 'all_applications.html', {
-        'applications': applications,
-        'selected_status': status
+    return render(request, "all_applications.html", {
+        "applications": applications,
+        "selected_status": status
     })
 
 
@@ -66,24 +69,24 @@ def add_application(request):
     customers = Customer.objects.all()
 
     if request.method == "POST":
-        customer_id = request.POST.get('customer')
+        customer_id = request.POST.get("customer")
         customer = Customer.objects.get(id=customer_id)
 
         application = Application.objects.create(
             customer=customer,
-            application_name=request.POST.get('application_name'),
-            application_no=request.POST.get('application_no'),
+            application_name=request.POST.get("application_name"),
+            application_no=request.POST.get("application_no"),
             application_date=timezone.now().date(),
-            status=request.POST.get('status') or "Pending"
+            status=request.POST.get("status") or "Pending"
         )
 
         sync_application_to_sheet(application)
         sync_application_to_excel(application)
 
-        return redirect('all_applications')
+        return redirect("all_applications")
 
-    return render(request, 'add_application.html', {
-        'customers': customers
+    return render(request, "add_application.html", {
+        "customers": customers
     })
 
 
@@ -91,8 +94,8 @@ def update_status(request, app_id):
     application = get_object_or_404(Application, id=app_id)
 
     if request.method == "POST":
-        new_status = request.POST.get('status')
-        remark = request.POST.get('remark') or request.POST.get('remarks') or ""
+        new_status = request.POST.get("status")
+        remark = request.POST.get("remark") or request.POST.get("remarks") or ""
 
         application.status = new_status
         application.remarks = remark
@@ -113,7 +116,7 @@ def update_status(request, app_id):
 
         sync_application_to_sheet(application, remark)
 
-    return redirect('all_applications')
+    return redirect("all_applications")
 
 
 def check_status(request):
@@ -135,11 +138,11 @@ def check_status(request):
 
 def customer_register(request):
     if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        name = request.POST.get('name')
-        aadhaar_no = request.POST.get('aadhaar_no')
-        contact_no = request.POST.get('contact_no')
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        name = request.POST.get("name")
+        aadhaar_no = request.POST.get("aadhaar_no")
+        contact_no = request.POST.get("contact_no")
 
         user = User.objects.create_user(
             username=username,
@@ -153,17 +156,17 @@ def customer_register(request):
             contact_no=contact_no
         )
 
-        return redirect('/customer-login/?success=1')
+        return redirect("/customer-login/?success=1")
 
-    return render(request, 'customer_register.html')
+    return render(request, "customer_register.html")
 
 
 def customer_login(request):
     error = None
 
     if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         user = authenticate(
             request,
@@ -173,12 +176,12 @@ def customer_login(request):
 
         if user is not None:
             login(request, user)
-            return redirect('customer_dashboard')
+            return redirect("customer_dashboard")
         else:
             error = "Invalid Username or Password"
 
-    return render(request, 'customer_login.html', {
-        'error': error
+    return render(request, "customer_login.html", {
+        "error": error
     })
 
 
@@ -194,12 +197,12 @@ def customer_dashboard(request):
     total_paid = sum(app.paid_amount for app in applications)
     total_due = sum(app.due_amount for app in applications)
 
-    return render(request, 'customer_dashboard.html', {
-        'customer': customer,
-        'applications': applications,
-        'total_amount': total_amount,
-        'total_paid': total_paid,
-        'total_due': total_due,
+    return render(request, "customer_dashboard.html", {
+        "customer": customer,
+        "applications": applications,
+        "total_amount": total_amount,
+        "total_paid": total_paid,
+        "total_due": total_due,
     })
 
 
@@ -217,36 +220,47 @@ def create_payment(request, app_id):
     if application.due_amount <= 0:
         return redirect("customer_dashboard")
 
-    amount_paise = int(application.due_amount * Decimal("100"))
+    amount = "%.2f" % application.due_amount
+    txnid = f"ACZ{application.id}{int(time.time())}"
 
-    client = razorpay.Client(auth=(
-        settings.RAZORPAY_KEY_ID,
-        settings.RAZORPAY_KEY_SECRET
-    ))
+    firstname = application.customer.name
+    email = "support@adityacyberzone.com"
+    phone = application.customer.contact_no
+    productinfo = application.application_name
 
-    try:
-        order = client.order.create({
-            "amount": amount_paise,
-            "currency": "INR",
-            "payment_capture": 1,
-            "notes": {
-                "application_id": str(application.id),
-                "application_no": application.application_no,
-                "customer": application.customer.name,
-            }
-        })
-    except Exception as e:
-        return HttpResponse(f"Razorpay Error: {str(e)}")
+    hash_string = (
+        f"{settings.PAYU_MERCHANT_KEY}|{txnid}|{amount}|{productinfo}|"
+        f"{firstname}|{email}|||||||||||{settings.PAYU_MERCHANT_SALT}"
+    )
 
-    application.razorpay_order_id = order["id"]
+    payu_hash = hashlib.sha512(
+        hash_string.encode("utf-8")
+    ).hexdigest().lower()
+
+    application.razorpay_order_id = txnid
     application.save()
+
+    payu_data = {
+        "key": settings.PAYU_MERCHANT_KEY,
+        "txnid": txnid,
+        "amount": amount,
+        "productinfo": productinfo,
+        "firstname": firstname,
+        "email": email,
+        "phone": phone,
+        "surl": request.build_absolute_uri(f"/payment-success/{application.id}/"),
+        "furl": request.build_absolute_uri(f"/payment-success/{application.id}/"),
+        "hash": payu_hash,
+        "service_provider": "payu_paisa",
+    }
 
     return render(request, "pay_now.html", {
         "application": application,
-        "order_id": order["id"],
-        "razorpay_key": settings.RAZORPAY_KEY_ID,
-        "amount_paise": amount_paise,
+        "payu_data": payu_data,
+        "payu_url": settings.PAYU_BASE_URL,
     })
+
+
 @csrf_exempt
 def payment_success(request, app_id):
     application = get_object_or_404(Application, id=app_id)
@@ -254,38 +268,21 @@ def payment_success(request, app_id):
     if application.payment_status == "Paid":
         return redirect("receipt", app_id=application.id)
 
-    payment_id = request.POST.get("razorpay_payment_id") or request.GET.get("payment_id")
-    order_id = request.POST.get("razorpay_order_id") or request.GET.get("order_id")
-    signature = request.POST.get("razorpay_signature") or request.GET.get("signature")
+    status = request.POST.get("status")
+    txnid = request.POST.get("txnid")
+    mihpayid = request.POST.get("mihpayid")
 
-    if not payment_id or not order_id or not signature:
+    if status != "success":
         return render(request, "payment_failed.html", {
-            "message": "Payment details missing. Please contact admin."
-        })
-
-    client = razorpay.Client(auth=(
-        settings.RAZORPAY_KEY_ID,
-        settings.RAZORPAY_KEY_SECRET
-    ))
-
-    try:
-        client.utility.verify_payment_signature({
-            "razorpay_order_id": order_id,
-            "razorpay_payment_id": payment_id,
-            "razorpay_signature": signature,
-        })
-    except Exception:
-        return render(request, "payment_failed.html", {
-            "message": "Payment verification failed. Please contact admin."
+            "message": "Payment failed or cancelled."
         })
 
     application.paid_amount = application.amount
     application.due_amount = 0
     application.payment_status = "Paid"
     application.payment_mode = "Online"
-    application.razorpay_payment_id = payment_id
-    application.razorpay_order_id = order_id
-    application.razorpay_signature = signature
+    application.razorpay_payment_id = mihpayid
+    application.razorpay_order_id = txnid
     application.save()
 
     already_exists = PaymentHistory.objects.filter(
@@ -308,6 +305,8 @@ def payment_success(request, app_id):
     return render(request, "payment_success.html", {
         "application": application
     })
+
+
 @login_required
 def payment_history(request):
     customer = Customer.objects.get(user=request.user)
@@ -379,9 +378,9 @@ def grievance_status(request):
 
 
 def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         user = authenticate(
             request,
@@ -391,18 +390,17 @@ def user_login(request):
 
         if user:
             login(request, user)
-            return redirect('/admin/')
+            return redirect("/admin/")
 
-    return render(request, 'login.html')
+    return render(request, "login.html")
 
 
 def customer_logout(request):
     logout(request)
-    return redirect('/customer-login/?success=1')
+    return redirect("/customer-login/?success=1")
 
 
 def home(request):
-
     notices = Notice.objects.filter(active=True).order_by("-created_at")
 
     links = [
@@ -419,13 +417,14 @@ def home(request):
         "links": links,
     })
 
+
 def customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     applications = Application.objects.filter(customer=customer)
 
-    return render(request, 'customer_detail.html', {
-        'customer': customer,
-        'applications': applications
+    return render(request, "customer_detail.html", {
+        "customer": customer,
+        "applications": applications
     })
 
 
@@ -474,3 +473,37 @@ def bulk_update_status(request):
                 sync_application_to_sheet(application, remark)
 
     return redirect("all_applications")
+def customer_forgot_password(request):
+    if request.method == "POST":
+        aadhaar_no = request.POST.get("aadhaar_no")
+        contact_no = request.POST.get("contact_no")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if new_password != confirm_password:
+            return render(request, "customer_forgot_password.html", {
+                "error": "Password and Confirm Password do not match."
+            })
+
+        try:
+            customer = Customer.objects.get(
+                aadhaar_no=aadhaar_no,
+                contact_no=contact_no
+            )
+
+            if not customer.user:
+                return render(request, "customer_forgot_password.html", {
+                    "error": "No login account found for this customer."
+                })
+
+            customer.user.set_password(new_password)
+            customer.user.save()
+
+            return redirect("/customer-login/?reset=1")
+
+        except Customer.DoesNotExist:
+            return render(request, "customer_forgot_password.html", {
+                "error": "Aadhaar number or mobile number is incorrect."
+            })
+
+    return render(request, "customer_forgot_password.html")

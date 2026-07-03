@@ -1,0 +1,92 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_list %}
+
+{% block result_list %}
+
+<style>
+body{background:#eef3f9!important;}
+#content{background:#fff;padding:18px;border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.10);}
+#toolbar{background:linear-gradient(90deg,#0d6efd,#20c997);padding:14px!important;border-radius:14px;margin-bottom:14px;}
+#changelist table{font-size:12px!important;border-radius:14px;overflow:hidden;}
+#changelist table thead th{background:#0d6efd!important;color:white!important;padding:8px!important;text-align:center;}
+#changelist table tbody td,#changelist table tbody th{padding:7px 8px!important;white-space:nowrap;}
+#changelist table tbody tr:nth-child(even){background:#f8fbff!important;}
+#changelist table tbody tr:hover{background:#d8ecff!important;}
+.button,.default,input[type=submit]{background:linear-gradient(90deg,#0d6efd,#6610f2)!important;color:white!important;border:none!important;border-radius:8px!important;padding:8px 16px!important;font-weight:bold!important;}
+.paginator{background:#f5f8fc!important;padding:12px!important;border-radius:10px;}
+.actions{background:#fff7e6!important;padding:10px!important;border-radius:10px;margin-bottom:10px;}
+
+.acz-head{
+    padding:15px;
+    margin:10px 0 15px 0;
+    border-radius:15px;
+    color:white;
+    background:linear-gradient(90deg,#111827,#0d6efd);
+    box-shadow:0 5px 15px rgba(0,0,0,.18);
+}
+.acz-head h2{margin:0;font-size:22px;color:white;}
+.acz-head p{margin:5px 0 0;font-size:13px;color:#e8f1ff;}
+
+.acz-tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+}
+.acz-tabs a{
+    text-decoration:none;
+    padding:8px 12px;
+    border-radius:20px;
+    background:white;
+    color:#111827;
+    font-weight:bold;
+    box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+.acz-tabs a:hover{background:#0d6efd;color:white;}
+
+.top-save-box{
+    background:linear-gradient(90deg,#ffffff,#eef7ff);
+    padding:10px;
+    margin:10px 0;
+    border-radius:12px;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    position:sticky;
+    top:0;
+    z-index:999;
+}
+</style>
+
+<div class="acz-head">
+    <h2>📋 ACZ Applications</h2>
+    <p>Pending, Process, Approved, Rejected, Delivered sab page same dynamic compact UI me dikhega.</p>
+</div>
+
+<div class="acz-tabs">
+    <a href="/admin/customers_app/application/">All</a>
+    <a href="/admin/customers_app/application/?status__exact=Pending">🟡 Pending</a>
+    <a href="/admin/customers_app/application/?status__exact=Submitted">🔵 Submitted</a>
+    <a href="/admin/customers_app/application/?status__exact=In+Process">🟣 In Process</a>
+    <a href="/admin/customers_app/application/?status__exact=Approved">🟢 Approved</a>
+    <a href="/admin/customers_app/application/?status__exact=Rejected">🔴 Rejected</a>
+    <a href="/admin/customers_app/application/?status__exact=Delivered">✅ Delivered</a>
+</div>
+
+{% if cl.formset %}
+<div class="top-save-box">
+    <button type="submit" form="changelist-form" name="_save" class="default">
+        💾 Save Changes
+    </button>
+</div>
+{% endif %}
+
+{% if action_form and actions_on_top and cl.show_admin_actions %}
+    {% admin_actions %}
+{% endif %}
+
+{% result_list cl %}
+
+{% if action_form and actions_on_bottom and cl.show_admin_actions %}
+    {% admin_actions %}
+{% endif %}
+
+{% endblock %}

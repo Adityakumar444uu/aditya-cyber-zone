@@ -73,41 +73,22 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
+
+    change_list_template = "admin/customers_app/application/change_list.html"
+    save_on_top = True
+
     list_display = (
         'id',
         'customer',
-        'part',
-        'sub_part',
+        'service_info',
         'application_no',
-        'amount',
-        'paid_amount',
-        'due_amount',
-        'payment_status',
-        'payment_mode',
-        'payment_reference_no',
-        'receipt_no',
+        'payment_info',
         'status',
-        'status_updated_at',
-        'delivery_date',
-        'remarks',
+        'remarks_short',
         'mark_delivered_button',
     )
-
-    list_editable = (
-        'paid_amount',
-        'payment_mode',
-        'status',
-        'remarks',
-    )
-
-    list_filter = (
-        'payment_status',
-        'payment_mode',
-        'status',
-        'part',
-        'sub_part',
-    )
-
+    list_editable = ('status',)
+    list_filter = ('payment_status', 'payment_mode', 'status', 'part', 'sub_part')
     search_fields = (
         'application_name',
         'application_no',
@@ -128,6 +109,72 @@ class ApplicationAdmin(admin.ModelAdmin):
         'receipt_no',
         'status_updated_at',
     )
+
+    list_per_page = 20
+    list_max_show_all = 50
+    date_hierarchy = "status_updated_at"
+    save_on_top = True
+
+    fieldsets = (
+        ("Customer & Application", {
+            "fields": (
+                "customer",
+                "part",
+                "sub_part",
+                "application_no",
+                "application_date",
+            )
+        }),
+        ("Payment", {
+            "fields": (
+                "amount",
+                "paid_amount",
+                "due_amount",
+                "payment_status",
+                "payment_mode",
+                "payment_reference_no",
+                "receipt_no",
+            )
+        }),
+        ("Status", {
+            "fields": (
+                "status",
+                "delivery_date",
+                "remarks",
+                "status_updated_at",
+            )
+        }),
+    )
+
+    class Media:
+        css = {
+            "all": ("admin_custom/application_admin.css",)
+        }
+
+    def service_info(self, obj):
+        return format_html(
+            "<b>{}</b><br><small>{}</small>",
+            obj.part,
+            obj.sub_part
+        )
+    service_info.short_description = "Service"
+
+    def payment_info(self, obj):
+        return format_html(
+            "₹{}<br><small>Paid ₹{} | Due ₹{}<br>{} / {}</small>",
+            obj.amount,
+            obj.paid_amount,
+            obj.due_amount,
+            obj.payment_status,
+            obj.payment_mode,
+        )
+    payment_info.short_description = "Payment"
+
+    def remarks_short(self, obj):
+        if obj.remarks:
+            return obj.remarks[:25] + "..." if len(obj.remarks) > 25 else obj.remarks
+        return "-"
+    remarks_short.short_description = "Remarks"
 
     def save_model(self, request, obj, form, change):
         old_status = None
@@ -165,7 +212,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     def mark_delivered_button(self, obj):
         if obj.status != 'Delivered':
             return format_html(
-                '<a class="button" href="mark-delivered/{}/">Mark as Delivered</a>',
+                '<a class="button" href="mark-delivered/{}/">Delivered</a>',
                 obj.id,
             )
         return "Delivered"
@@ -198,8 +245,6 @@ class ApplicationAdmin(admin.ModelAdmin):
         )
 
         return redirect('/admin/customers_app/application/')
-
-
 @admin.register(ApplicationStatusHistory)
 class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
     list_display = ('application', 'status', 'updated_at')
@@ -239,14 +284,9 @@ class GrievanceAdmin(admin.ModelAdmin):
         'status',
         'created_at',
     )
-
     list_editable = ('status',)
     list_filter = ('status', 'priority', 'category')
-    search_fields = (
-        'ticket_no',
-        'name',
-        'mobile',
-    )
+    search_fields = ('ticket_no', 'name', 'mobile')
 
 
 @admin.register(GrievanceHistory)
@@ -335,6 +375,8 @@ def custom_get_urls():
 
 
 admin.site.get_urls = custom_get_urls
+
+
 @admin.register(Notice)
 class NoticeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'priority', 'active', 'created_at')

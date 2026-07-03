@@ -1,0 +1,34 @@
+#changelist table {
+    font-size: 12px !important;
+}
+
+#changelist table thead th,
+#changelist table tbody td,
+#changelist table tbody th {
+    padding: 6px 8px !important;
+    white-space: nowrap;
+}
+
+.field-payment_info small,
+.field-service_info small {
+    color: #555;
+    font-size: 11px;
+}
+
+.field-status select {
+    width: 105px !important;
+    padding: 3px !important;
+}
+
+.field-remarks_short {
+    max-width: 150px !important;
+}
+
+#changelist {
+    overflow-x: auto !important;
+}
+
+#toolbar,
+.paginator {
+    padding: 8px !important;
+}

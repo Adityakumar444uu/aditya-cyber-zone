@@ -118,6 +118,6 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_live_T8JDbEb05oO6nK")
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "RYcpUzaX2ITf4dSiP2DBFOg5")
-RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
+PAYU_MERCHANT_KEY = os.environ.get("PAYU_MERCHANT_KEY", "agqUY0")
+PAYU_MERCHANT_SALT = os.environ.get("PAYU_MERCHANT_SALT", "pVWOiBTevwuOcEsPClinHQBQ20XjzGl9")
+PAYU_BASE_URL = os.environ.get("PAYU_BASE_URL", "https://test.payu.in/_payment")

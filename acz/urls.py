@@ -7,4 +7,5 @@ urlpatterns = [
     path('', include('customers_app.urls')),
 
 path('check-status/', views.check_status, name='check_status'),
+path("customer-forgot-password/", views.customer_forgot_password, name="customer_forgot_password"),
 ]

@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Online Payment</title>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body style="font-family:Arial;background:#f2f2f2;padding:40px;">
@@ -16,56 +15,19 @@
     <p><b>Application No:</b> {{ application.application_no }}</p>
     <p><b>Amount:</b> ₹{{ application.due_amount }}</p>
 
-    <button id="pay-btn" style="background:#28a745;color:white;border:none;padding:14px 25px;border-radius:8px;font-size:17px;cursor:pointer;">
-        Pay Now
-    </button>
+    <form action="{{ payu_url }}" method="post" id="payuForm">
+        {% for key, value in payu_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+
+        <button type="submit" style="background:#28a745;color:white;border:none;padding:14px 25px;border-radius:8px;font-size:17px;cursor:pointer;">
+            Pay Now
+        </button>
+    </form>
 </div>
 
 <script>
-var options = {
-    "key": "{{ razorpay_key }}",
-    "amount": {{ amount_paise }},
-    "currency": "INR",
-    "name": "Aditya Cyber Zone",
-    "description": "Application Payment",
-    "order_id": "{{ order_id }}",
-
-
-    
-    "handler": function (response){
-        window.location.href =
-            "/payment-success/{{ application.id }}/?payment_id=" + response.razorpay_payment_id +
-            "&order_id=" + response.razorpay_order_id +
-            "&signature=" + response.razorpay_signature;
-    },
-
-    "prefill": {
-        "name": "{{ application.customer.name }}",
-        "contact": "{{ application.customer.contact_no }}"
-    },
-
-    "modal": {
-        "ondismiss": function(){
-            alert("Payment window closed.");
-        }
-    },
-
-    "theme": {
-        "color": "#007bff"
-    }
-};
-
-var rzp = new Razorpay(options);
-
-rzp.on('payment.failed', function (response){
-    alert("Payment Failed: " + response.error.description);
-    console.log(response.error);
-});
-
-document.getElementById('pay-btn').onclick = function(e){
-    rzp.open();
-    e.preventDefault();
-}
+document.getElementById("payuForm").submit();
 </script>
 
 </body>

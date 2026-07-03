@@ -4,12 +4,7 @@
     <title>Customer Login</title>
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial;
-        }
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
 
         body{
             height:100vh;
@@ -40,11 +35,7 @@
             z-index:2;
         }
 
-        h2{
-            text-align:center;
-            margin-bottom:25px;
-            color:#00e5ff;
-        }
+        h2{ text-align:center; margin-bottom:25px; color:#00e5ff; }
 
         input{
             width:100%;
@@ -69,111 +60,207 @@
             cursor:pointer;
         }
 
-        button:hover{
-            box-shadow:0 0 15px #00e5ff;
-        }
+        button:hover{ box-shadow:0 0 15px #00e5ff; }
 
-        .register-link{
-            text-align:center;
-            margin-top:18px;
-        }
+        .register-link{ text-align:center; margin-top:18px; }
 
-        a{
-            color:#00e5ff;
-            text-decoration:none;
-        }
+        a{ color:#00e5ff; text-decoration:none; }
+#loginPreloader{
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(0,229,255,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.08) 1px, transparent 1px),
+        linear-gradient(135deg,#000428,#004e92);
+    background-size:35px 35px,35px 35px,100% 100%;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
 
+.loader-box{
+    width:360px;
+    text-align:center;
+    color:white;
+    padding:35px;
+    border-radius:20px;
+    background:rgba(0,0,0,0.82);
+    border:1px solid #00e5ff;
+    box-shadow:0 0 35px #00e5ff, inset 0 0 20px rgba(0,229,255,.18);
+}
+
+.terminal-title{
+    color:#00e5ff;
+    font-size:13px;
+    letter-spacing:3px;
+    margin-bottom:22px;
+    font-weight:bold;
+}
+
+.lock-stage{
+    position:relative;
+    height:105px;
+}
+
+.key{
+    position:absolute;
+    left:-40px;
+    top:25px;
+    font-size:46px;
+    animation:keyInsert 1.35s forwards;
+}
+
+.lock{
+    font-size:78px;
+    animation:lockShake .35s 1.25s forwards, hideLock .2s 1.65s forwards;
+}
+
+.unlock{
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:78px;
+    opacity:0;
+    animation:showUnlock .3s 1.75s forwards;
+}
+
+.progress{
+    height:8px;
+    border:1px solid #00e5ff;
+    border-radius:30px;
+    overflow:hidden;
+    background:#061827;
+    margin-top:15px;
+}
+
+.progress span{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#00e5ff,#25D366);
+    animation:loadBar 2s forwards;
+}
+
+.loader-box h3{
+    margin-top:20px;
+    color:#00e5ff;
+    font-size:15px;
+    letter-spacing:1px;
+}
+
+.loader-box p{
+    margin-top:8px;
+    color:#cfffff;
+    font-size:13px;
+}
+
+@keyframes keyInsert{
+    0%{ left:-120px; transform:rotate(-35deg); opacity:0; }
+    40%{ opacity:1; }
+    100%{ left:137px; transform:rotate(0deg); }
+}
+
+@keyframes lockShake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-6px); }
+    50%{ transform:translateX(6px); }
+    75%{ transform:translateX(-4px); }
+}
+
+@keyframes hideLock{
+    to{ opacity:0; }
+}
+
+@keyframes showUnlock{
+    to{ opacity:1; filter:drop-shadow(0 0 18px #25D366); }
+}
+
+@keyframes loadBar{
+    to{ width:100%; }
+}
+@keyframes unlock{
+    0%{ transform:scale(1); }
+    60%{ transform:scale(1.15); }
+    100%{ transform:scale(1); }
+}
     </style>
 </head>
 
 <body>
+<div id="loginPreloader">
+    <div class="loader-box">
+        <div class="terminal-title">ADITYA CYBER ZONE</div>
 
+        <div class="lock-stage">
+            <div class="key">🔑</div>
+            <div class="lock">🔒</div>
+            <div class="unlock">🔓</div>
+        </div>
+
+        <div class="progress">
+            <span></span>
+        </div>
+
+        <h3>SECURE LOGIN VERIFYING...</h3>
+        <p>Key inserted • Lock opening</p>
+    </div>
+</div>
 <div class="bg"></div>
 
 <div class="login-box">
+    <h2>DIGITAL ACCESS</h2>
 
-<h2>DIGITAL ACCESS</h2>
+    <form method="POST" onsubmit="showLoginLoader(event)">
+        {% csrf_token %}
 
-<form method="POST">
+        <input type="text" name="username" placeholder="ENTER USERNAME" required>
+        <input type="password" name="password" placeholder="ENTER SECURITY PIN" required>
 
-{% csrf_token %}
+        <label style="display:block; margin-top:10px; color:white;">
+            <input type="checkbox" onclick="togglePassword()">
+            Show Password
+        </label>
 
-<input type="text"
-name="username"
-placeholder="ENTER USERNAME"
-required>
+        <button type="submit">ACCESS SYSTEM</button>
+    </form>
 
+    <div class="register-link">
+        <a href="/customer-forgot-password/">Forgot Password?</a>
+    </div>
 
-<input type="password"
-name="password"
-placeholder="ENTER SECURITY PIN"
-required>
-
-
-<label style="display:block; margin-top:10px; color:white;">
-
-<input type="checkbox"
-onclick="togglePassword()">
-
-Show Password
-
-</label>
-
-
-<button type="submit">
-
-ACCESS SYSTEM
-
-</button>
-
-</form>
-
-
-<div class="register-link">
-
-<a href="/customer-register/">
-
-Create New Customer Account
-
-</a>
-
+    <div class="register-link">
+        <a href="/customer-register/">Create New Customer Account</a>
+    </div>
 </div>
-
-</div>
-
 
 <script>
-
 function togglePassword(){
-
-var pass =
-document.querySelector('input[name="password"]');
-
-if(pass.type=="password"){
-
-pass.type="text";
-
+    var pass = document.querySelector('input[name="password"]');
+    pass.type = pass.type === "password" ? "text" : "password";
 }
-
-else{
-
-pass.type="password";
-
-}
-
-}
-
 
 {% if error %}
 alert("❌ Invalid Username or Password");
 {% endif %}
 
-
 {% if request.GET.success %}
 alert("✅ Registration Successful");
 {% endif %}
 
+{% if request.GET.reset %}
+alert("✅ Password Reset Successful. Please Login.");
+{% endif %}
+function showLoginLoader(event){
+    event.preventDefault();
 
+    document.getElementById("loginPreloader").style.display = "flex";
+
+    setTimeout(function(){
+        event.target.submit();
+    }, 1800);
+}
 </script>
 
 </body>
