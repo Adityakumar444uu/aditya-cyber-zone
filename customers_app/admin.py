@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .excel_sync import sync_application_to_excel
+#from .excel_sync import sync_application_to_excel
 
 from .models import (
     Notice,
@@ -190,7 +190,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
-        sync_application_to_excel(obj)
+     #   sync_application_to_excel(obj)
 
         if obj.paid_amount > old_paid_amount:
             PaymentHistory.objects.create(
@@ -236,7 +236,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         application.delivery_date = timezone.now()
         application.save()
 
-        sync_application_to_excel(application)
+        # Excel sync removed
 
         ApplicationStatusHistory.objects.create(
             application=application,
