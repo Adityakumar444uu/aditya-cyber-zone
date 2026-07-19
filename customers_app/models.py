@@ -100,18 +100,18 @@ class Application(models.Model):
     )
 
     payment_reference_no = models.CharField(
-        max_length=50,
-        unique=True,
-        blank=True,
-        null=True
-    )
+    max_length=50,
+    unique=False,
+    blank=True,
+    null=True
+)
 
     receipt_no = models.CharField(
-        max_length=50,
-        unique=True,
-        blank=True,
-        null=True
-    )
+    max_length=100,
+    unique=False,
+    blank=True,
+    null=True
+)
 
     razorpay_order_id = models.CharField(
         max_length=100,
