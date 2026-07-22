@@ -4,6 +4,276 @@
 <head>
     <title>Aditya Cyber Zone</title>
     <style>
+/* ========================= */
+/* KRIPAROHII AI */
+/* ========================= */
+.typing{
+    background:#122544;
+    padding:12px 15px;
+    border-radius:15px;
+    display:inline-block;
+}
+
+.typing span{
+    display:inline-block;
+    animation:typingDot 1.4s infinite;
+    font-size:20px;
+}
+
+.typing span:nth-child(2){
+    animation-delay:.2s;
+}
+
+.typing span:nth-child(3){
+    animation-delay:.4s;
+}
+
+@keyframes typingDot{
+    0%,60%,100%{
+        transform:translateY(0);
+        opacity:.3;
+    }
+    30%{
+        transform:translateY(-6px);
+        opacity:1;
+    }
+}
+#kriparohii-btn{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#00e5ff,#6a00ff,#ff00c8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    z-index:9999;
+    box-shadow:
+        0 0 25px #00e5ff,
+        0 0 50px #6a00ff,
+        0 0 80px #ff00c8;
+    animation:floatAI 3s ease-in-out infinite;
+    overflow:hidden;
+}
+
+.ai-icon{
+    font-size:40px;
+    z-index:2;
+}
+
+.ai-ring{
+    position:absolute;
+    width:120px;
+    height:120px;
+    border:2px solid rgba(255,255,255,.4);
+    border-radius:50%;
+    animation:rotateRing 8s linear infinite;
+}
+
+.ai-text{
+    position:absolute;
+    bottom:-55px;
+    width:180px;
+    text-align:center;
+    color:#fff;
+    font-size:13px;
+    text-shadow:0 0 12px cyan;
+}
+
+.ai-text span{
+    color:#00ff88;
+    font-size:11px;
+}
+
+/* CHAT WINDOW */
+
+#kriparohii-chat{
+
+    position:fixed;
+
+    right:30px;
+
+    bottom:130px;
+
+    width:390px;
+
+    height:560px;
+
+    background:rgba(8,18,40,.92);
+
+    backdrop-filter:blur(20px);
+
+    border-radius:22px;
+
+    border:1px solid rgba(0,255,255,.35);
+
+    box-shadow:
+    0 0 35px cyan,
+    0 0 70px blue;
+
+    overflow:hidden;
+
+    display:none;
+
+    z-index:99999;
+
+}
+
+.chat-header{
+
+    padding:18px;
+
+    background:linear-gradient(90deg,#00c6ff,#6a00ff);
+
+    color:white;
+
+    font-size:18px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.online-dot{
+
+    width:12px;
+
+    height:12px;
+
+    background:#00ff55;
+
+    border-radius:50%;
+
+    box-shadow:0 0 12px lime;
+
+}
+
+.chat-body{
+
+    height:330px;
+
+    overflow:auto;
+
+    padding:18px;
+
+    color:white;
+
+}
+
+.bot-msg{
+
+    background:#122544;
+
+    padding:15px;
+
+    border-radius:15px;
+
+    line-height:1.6;
+
+    box-shadow:0 0 18px rgba(0,255,255,.3);
+
+}
+.quick-buttons{
+
+    padding:10px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+}
+
+.quick-buttons button{
+
+    background:linear-gradient(135deg,#00c6ff,#6a00ff);
+
+    border:none;
+
+    color:white;
+
+    border-radius:10px;
+
+    padding:10px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.quick-buttons button:hover{
+
+    transform:scale(1.05);
+
+    box-shadow:0 0 15px cyan;
+
+}
+
+.chat-input{
+
+    display:flex;
+
+    padding:15px;
+
+    gap:10px;
+
+}
+
+.chat-input input{
+
+    flex:1;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    background:#14294b;
+
+    color:white;
+
+}
+
+.chat-input button{
+
+    width:55px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:linear-gradient(135deg,#00c6ff,#6a00ff);
+
+    color:white;
+
+    cursor:pointer;
+
+}
+
+/* ANIMATIONS */
+
+@keyframes rotateRing{
+
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+
+}
+
+@keyframes floatAI{
+
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+
+}
         *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
         body{
             min-height:100vh;color:white;overflow-x:hidden;
@@ -147,6 +417,482 @@
 <footer>
     🛡️ © 2026 Aditya Cyber Zone. All Rights Reserved.
 </footer>
+<!-- ================= KRIPAROHII AI ================= -->
+
+<div id="kriparohii-btn" onclick="openAI()">
+
+    <div class="ai-ring"></div>
+
+    <div class="ai-icon">🤖</div>
+
+    <div class="ai-text">
+        <b>Kriparohii</b><br>
+        <span>AI ONLINE</span>
+    </div>
+
+</div>
+
+
+<div id="kriparohii-chat">
+
+    <div class="chat-header">
+
+        <div class="online-dot"></div>
+
+        <b>🤖 Kriparohii AI</b>
+
+        <span id="close-chat">✖</span>
+
+    </div>
+
+
+    <div class="chat-body">
+<div id="typing" style="display:none;margin-top:15px;">
+    <div class="typing">
+        <span>●</span>
+        <span>●</span>
+        <span>●</span>
+    </div>
+</div>
+        <div class="bot-msg">
+
+            👋 Namaste!
+
+            <br><br>
+
+            Main <b>Kriparohii</b> hoon.
+
+            <br><br>
+
+            ACZ services use karne ke liye pehle apna 
+<b>12 digit Aadhaar Number</b> enter karein.
+
+        </div>
+
+    </div>
+
+
+    <div class="quick-buttons">
+
+        <button onclick="quickAI('Application Status')">
+            📄 Application Status
+        </button>
+
+        <button onclick="quickAI('Payment')">
+            💳 Payment
+        </button>
+
+        <button onclick="quickAI('Grievance')">
+            🎫 Grievance
+        </button>
+
+        <button onclick="quickAI('Notices')">
+            📢 Notices
+        </button>
+
+    </div>
+
+
+    <div class="chat-input">
+
+        <input id="ai-input" 
+        type="text" 
+        placeholder="Ask Kriparohii...">
+
+        <button onclick="sendAI()">➤</button>
+
+    </div>
+
+</div>
+<script>
+
+let aadhaarVerified = false;
+
+
+function openAI(){
+
+    document.getElementById("kriparohii-chat").style.display="block";
+
+}
+
+
+
+document.getElementById("close-chat").onclick=function(){
+
+    document.getElementById("kriparohii-chat").style.display="none";
+
+}
+
+
+
+function sendAI(){
+
+    let input = document.getElementById("ai-input");
+    let message = input.value.trim();
+
+    if(message=="") return;
+
+
+    let chat = document.querySelector(".chat-body");
+
+
+    chat.innerHTML += `
+    <div style="
+    text-align:right;
+    margin-top:15px;
+    color:#00eaff;">
+    
+    👤 You:
+    <br>
+    ${message}
+
+    </div>`;
+
+
+    input.value="";
+
+
+    let typing=document.getElementById("typing");
+    typing.style.display="block";
+
+
+    chat.scrollTop = chat.scrollHeight;
+
+
+
+    setTimeout(()=>{
+
+
+        typing.style.display="none";
+
+
+
+        // Aadhaar Verification
+
+        if(!aadhaarVerified){
+
+
+            if(/^\d{12}$/.test(message)){
+
+
+                fetch('/kriparohii/status/?aadhaar='+message)
+
+                .then(response=>response.json())
+
+                .then(data=>{
+
+
+                    if(data.success){
+
+
+                        aadhaarVerified=true;
+
+
+                        localStorage.setItem("aadhaar",message);
+
+
+
+                        chat.innerHTML += `
+
+                        <div class="bot-msg" style="margin-top:15px;">
+
+
+                        ✅ Aadhaar verification successful.
+
+
+                        <br><br>
+
+
+                        👤 Welcome 
+                        <b>${data.customer.name}</b>
+
+
+                        <br><br>
+
+
+                        📱 Mobile:
+                        ${data.customer.mobile}
+
+
+                        <br><br>
+
+
+                        📄 Your Applications:
+
+
+                        <br><br>
+
+
+                        ${
+                        data.applications.length > 0
+
+                        ?
+
+                        data.applications.map(app=>`
+
+                        📌 ${app.application_name}
+
+                        <br>
+
+                        Application No:
+                        ${app.application_no}
+
+                        <br>
+
+                        Status:
+                        <b>${app.status}</b>
+
+                        <br><br>
+
+
+                        `).join("")
+
+
+                        :
+
+                        "No applications found"
+
+
+                        }
+
+
+                        </div>
+
+                        `;
+
+
+                    }
+
+                    else{
+
+
+                        chat.innerHTML += `
+
+                        <div class="bot-msg">
+
+                        ❌ ${data.message}
+
+                        </div>
+
+                        `;
+
+
+                    }
+
+
+                    chat.scrollTop=chat.scrollHeight;
+
+
+                })
+
+
+                .catch(()=>{
+
+
+                    chat.innerHTML += `
+
+                    <div class="bot-msg">
+
+                    ⚠️ Server error.
+
+                    </div>
+
+                    `;
+
+
+                });
+
+
+
+            }
+
+            else{
+
+
+                chat.innerHTML += `
+
+                <div class="bot-msg">
+
+                ⚠️ Please enter valid 12 digit Aadhaar Number.
+
+                </div>
+
+                `;
+
+
+            }
+
+
+            return;
+
+        }
+
+
+
+        // After verification
+
+        let reply="";
+
+
+        if(message.toLowerCase().includes("status")){
+
+            reply="📄 Aapka application status check kar rahi hoon.";
+
+        }
+
+        else if(message.toLowerCase().includes("payment")){
+
+            reply="💳 Payment section open kar rahi hoon.";
+
+        }
+
+       else if(message.toLowerCase().includes("grievance")){
+
+
+fetch('/kriparohii/grievance/?aadhaar='+localStorage.getItem("aadhaar"))
+
+.then(response=>response.json())
+
+.then(data=>{
+
+
+let result="";
+
+
+if(data.success){
+
+
+    if(data.grievances.length > 0){
+
+
+        data.grievances.forEach(g=>{
+
+
+            result += `
+
+            🎫 Ticket No: ${g.ticket_no}
+
+            <br>
+            📂 Category: ${g.category}
+
+            <br>
+            📌 Status: ${g.status}
+
+            <br>
+            ⚡ Priority: ${g.priority}
+
+            <br>
+            📝 Remark: ${g.remarks || "No remark"}
+
+            <br><br>
+
+            `;
+
+
+        });
+
+
+    }
+
+    else{
+
+        result="✅ Aapki koi grievance nahi mili.";
+
+    }
+
+
+}
+
+else{
+
+    result="❌ "+data.message;
+
+}
+
+
+
+chat.innerHTML += `
+
+<div class="bot-msg" style="margin-top:15px;">
+
+🤖 Kriparohii:
+
+<br><br>
+
+${result}
+
+</div>
+
+`;
+
+
+chat.scrollTop=chat.scrollHeight;
+
+
+});
+
+
+return;
+
+
+}
+        else if(message.toLowerCase().includes("notice")){
+
+            reply="📢 Latest notices dashboard par available hain.";
+
+        }
+
+        else{
+
+            reply="🤖 Main aapki request process kar rahi hoon.";
+
+        }
+
+
+
+        chat.innerHTML += `
+
+        <div class="bot-msg" style="margin-top:15px;">
+
+        🤖 Kriparohii:
+
+        <br><br>
+
+        ${reply}
+
+        </div>
+
+        `;
+
+
+
+        chat.scrollTop=chat.scrollHeight;
+
+
+
+    },1500);
+
+
+}
+
+
+
+
+
+
+
+
+
+function quickAI(text){
+
+    document.getElementById("ai-input").value=text;
+
+    sendAI();
+
+}
+
+
+</script>
 
 </body>
 </html>

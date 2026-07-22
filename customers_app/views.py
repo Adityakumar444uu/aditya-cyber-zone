@@ -1,3 +1,6 @@
+from .models import Customer
+import json
+from django.http import JsonResponse
 import hashlib
 import time
 import razorpay
@@ -545,3 +548,263 @@ def customer_forgot_password(request):
             })
 
     return render(request, "customer_forgot_password.html")
+def ai_chat(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+
+        user_message = data.get("message")
+
+        reply = f"ACZ AI: Aapne bola - {user_message}"
+
+        return JsonResponse({
+            "reply": reply
+        })
+
+    return JsonResponse({
+        "reply": "Invalid request"
+    })
+def kriparohii_verify(request):
+
+    aadhaar = request.GET.get("aadhaar")
+
+    if not aadhaar:
+        return JsonResponse({
+            "success":False,
+            "message":"Aadhaar missing"
+        })
+
+
+    try:
+
+        customer = Customer.objects.get(
+            aadhaar_no=aadhaar
+        )
+
+
+        applications = customer.application_set.all()
+
+        app_list = []
+
+
+        for app in applications:
+
+            app_list.append({
+                "name": app.application_name,
+                "status": app.status
+            })
+
+
+        return JsonResponse({
+
+            "success": True,
+            "customer": customer.name,
+            "applications": app_list
+
+        })
+
+
+    except Customer.DoesNotExist:
+
+        return JsonResponse({
+
+            "success": False,
+            "message": "Customer not found"
+
+        })
+from django.http import JsonResponse
+from .models import Customer, Application
+
+def kriparohii_status(request):
+
+    aadhaar = request.GET.get("aadhaar")
+
+    if not aadhaar:
+        return JsonResponse({
+            "success": False,
+            "message": "Aadhaar required"
+        })
+
+
+    try:
+        customer = Customer.objects.get(
+            aadhaar_no=aadhaar
+        )
+
+
+        applications = []
+
+        for app in Application.objects.filter(customer=customer):
+
+            timeline = []
+
+            try:
+                histories = app.applicationstatushistory_set.all().order_by("created_at")
+
+                for h in histories:
+                    timeline.append({
+                        "status": h.status,
+                        "date": h.created_at.strftime("%d-%m-%Y %H:%M"),
+                        "remarks": h.remarks
+                    })
+
+            except:
+                pass
+
+
+            applications.append({
+
+                "application_name": app.application_name,
+
+                "application_no": app.application_no,
+
+                "status": app.status,
+
+                "remarks": app.remarks,
+
+                "timeline": timeline
+
+            })
+
+
+        return JsonResponse({
+
+            "success": True,
+
+            "customer": {
+
+                "name": customer.name,
+
+                "mobile": customer.contact_no,
+
+                "aadhaar": customer.aadhaar_no
+
+            },
+
+            "applications": applications
+
+        })
+
+
+    except Customer.DoesNotExist:
+
+        return JsonResponse({
+
+            "success": False,
+
+            "message": "Customer not found"
+
+        })
+from django.http import JsonResponse
+from .models import Application, Grievance, Notice
+
+
+def kriparohii_chat(request):
+
+    msg = request.GET.get("message","")
+
+
+    if msg == "Application Status":
+
+        apps = Application.objects.all().values(
+            "application_name",
+            "application_no",
+            "status"
+        )
+
+        return JsonResponse({
+
+            "reply":"📄 Application Status",
+
+            "data":list(apps)
+
+        })
+
+
+    elif msg == "Payment":
+
+        return JsonResponse({
+
+            "reply":
+            "💳 Payment check karne ke liye apna Application Number enter karein."
+
+        })
+
+
+    elif msg == "Grievance":
+
+        grievances = Grievance.objects.all().values(
+            "ticket_no",
+            "status",
+            "category"
+        )
+
+        return JsonResponse({
+
+            "reply":"🎫 Grievance Status",
+
+            "data":list(grievances)
+
+        })
+
+
+    elif msg == "Notices":
+
+        notices = Notice.objects.all().values(
+            "title",
+            "message"
+        )
+
+        return JsonResponse({
+
+            "reply":"📢 Latest Notices",
+
+            "data":list(notices)
+
+        })
+
+
+    else:
+
+        return JsonResponse({
+
+            "reply":
+            "🤖 Kriparohii samajh nahi paayi."
+
+        })
+def kriparohii_grievance(request):
+
+    aadhaar = request.GET.get("aadhaar")
+
+    if not aadhaar:
+        return JsonResponse({
+            "success":False,
+            "message":"Aadhaar required"
+        })
+
+    try:
+        customer = Customer.objects.get(
+            aadhaar_no=aadhaar
+        )
+
+        grievances = Grievance.objects.filter(
+            customer=customer
+        ).values(
+            "ticket_no",
+            "category",
+            "status",
+            "priority",
+            "remarks"
+        )
+
+        return JsonResponse({
+            "success":True,
+            "grievances":list(grievances)
+        })
+
+    except Customer.DoesNotExist:
+        return JsonResponse({
+            "success":False,
+            "message":"Customer not found"
+        })

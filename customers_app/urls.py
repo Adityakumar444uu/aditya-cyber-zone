@@ -30,4 +30,24 @@ urlpatterns = [
     path('my-grievances/', views.my_grievances, name='my_grievances'),
 
     path('bulk-update-status/', views.bulk_update_status, name='bulk_update_status'),
+    path("ai-chat/", views.ai_chat, name="ai_chat"),
+path(
+        "kriparohii/verify/",
+        views.kriparohii_verify,
+        name="kriparohii_verify"
+    ),
+path(
+    "kriparohii/status/",
+    views.kriparohii_status,
+    name="kriparohii_status"
+),
+path(
+    "kriparohii/chat/",
+    views.kriparohii_chat,
+    name="kriparohii_chat"
+),
+path(
+    "kriparohii/grievance/",
+    views.kriparohii_grievance
+),
 ]
