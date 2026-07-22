@@ -15,6 +15,9 @@ class Customer(models.Model):
     aadhaar_no = models.CharField(max_length=20, unique=True)
     contact_no = models.CharField(max_length=15)
 
+    # Customer self registration status
+    is_registered = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 

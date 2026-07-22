@@ -137,40 +137,79 @@ def check_status(request):
 
 
 def customer_register(request):
+    message = ""
+    customer = None
+
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        name = request.POST.get("name")
-        aadhaar_no = request.POST.get("aadhaar_no")
-        contact_no = request.POST.get("contact_no")
 
-        user = User.objects.create_user(
-            username=username,
-            password=password
-        )
+        # STEP 1 : Aadhaar Verify
+        if "verify" in request.POST:
+            aadhaar_no = request.POST.get("aadhaar_no")
 
-        Customer.objects.create(
-            user=user,
-            name=name,
-            aadhaar_no=aadhaar_no,
-            contact_no=contact_no
-        )
+            try:
+                customer = Customer.objects.get(aadhaar_no=aadhaar_no)
 
-        return redirect("/customer-login/?success=1")
+                if customer.user:
+                    message = "Account already created. Please login."
 
-    return render(request, "customer_register.html")
+                else:
+                    return render(request, "customer_register.html", {
+                        "customer": customer,
+                        "verified": True
+                    })
 
+            except Customer.DoesNotExist:
+                message = "Aadhaar not found. Please contact Admin."
 
+        # STEP 2 : Create Login Account
+        elif "register" in request.POST:
+
+            aadhaar_no = request.POST.get("aadhaar_no")
+            password = request.POST.get("password")
+            confirm_password = request.POST.get("confirm_password")
+
+            try:
+                customer = Customer.objects.get(aadhaar_no=aadhaar_no)
+
+                if customer.user:
+                    message = "Account already exists."
+
+                elif password != confirm_password:
+                    return render(request, "customer_register.html", {
+                        "customer": customer,
+                        "verified": True,
+                        "message": "Password does not match."
+                    })
+
+                else:
+                    user = User.objects.create_user(
+                        username=customer.aadhaar_no,
+                        password=password,
+                        first_name=customer.name
+                    )
+
+                    customer.user = user
+                    customer.save()
+
+                    return redirect("/customer-login/?registered=1")
+
+            except Customer.DoesNotExist:
+                message = "Customer not found."
+
+    return render(request, "customer_register.html", {
+        "message": message,
+        "customer": customer
+    })
 def customer_login(request):
     error = None
 
     if request.method == "POST":
-        username = request.POST.get("username")
+        aadhaar_no = request.POST.get("aadhaar_no")
         password = request.POST.get("password")
 
         user = authenticate(
             request,
-            username=username,
+            username=aadhaar_no,
             password=password
         )
 
@@ -178,12 +217,11 @@ def customer_login(request):
             login(request, user)
             return redirect("customer_dashboard")
         else:
-            error = "Invalid Username or Password"
+            error = "Invalid Aadhaar Number or Password."
 
     return render(request, "customer_login.html", {
         "error": error
     })
-
 
 @login_required
 def customer_dashboard(request):

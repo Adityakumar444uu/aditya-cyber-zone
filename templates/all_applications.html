@@ -245,6 +245,7 @@
                     <th>Customer</th>
                     <th>Application</th>
                     <th>Application No</th>
+                    <th>Application Date</th>
                     <th>Status</th>
                     <th>Delivery Date</th>
                     <th>Update / WhatsApp</th>
@@ -259,7 +260,7 @@
                     <td><span class="customer">{{ app.customer.name }}</span></td>
                     <td><span class="app-name">{{ app.application_name }}</span></td>
                     <td><span class="app-no">{{ app.application_no }}</span></td>
-
+                    <td>{{ app.application_date|date:"d M Y" }}</td>
                     <td>
                         <select name="status" form="form{{ app.id }}">
                             <option value="Pending" {% if app.status == "Pending" %}selected{% endif %}>Pending</option>
