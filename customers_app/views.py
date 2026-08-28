@@ -90,6 +90,7 @@ def add_application(request):
         "customers": customers
     })
 
+
 def update_status(request, app_id):
     application = get_object_or_404(Application, id=app_id)
 
@@ -116,6 +117,7 @@ def update_status(request, app_id):
         sync_application_to_sheet(application, remark)
 
     return redirect("all_applications")
+
 
 def check_status(request):
     application = None
@@ -490,6 +492,7 @@ def bulk_update_status(request):
             for application in applications:
                 application.status = new_status
                 application.remarks = remark
+                 
 
                 if new_status == "Delivered":
                     application.delivery_date = timezone.now()
@@ -506,7 +509,8 @@ def bulk_update_status(request):
 
                 sync_application_to_sheet(application, remark)
 
-    return redirect("all_applications")def customer_forgot_password(request):
+    return redirect("all_applications")
+def customer_forgot_password(request):
     if request.method == "POST":
         aadhaar_no = request.POST.get("aadhaar_no")
         contact_no = request.POST.get("contact_no")
