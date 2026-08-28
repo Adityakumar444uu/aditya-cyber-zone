@@ -1,670 +1,1651 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 <head>
-    <title>Aditya Cyber Zone</title>
-    <style>
-/* ========================= */
-/* KRIPAROHII AI */
-/* ========================= */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>ACZ // Cyber AI Network</title>
+
+<style>
+
+/* =========================================================
+   ACZ FUTURISTIC CYBER SERVER THEME
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Courier New",Consolas,monospace;
+}
+
+:root{
+    --cyan:#00f6ff;
+    --blue:#1687ff;
+    --purple:#7b2cff;
+    --pink:#ff00c8;
+    --green:#00ff88;
+    --yellow:#ffd900;
+    --red:#ff3158;
+    --bg:#020711;
+    --panel:rgba(4,15,30,.78);
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    min-height:100vh;
+    color:#dffcff;
+    overflow-x:hidden;
+    background:
+        radial-gradient(circle at 50% 0%,#073c65 0%,transparent 35%),
+        radial-gradient(circle at 100% 100%,#26005d 0%,transparent 30%),
+        #020711;
+}
+
+/* =========================================================
+   BACKGROUND GRID
+========================================================= */
+
+.cyber-grid{
+    position:fixed;
+    inset:0;
+    z-index:-5;
+    background-image:
+        linear-gradient(rgba(0,246,255,.075) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,246,255,.075) 1px,transparent 1px);
+    background-size:45px 45px;
+    animation:gridMove 12s linear infinite;
+}
+
+@keyframes gridMove{
+    from{background-position:0 0}
+    to{background-position:45px 45px}
+}
+
+/* scanline */
+
+.scanlines{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:999;
+    opacity:.12;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(0,255,255,.08) 4px
+        );
+}
+
+/* glow */
+
+.glow{
+    position:fixed;
+    width:350px;
+    height:350px;
+    border-radius:50%;
+    filter:blur(110px);
+    opacity:.18;
+    pointer-events:none;
+}
+
+.glow.one{
+    background:var(--cyan);
+    top:-150px;
+    left:-100px;
+}
+
+.glow.two{
+    background:var(--purple);
+    right:-150px;
+    bottom:-150px;
+}
+
+/* =========================================================
+   TOP SYSTEM BAR
+========================================================= */
+
+.system-bar{
+    height:34px;
+    padding:0 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid rgba(0,246,255,.25);
+    background:rgba(0,10,22,.9);
+    color:#6defff;
+    font-size:12px;
+    letter-spacing:1px;
+}
+
+.system-left span{
+    margin-right:22px;
+}
+
+.online{
+    color:var(--green);
+    text-shadow:0 0 10px var(--green);
+}
+
+#clock{
+    color:#fff;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.top{
+    max-width:1450px;
+    margin:auto;
+    padding:22px 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:relative;
+    z-index:10;
+    border-bottom:1px solid rgba(0,246,255,.15);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.logo-core{
+    width:62px;
+    height:62px;
+    border:2px solid var(--cyan);
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+    color:var(--cyan);
+    box-shadow:
+        0 0 15px var(--cyan),
+        inset 0 0 20px rgba(0,246,255,.25);
+    animation:corePulse 2s infinite;
+}
+
+@keyframes corePulse{
+    50%{
+        box-shadow:
+        0 0 30px var(--cyan),
+        inset 0 0 30px rgba(0,246,255,.4);
+    }
+}
+
+.logo-title{
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:3px;
+}
+
+.logo-title span{
+    color:var(--cyan);
+}
+
+.logo-sub{
+    font-size:10px;
+    color:#668ca8;
+    letter-spacing:2px;
+    margin-top:4px;
+}
+
+.nav{
+    display:flex;
+    gap:8px;
+}
+
+.nav a{
+    color:#8dbbd0;
+    text-decoration:none;
+    padding:11px 16px;
+    border:1px solid transparent;
+    font-size:13px;
+    letter-spacing:1px;
+    transition:.25s;
+}
+
+.nav a:hover{
+    color:var(--cyan);
+    border-color:var(--cyan);
+    background:rgba(0,246,255,.06);
+    box-shadow:0 0 15px rgba(0,246,255,.25);
+}
+
+.signin{
+    text-decoration:none;
+    color:#fff;
+    padding:12px 20px;
+    border:1px solid var(--cyan);
+    background:rgba(0,246,255,.08);
+    box-shadow:0 0 15px rgba(0,246,255,.3);
+    transition:.25s;
+}
+
+.signin:hover{
+    background:var(--cyan);
+    color:#001016;
+    box-shadow:0 0 30px var(--cyan);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.main{
+    max-width:1450px;
+    margin:auto;
+    padding:25px 30px 50px;
+}
+
+.hero{
+    display:grid;
+    grid-template-columns:55% 45%;
+    min-height:500px;
+    align-items:center;
+}
+
+.system-label{
+    color:var(--green);
+    font-size:13px;
+    letter-spacing:3px;
+    margin-bottom:18px;
+}
+
+.system-label:before{
+    content:"●";
+    margin-right:8px;
+    text-shadow:0 0 10px var(--green);
+}
+
+.welcome{
+    color:var(--cyan);
+    font-size:20px;
+    letter-spacing:5px;
+}
+
+h1{
+    font-size:64px;
+    line-height:1;
+    margin:12px 0;
+    color:#fff;
+    text-shadow:
+        0 0 8px rgba(255,255,255,.5),
+        0 0 30px rgba(0,246,255,.5);
+}
+
+.h1-cyan{
+    color:var(--cyan);
+}
+
+.line{
+    width:180px;
+    height:3px;
+    margin:25px 0;
+    background:linear-gradient(
+        90deg,
+        var(--cyan),
+        var(--purple),
+        transparent
+    );
+    box-shadow:0 0 15px var(--cyan);
+}
+
+.sub{
+    max-width:650px;
+    color:#9bc3d5;
+    font-size:16px;
+    line-height:1.8;
+}
+
+.terminal{
+    margin-top:28px;
+    width:650px;
+    max-width:100%;
+    border:1px solid rgba(0,246,255,.35);
+    background:rgba(0,8,18,.8);
+    box-shadow:0 0 25px rgba(0,246,255,.1);
+}
+
+.terminal-head{
+    padding:8px 12px;
+    border-bottom:1px solid rgba(0,246,255,.2);
+    color:#7695a8;
+    font-size:11px;
+}
+
+.terminal-body{
+    padding:14px;
+    font-size:12px;
+    line-height:1.8;
+    color:#72dfff;
+}
+
+.terminal-body .green{
+    color:var(--green);
+}
+
+.cursor{
+    display:inline-block;
+    width:7px;
+    height:14px;
+    background:var(--cyan);
+    animation:blink .8s infinite;
+}
+
+@keyframes blink{
+    50%{opacity:0}
+}
+
+/* =========================================================
+   AI SERVER CORE
+========================================================= */
+
+.ai-server{
+    height:470px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+}
+
+.core{
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+        radial-gradient(circle,
+        rgba(0,246,255,.4),
+        rgba(0,80,150,.15) 40%,
+        transparent 70%);
+    border:1px solid rgba(0,246,255,.6);
+    box-shadow:
+        0 0 30px var(--cyan),
+        inset 0 0 50px rgba(0,246,255,.35);
+    animation:coreFloat 4s ease-in-out infinite;
+}
+
+.core:before,
+.core:after{
+    content:"";
+    position:absolute;
+    border:1px solid var(--cyan);
+    border-radius:50%;
+}
+
+.core:before{
+    width:280px;
+    height:280px;
+    animation:rotate 10s linear infinite;
+    border-left-color:transparent;
+    border-right-color:transparent;
+}
+
+.core:after{
+    width:340px;
+    height:340px;
+    border-color:rgba(123,44,255,.6);
+    border-top-color:transparent;
+    animation:rotateReverse 14s linear infinite;
+}
+
+@keyframes coreFloat{
+    50%{transform:translateY(-12px)}
+}
+
+@keyframes rotate{
+    to{transform:rotate(360deg)}
+}
+
+@keyframes rotateReverse{
+    to{transform:rotate(-360deg)}
+}
+
+.core-inner{
+    text-align:center;
+    z-index:2;
+}
+
+.core-icon{
+    font-size:65px;
+    filter:drop-shadow(0 0 20px var(--cyan));
+}
+
+.core-title{
+    color:#fff;
+    font-size:17px;
+    margin-top:10px;
+    letter-spacing:2px;
+}
+
+.core-status{
+    color:var(--green);
+    font-size:10px;
+    margin-top:7px;
+    letter-spacing:2px;
+}
+
+.data-node{
+    position:absolute;
+    padding:8px 12px;
+    border:1px solid rgba(0,246,255,.4);
+    background:rgba(0,12,25,.8);
+    color:#79dff0;
+    font-size:10px;
+    box-shadow:0 0 12px rgba(0,246,255,.15);
+}
+
+.node1{top:25px;left:15px}
+.node2{top:100px;right:5px}
+.node3{bottom:50px;left:25px}
+.node4{bottom:10px;right:20px}
+
+/* =========================================================
+   SERVER STATUS
+========================================================= */
+
+.status-panel{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin:15px 0 25px;
+}
+
+.status-box{
+    background:var(--panel);
+    border:1px solid rgba(0,246,255,.2);
+    padding:16px;
+    position:relative;
+    overflow:hidden;
+}
+
+.status-box:after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:1px;
+    left:-100%;
+    bottom:0;
+    background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+    animation:dataLine 3s linear infinite;
+}
+
+@keyframes dataLine{
+    to{left:100%}
+}
+
+.status-title{
+    color:#648da5;
+    font-size:10px;
+    letter-spacing:1px;
+}
+
+.status-value{
+    margin-top:7px;
+    color:#fff;
+    font-size:18px;
+}
+
+.status-green{
+    color:var(--green);
+    text-shadow:0 0 10px var(--green);
+}
+
+/* =========================================================
+   NOTICE
+========================================================= */
+
+.notice{
+    margin:25px 0;
+    padding:20px;
+    background:rgba(12,5,35,.8);
+    border:1px solid var(--pink);
+    position:relative;
+    box-shadow:
+        0 0 20px rgba(255,0,200,.15),
+        inset 0 0 25px rgba(255,0,200,.04);
+}
+
+.notice-head{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:15px;
+}
+
+.notice-icon{
+    font-size:28px;
+    filter:drop-shadow(0 0 10px var(--pink));
+}
+
+.notice h2{
+    color:#fff;
+    font-size:18px;
+    letter-spacing:2px;
+}
+
+.live{
+    margin-left:auto;
+    color:#fff;
+    border:1px solid var(--red);
+    padding:5px 10px;
+    color:var(--red);
+    font-size:10px;
+}
+
+.item{
+    padding:10px 0;
+    border-top:1px solid rgba(255,255,255,.08);
+    color:#b9cbd5;
+    font-size:13px;
+}
+
+.dot{
+    color:var(--pink);
+    margin-right:8px;
+}
+
+/* =========================================================
+   SERVICE CARDS
+========================================================= */
+
+.section-title{
+    margin:30px 0 15px;
+    color:#7bddeb;
+    font-size:14px;
+    letter-spacing:3px;
+}
+
+.section-title:before{
+    content:"// ";
+    color:var(--cyan);
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+
+.card{
+    min-height:135px;
+    text-decoration:none;
+    color:#fff;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,246,255,.07),
+            rgba(30,0,80,.18)
+        );
+    border:1px solid rgba(0,246,255,.25);
+    padding:22px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    position:relative;
+    overflow:hidden;
+    transition:.3s;
+}
+
+.card:before{
+    content:"";
+    position:absolute;
+    width:80px;
+    height:200%;
+    background:rgba(0,246,255,.08);
+    transform:rotate(25deg);
+    left:-120px;
+    transition:.5s;
+}
+
+.card:hover:before{
+    left:110%;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    border-color:var(--cyan);
+    box-shadow:
+        0 0 20px rgba(0,246,255,.25),
+        inset 0 0 20px rgba(0,246,255,.05);
+}
+
+.icon{
+    min-width:64px;
+    width:64px;
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid var(--cyan);
+    background:rgba(0,246,255,.08);
+    font-size:29px;
+    box-shadow:0 0 15px rgba(0,246,255,.15);
+}
+
+.card h3{
+    font-size:16px;
+    letter-spacing:1px;
+    margin-bottom:8px;
+}
+
+.card p{
+    font-size:11px;
+    color:#7699aa;
+    line-height:1.5;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+    margin-top:40px;
+    padding:20px;
+    text-align:center;
+    border-top:1px solid rgba(0,246,255,.15);
+    color:#527285;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+/* =========================================================
+   KRIPAROHII AI
+========================================================= */
+
+#kriparohii-btn{
+    position:fixed;
+    right:25px;
+    bottom:25px;
+    width:76px;
+    height:76px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:9999;
+    background:
+        radial-gradient(circle,#071b32,#020711);
+    border:2px solid var(--cyan);
+    box-shadow:
+        0 0 20px var(--cyan),
+        0 0 50px rgba(0,246,255,.35);
+    animation:aiFloat 3s infinite ease-in-out;
+}
+
+#kriparohii-btn:hover{
+    box-shadow:
+        0 0 30px var(--cyan),
+        0 0 80px var(--purple);
+}
+
+.ai-icon{
+    font-size:32px;
+    filter:drop-shadow(0 0 12px var(--cyan));
+}
+
+.ai-ring{
+    position:absolute;
+    width:94px;
+    height:94px;
+    border:1px dashed var(--cyan);
+    border-radius:50%;
+    animation:rotate 6s linear infinite;
+}
+
+@keyframes aiFloat{
+    50%{transform:translateY(-8px)}
+}
+
+.ai-text{
+    position:absolute;
+    top:82px;
+    width:130px;
+    text-align:center;
+    left:-28px;
+    font-size:10px;
+    color:#fff;
+}
+
+.ai-text span{
+    color:var(--green);
+}
+
+/* CHAT */
+
+#kriparohii-chat{
+    position:fixed;
+    right:25px;
+    bottom:115px;
+    width:390px;
+    max-width:calc(100vw - 30px);
+    height:570px;
+    background:rgba(2,10,22,.96);
+    border:1px solid var(--cyan);
+    box-shadow:
+        0 0 30px rgba(0,246,255,.4),
+        0 0 80px rgba(123,44,255,.2);
+    display:none;
+    z-index:99999;
+}
+
+.chat-header{
+    height:55px;
+    padding:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid rgba(0,246,255,.25);
+    background:linear-gradient(
+        90deg,
+        rgba(0,246,255,.12),
+        rgba(123,44,255,.15)
+    );
+}
+
+.online-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 12px var(--green);
+}
+
+#close-chat{
+    margin-left:auto;
+    cursor:pointer;
+    color:#668b9d;
+}
+
+.chat-body{
+    height:360px;
+    overflow:auto;
+    padding:15px;
+    font-family:Arial,sans-serif;
+}
+
+.bot-msg{
+    background:rgba(10,31,52,.9);
+    border-left:2px solid var(--cyan);
+    padding:13px;
+    border-radius:3px;
+    line-height:1.6;
+    color:#c9e8ef;
+}
+
+.quick-buttons{
+    padding:8px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.quick-buttons button{
+    padding:9px;
+    background:rgba(0,246,255,.06);
+    border:1px solid rgba(0,246,255,.3);
+    color:#8eeeff;
+    cursor:pointer;
+}
+
+.quick-buttons button:hover{
+    background:var(--cyan);
+    color:#001016;
+}
+
+.chat-input{
+    display:flex;
+    gap:7px;
+    padding:10px;
+    border-top:1px solid rgba(0,246,255,.2);
+}
+
+.chat-input input{
+    flex:1;
+    padding:11px;
+    background:#020b17;
+    color:#fff;
+    border:1px solid rgba(0,246,255,.25);
+    outline:none;
+}
+
+.chat-input button{
+    width:50px;
+    background:var(--cyan);
+    border:none;
+    cursor:pointer;
+}
+
+/* typing */
+
 .typing{
-    background:#122544;
-    padding:12px 15px;
-    border-radius:15px;
+    background:#102b43;
+    padding:10px;
     display:inline-block;
 }
 
 .typing span{
     display:inline-block;
     animation:typingDot 1.4s infinite;
-    font-size:20px;
 }
 
-.typing span:nth-child(2){
-    animation-delay:.2s;
-}
-
-.typing span:nth-child(3){
-    animation-delay:.4s;
-}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
 
 @keyframes typingDot{
     0%,60%,100%{
-        transform:translateY(0);
         opacity:.3;
+        transform:translateY(0);
     }
     30%{
-        transform:translateY(-6px);
         opacity:1;
+        transform:translateY(-5px);
     }
 }
-#kriparohii-btn{
-    position:fixed;
-    bottom:25px;
-    right:25px;
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    background:linear-gradient(135deg,#00e5ff,#6a00ff,#ff00c8);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    cursor:pointer;
-    z-index:9999;
-    box-shadow:
-        0 0 25px #00e5ff,
-        0 0 50px #6a00ff,
-        0 0 80px #ff00c8;
-    animation:floatAI 3s ease-in-out infinite;
-    overflow:hidden;
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1000px){
+
+    .nav{
+        display:none;
+    }
+
+    .hero{
+        grid-template-columns:1fr;
+    }
+
+    .ai-server{
+        height:360px;
+    }
+
+    h1{
+        font-size:45px;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .status-panel{
+        grid-template-columns:1fr 1fr;
+    }
 }
 
-.ai-icon{
-    font-size:40px;
-    z-index:2;
+@media(max-width:600px){
+
+    .top{
+        padding:15px;
+    }
+
+    .main{
+        padding:20px 15px;
+    }
+
+    .logo-title{
+        font-size:16px;
+    }
+
+    .logo-core{
+        width:48px;
+        height:48px;
+        font-size:25px;
+    }
+
+    .signin{
+        padding:9px 12px;
+        font-size:11px;
+    }
+
+    h1{
+        font-size:36px;
+    }
+
+    .cards,
+    .status-panel{
+        grid-template-columns:1fr;
+    }
+
+    .ai-server{
+        height:320px;
+    }
+
+    .core{
+        transform:scale(.75);
+    }
+
+    .system-bar{
+        padding:0 10px;
+        font-size:9px;
+    }
+
+    .system-left span:nth-child(2){
+        display:none;
+    }
 }
 
-.ai-ring{
-    position:absolute;
-    width:120px;
-    height:120px;
-    border:2px solid rgba(255,255,255,.4);
-    border-radius:50%;
-    animation:rotateRing 8s linear infinite;
-}
+</style>
 
-.ai-text{
-    position:absolute;
-    bottom:-55px;
-    width:180px;
-    text-align:center;
-    color:#fff;
-    font-size:13px;
-    text-shadow:0 0 12px cyan;
-}
-
-.ai-text span{
-    color:#00ff88;
-    font-size:11px;
-}
-
-/* CHAT WINDOW */
-
-#kriparohii-chat{
-
-    position:fixed;
-
-    right:30px;
-
-    bottom:130px;
-
-    width:390px;
-
-    height:560px;
-
-    background:rgba(8,18,40,.92);
-
-    backdrop-filter:blur(20px);
-
-    border-radius:22px;
-
-    border:1px solid rgba(0,255,255,.35);
-
-    box-shadow:
-    0 0 35px cyan,
-    0 0 70px blue;
-
-    overflow:hidden;
-
-    display:none;
-
-    z-index:99999;
-
-}
-
-.chat-header{
-
-    padding:18px;
-
-    background:linear-gradient(90deg,#00c6ff,#6a00ff);
-
-    color:white;
-
-    font-size:18px;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-}
-
-.online-dot{
-
-    width:12px;
-
-    height:12px;
-
-    background:#00ff55;
-
-    border-radius:50%;
-
-    box-shadow:0 0 12px lime;
-
-}
-
-.chat-body{
-
-    height:330px;
-
-    overflow:auto;
-
-    padding:18px;
-
-    color:white;
-
-}
-
-.bot-msg{
-
-    background:#122544;
-
-    padding:15px;
-
-    border-radius:15px;
-
-    line-height:1.6;
-
-    box-shadow:0 0 18px rgba(0,255,255,.3);
-
-}
-.quick-buttons{
-
-    padding:10px;
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:10px;
-
-}
-
-.quick-buttons button{
-
-    background:linear-gradient(135deg,#00c6ff,#6a00ff);
-
-    border:none;
-
-    color:white;
-
-    border-radius:10px;
-
-    padding:10px;
-
-    cursor:pointer;
-
-    transition:.3s;
-
-}
-
-.quick-buttons button:hover{
-
-    transform:scale(1.05);
-
-    box-shadow:0 0 15px cyan;
-
-}
-
-.chat-input{
-
-    display:flex;
-
-    padding:15px;
-
-    gap:10px;
-
-}
-
-.chat-input input{
-
-    flex:1;
-
-    border:none;
-
-    border-radius:10px;
-
-    padding:12px;
-
-    background:#14294b;
-
-    color:white;
-
-}
-
-.chat-input button{
-
-    width:55px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:linear-gradient(135deg,#00c6ff,#6a00ff);
-
-    color:white;
-
-    cursor:pointer;
-
-}
-
-/* ANIMATIONS */
-
-@keyframes rotateRing{
-
-    from{transform:rotate(0deg);}
-    to{transform:rotate(360deg);}
-
-}
-
-@keyframes floatAI{
-
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
-
-}
-        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
-        body{
-            min-height:100vh;color:white;overflow-x:hidden;
-            background:radial-gradient(circle at 70% 35%,#0739a8 0%,#02052b 45%,#030018 100%);
-            padding:25px 42px;
-        }
-        body:before{
-            content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
-            background-image:linear-gradient(rgba(0,221,255,.08) 1px,transparent 1px),
-            linear-gradient(90deg,rgba(0,221,255,.08) 1px,transparent 1px);
-            background-size:42px 42px;
-        }
-        .top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
-        .logo{display:flex;gap:14px;align-items:center;font-size:30px;font-weight:900;line-height:1.1}
-        .logo i{font-size:58px;color:#00d9ff;text-shadow:0 0 22px #00d9ff}
-        .logo span{color:#00d9ff}
-        .nav a{color:#fff;text-decoration:none;margin:0 28px;font-size:18px}
-        .nav a:first-child{color:#00eaff;border-bottom:3px solid #00eaff;padding-bottom:10px}
-        .signin{background:linear-gradient(90deg,#ff3bd5,#4b36ff);padding:14px 32px;border-radius:30px;color:white;text-decoration:none;font-weight:bold;box-shadow:0 0 25px #8b28ff}
-        .hero{display:grid;grid-template-columns:42% 58%;position:relative;z-index:2;margin-top:55px}
-        .welcome{color:#00eaff;font-size:34px;font-weight:bold}
-        h1{font-size:62px;margin:10px 0;text-shadow:0 0 14px #fff3}
-        .line{width:105px;height:4px;background:#00eaff;border-radius:20px;margin:18px 0;box-shadow:0 0 15px #00eaff}
-        .sub{font-size:22px;line-height:1.55;color:#eee}
-        .art{height:430px;position:relative}
-        .cloud{position:absolute;left:35%;top:10px;font-size:165px;filter:drop-shadow(0 0 30px #00eaff);animation:float 3s infinite ease-in-out}
-        .lap{position:absolute;left:5%;top:135px;font-size:110px;transform:rotate(-8deg);filter:drop-shadow(0 0 20px #008cff)}
-        .desk{position:absolute;right:5%;top:120px;font-size:130px;filter:drop-shadow(0 0 20px #0077ff)}
-        .phone{position:absolute;left:43%;bottom:40px;font-size:70px;filter:drop-shadow(0 0 20px #ff36d5)}
-        .server{position:absolute;right:4%;bottom:0;font-size:90px;filter:drop-shadow(0 0 18px #00eaff)}
-        @keyframes float{50%{transform:translateY(-16px)}}
-        .notice{
-            width:780px;max-width:100%;margin-top:28px;padding:28px 30px;
-            display:flex;gap:24px;align-items:center;position:relative;
-            background:rgba(8,0,30,.82);border:2px solid #ff36d5;border-radius:18px;
-            box-shadow:0 0 18px #ff36d5,inset 0 0 28px #ff36d533;
-            animation:blink 1.1s infinite alternate;
-        }
-        @keyframes blink{
-            from{box-shadow:0 0 12px #ff36d5,inset 0 0 20px #ff36d522}
-            to{box-shadow:0 0 35px #ff36d5,0 0 70px #ff36d577,inset 0 0 36px #ff36d544}
-        }
-        .bell{font-size:90px;color:#ff4de1;text-shadow:0 0 25px #ff4de1;animation:ring .8s infinite}
-        @keyframes ring{25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
-        .notice h2{font-size:30px;color:#ffd21f;margin-bottom:12px}
-        .live{position:absolute;right:25px;top:25px;background:#300;border:1px solid #ff4444;color:white;padding:8px 15px;border-radius:10px;font-weight:bold;box-shadow:0 0 15px red}
-        .item{font-size:18px;padding:9px 0;border-bottom:1px solid #ffffff22}
-        .dot{color:#ff2f9d;margin-right:9px}
-        .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:2;margin-top:18px}
-        .card{
-            min-height:130px;text-decoration:none;color:white;border-radius:14px;padding:24px;
-            background:rgba(255,255,255,.055);display:flex;align-items:center;gap:25px;
-            border:1.5px solid #00bfff;box-shadow:0 0 20px #00bfff66;transition:.25s
-        }
-        .card:hover{transform:translateY(-6px);background:#ffffff15}
-        .card:nth-child(2){border-color:#b12cff;box-shadow:0 0 20px #b12cff66}
-        .card:nth-child(3){border-color:#00ffbf;box-shadow:0 0 20px #00ffbf66}
-        .card:nth-child(4){border-color:#ff9800;box-shadow:0 0 20px #ff980066}
-        .card:nth-child(5){border-color:#ff2fbf;box-shadow:0 0 20px #ff2fbf66}
-        .card:nth-child(6){border-color:#009dff;box-shadow:0 0 20px #009dff66}
-        .icon{width:75px;height:75px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:38px;background:#082bff66;box-shadow:0 0 20px #00bfff}
-        .card h3{font-size:24px;margin-bottom:8px}
-        .card p{font-size:16px;color:#ddd}
-        footer{text-align:center;margin-top:28px;padding-top:22px;border-top:1px solid #ffffff22;color:#ddd;position:relative;z-index:2}
-        @media(max-width:950px){
-            body{padding:20px}.nav{display:none}.hero{grid-template-columns:1fr}.art{display:none}h1{font-size:42px}.cards{grid-template-columns:1fr}.notice{width:100%}
-        }
-    </style>
 </head>
+
 <body>
 
-<div class="top">
-    <div class="logo">
-        <i>☁</i>
-        <div>ADITYA<br><span>CYBER ZONE</span></div>
-    </div>
-    <div class="nav">
-        <a href="/">HOME</a>
-        <a href="#">BLOG</a>
-        <a href="#">ABOUT</a>
-        <a href="#">CONTACT</a>
-    </div>
-    <a class="signin" href="/customer-login/">👤 SIGN IN</a>
+<!-- BACKGROUND -->
+
+<div class="cyber-grid"></div>
+<div class="scanlines"></div>
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<!-- SYSTEM BAR -->
+
+<div class="system-bar">
+
+```
+<div class="system-left">
+
+    <span>ACZ://CORE</span>
+
+    <span class="online">
+        ● SYSTEM ONLINE
+    </span>
+
+    <span>
+        SECURE NETWORK
+    </span>
+
 </div>
 
-<div class="hero">
+<div id="clock">
+    00:00:00
+</div>
+```
+
+</div>
+
+<!-- HEADER -->
+
+<div class="top">
+
+```
+<div class="logo">
+
+    <div class="logo-core">
+        ◈
+    </div>
+
     <div>
-        <div class="welcome">Welcome to</div>
-        <h1>Aditya Cyber Zone</h1>
-        <div class="line"></div>
-        <p class="sub">
-            Your one-stop destination for all online services.<br>
-            Login, apply, track and raise your queries easily.
-        </p>
 
-        {% if notices %}
-        <div class="notice">
-            <div class="bell">🔔</div>
-            <div>
-                <div class="live">● LIVE</div>
-                <h2>🔔 LATEST NOTICES</h2>
-                {% for notice in notices %}
-                <div class="item">
-                    <span class="dot">●</span>
-                    <b>{{ notice.title }}</b> — {{ notice.message }}
-                </div>
-                {% endfor %}
-            </div>
+        <div class="logo-title">
+            ADITYA <span>CYBER ZONE</span>
         </div>
-        {% endif %}
+
+        <div class="logo-sub">
+            DIGITAL SERVICE // AI ENABLED // SECURE
+        </div>
+
     </div>
 
-    <div class="art">
-        <div class="cloud">☁️⬆️</div>
-        <div class="lap">💻</div>
-        <div class="desk">🖥️</div>
-        <div class="phone">📱</div>
-        <div class="server">🗄️</div>
+</div>
+
+
+<div class="nav">
+
+    <a href="/">HOME</a>
+    <a href="#">BLOG</a>
+    <a href="#">ABOUT</a>
+    <a href="#">CONTACT</a>
+
+</div>
+
+
+<a class="signin" href="/customer-login/">
+    [ SIGN IN ]
+</a>
+```
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<section class="hero">
+
+<!-- HERO TEXT -->
+
+<div>
+
+```
+<div class="system-label">
+    ACZ CENTRAL SERVER // ONLINE
+</div>
+
+<div class="welcome">
+    WELCOME TO
+</div>
+
+<h1>
+    ADITYA<br>
+    <span class="h1-cyan">
+        CYBER ZONE
+    </span>
+</h1>
+
+<div class="line"></div>
+
+<p class="sub">
+
+    Your digital service command center.
+    Login, apply, track applications,
+    manage payments and communicate with
+    our AI-powered support system.
+
+</p>
+
+
+<!-- TERMINAL -->
+
+<div class="terminal">
+
+    <div class="terminal-head">
+        ACZ_TERMINAL // SYSTEM_BOOT
     </div>
+
+    <div class="terminal-body">
+
+        <div>
+            <span class="green">[OK]</span>
+            Initializing ACZ Core...
+        </div>
+
+        <div>
+            <span class="green">[OK]</span>
+            Secure database connection established
+        </div>
+
+        <div>
+            <span class="green">[OK]</span>
+            Customer service modules loaded
+        </div>
+
+        <div>
+            <span class="green">[OK]</span>
+            Kriparohii AI online
+        </div>
+
+        <div>
+            <span class="green">[READY]</span>
+            Waiting for user authentication...
+            <span class="cursor"></span>
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- AI SERVER -->
+
+<div class="ai-server">
+
+```
+<div class="data-node node1">
+    CPU 42%
+</div>
+
+<div class="data-node node2">
+    NET: SECURE
+</div>
+
+<div class="data-node node3">
+    DB: ONLINE
+</div>
+
+<div class="data-node node4">
+    AI: ACTIVE
+</div>
+
+
+<div class="core">
+
+    <div class="core-inner">
+
+        <div class="core-icon">
+            🤖
+        </div>
+
+        <div class="core-title">
+            ACZ AI CORE
+        </div>
+
+        <div class="core-status">
+            ● KRIPAROHII ONLINE
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+</section>
+
+<!-- SERVER STATUS -->
+
+<div class="status-panel">
+
+```
+<div class="status-box">
+
+    <div class="status-title">
+        SERVER STATUS
+    </div>
+
+    <div class="status-value status-green">
+        ● ONLINE
+    </div>
+
+</div>
+
+
+<div class="status-box">
+
+    <div class="status-title">
+        DATABASE
+    </div>
+
+    <div class="status-value status-green">
+        CONNECTED
+    </div>
+
+</div>
+
+
+<div class="status-box">
+
+    <div class="status-title">
+        SECURITY
+    </div>
+
+    <div class="status-value">
+        AES-256
+    </div>
+
+</div>
+
+
+<div class="status-box">
+
+    <div class="status-title">
+        AI ENGINE
+    </div>
+
+    <div class="status-value status-green">
+        ACTIVE
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- NOTICES -->
+
+{% if notices %}
+
+<div class="notice">
+
+```
+<div class="notice-head">
+
+    <div class="notice-icon">
+        ⚡
+    </div>
+
+    <h2>
+        SYSTEM NOTICES
+    </h2>
+
+    <div class="live">
+        ● LIVE
+    </div>
+
+</div>
+
+
+{% for notice in notices %}
+
+<div class="item">
+
+    <span class="dot">
+        >
+    </span>
+
+    <b>
+        {{ notice.title }}
+    </b>
+
+    —
+    {{ notice.message }}
+
+</div>
+
+{% endfor %}
+```
+
+</div>
+
+{% endif %}
+
+<!-- SERVICES -->
+
+<div class="section-title">
+    AVAILABLE DIGITAL SERVICES
 </div>
 
 <div class="cards">
-    {% for link in links %}
-    <a class="card" href="{{ link.url }}">
-        <div class="icon">{{ link.icon }}</div>
-        <div>
-            <h3>{{ link.name }}</h3>
-            <p>
-                {% if "Admin" in link.name %}Login to admin panel
-                {% elif "Customer" in link.name %}Login to your account
-                {% elif "Application" in link.name %}Track your application
-                {% elif "Raise" in link.name %}Register your complaint
-                {% elif "Track" in link.name %}Track your grievance status
-                {% else %}View your all grievances{% endif %} →
-            </p>
-        </div>
-    </a>
-    {% endfor %}
+
+{% for link in links %}
+
+<a class="card" href="{{ link.url }}">
+
+```
+<div class="icon">
+    {{ link.icon }}
+</div>
+
+<div>
+
+    <h3>
+        {{ link.name }}
+    </h3>
+
+    <p>
+
+    {% if "Admin" in link.name %}
+
+        LOGIN TO ADMIN CONTROL PANEL
+
+    {% elif "Customer" in link.name %}
+
+        ACCESS CUSTOMER ACCOUNT
+
+    {% elif "Application" in link.name %}
+
+        TRACK YOUR APPLICATION
+
+    {% elif "Raise" in link.name %}
+
+        REGISTER YOUR COMPLAINT
+
+    {% elif "Track" in link.name %}
+
+        TRACK GRIEVANCE STATUS
+
+    {% else %}
+
+        VIEW ALL GRIEVANCES
+
+    {% endif %}
+
+    → EXECUTE
+
+    </p>
+
+</div>
+```
+
+</a>
+
+{% endfor %}
+
 </div>
 
 <footer>
-    🛡️ © 2026 Aditya Cyber Zone. All Rights Reserved.
+
+```
+ACZ://SYSTEM
+&nbsp; | &nbsp;
+SECURE DIGITAL SERVICES
+&nbsp; | &nbsp;
+© 2026 ADITYA CYBER ZONE
+```
+
 </footer>
-<!-- ================= KRIPAROHII AI ================= -->
+
+</div>
+
+<!-- =====================================================
+     KRIPAROHII AI
+===================================================== -->
 
 <div id="kriparohii-btn" onclick="openAI()">
 
-    <div class="ai-ring"></div>
+```
+<div class="ai-ring"></div>
 
-    <div class="ai-icon">🤖</div>
-
-    <div class="ai-text">
-        <b>Kriparohii</b><br>
-        <span>AI ONLINE</span>
-    </div>
-
+<div class="ai-icon">
+    🤖
 </div>
 
+<div class="ai-text">
+    <b>KRIPAROHII</b><br>
+    <span>● AI ONLINE</span>
+</div>
+```
+
+</div>
 
 <div id="kriparohii-chat">
 
-    <div class="chat-header">
+```
+<div class="chat-header">
 
-        <div class="online-dot"></div>
+    <div class="online-dot"></div>
 
-        <b>🤖 Kriparohii AI</b>
+    <b>
+        KRIPAROHII // AI CORE
+    </b>
 
-        <span id="close-chat">✖</span>
+    <span id="close-chat">
+        ✖
+    </span>
 
-    </div>
-
-
-    <div class="chat-body">
-<div id="typing" style="display:none;margin-top:15px;">
-    <div class="typing">
-        <span>●</span>
-        <span>●</span>
-        <span>●</span>
-    </div>
 </div>
-        <div class="bot-msg">
 
-            👋 Namaste!
 
-            <br><br>
+<div class="chat-body">
 
-            Main <b>Kriparohii</b> hoon.
+    <div id="typing" style="display:none;margin-top:15px;">
 
-            <br><br>
-
-            ACZ services use karne ke liye pehle apna 
-<b>12 digit Aadhaar Number</b> enter karein.
-
+        <div class="typing">
+            <span>●</span>
+            <span>●</span>
+            <span>●</span>
         </div>
 
     </div>
 
 
-    <div class="quick-buttons">
+    <div class="bot-msg">
 
-        <button onclick="quickAI('Application Status')">
-            📄 Application Status
-        </button>
+        [SYSTEM CONNECTED]
 
-        <button onclick="quickAI('Payment')">
-            💳 Payment
-        </button>
+        <br><br>
 
-        <button onclick="quickAI('Grievance')">
-            🎫 Grievance
-        </button>
+        👋 Namaste!
 
-        <button onclick="quickAI('Notices')">
-            📢 Notices
-        </button>
+        <br><br>
 
-    </div>
+        Main <b>Kriparohii AI</b> hoon.
 
+        <br><br>
 
-    <div class="chat-input">
-
-        <input id="ai-input" 
-        type="text" 
-        placeholder="Ask Kriparohii...">
-
-        <button onclick="sendAI()">➤</button>
+        ACZ services access karne ke liye
+        apna <b>12 digit Aadhaar Number</b>
+        enter karein.
 
     </div>
 
 </div>
+
+
+<div class="quick-buttons">
+
+    <button onclick="quickAI('Application Status')">
+        📄 STATUS
+    </button>
+
+    <button onclick="quickAI('Payment')">
+        💳 PAYMENT
+    </button>
+
+    <button onclick="quickAI('Grievance')">
+        🎫 GRIEVANCE
+    </button>
+
+    <button onclick="quickAI('Notices')">
+        📢 NOTICES
+    </button>
+
+</div>
+
+
+<div class="chat-input">
+
+    <input
+        id="ai-input"
+        type="text"
+        placeholder="Enter command..."
+        onkeydown="if(event.key==='Enter')sendAI()"
+    >
+
+    <button onclick="sendAI()">
+        ➤
+    </button>
+
+</div>
+```
+
+</div>
+
 <script>
+
+/* =========================================================
+   LIVE CLOCK
+========================================================= */
+
+function updateClock(){
+
+    const now = new Date();
+
+    document.getElementById("clock").innerText =
+        now.toLocaleTimeString();
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
+
+
+/* =========================================================
+   KRIPAROHII
+========================================================= */
 
 let aadhaarVerified = false;
 
 
 function openAI(){
 
-    document.getElementById("kriparohii-chat").style.display="block";
+    document.getElementById(
+        "kriparohii-chat"
+    ).style.display="block";
 
 }
 
 
+document.getElementById(
+    "close-chat"
+).onclick=function(){
 
-document.getElementById("close-chat").onclick=function(){
+    document.getElementById(
+        "kriparohii-chat"
+    ).style.display="none";
 
-    document.getElementById("kriparohii-chat").style.display="none";
-
-}
-
+};
 
 
 function sendAI(){
 
-    let input = document.getElementById("ai-input");
-    let message = input.value.trim();
+    let input =
+        document.getElementById("ai-input");
+
+    let message =
+        input.value.trim();
 
     if(message=="") return;
 
 
-    let chat = document.querySelector(".chat-body");
+    let chat =
+        document.querySelector(".chat-body");
 
 
     chat.innerHTML += `
-    <div style="
-    text-align:right;
-    margin-top:15px;
-    color:#00eaff;">
-    
-    👤 You:
-    <br>
-    ${message}
 
-    </div>`;
+        <div style="
+        text-align:right;
+        margin-top:15px;
+        color:#00f6ff;
+        font-family:Arial">
+
+        👤 USER:
+
+        <br>
+
+        ${message}
+
+        </div>
+
+    `;
 
 
     input.value="";
 
 
-    let typing=document.getElementById("typing");
+    let typing =
+        document.getElementById("typing");
+
     typing.style.display="block";
 
-
-    chat.scrollTop = chat.scrollHeight;
-
+    chat.scrollTop =
+        chat.scrollHeight;
 
 
     setTimeout(()=>{
 
-
         typing.style.display="none";
 
 
-
-        // Aadhaar Verification
+        /* Aadhaar */
 
         if(!aadhaarVerified){
 
-
             if(/^\d{12}$/.test(message)){
 
-
-                fetch('/kriparohii/status/?aadhaar='+message)
+                fetch(
+                    '/kriparohii/status/?aadhaar='
+                    +message
+                )
 
                 .then(response=>response.json())
 
                 .then(data=>{
 
-
                     if(data.success){
-
 
                         aadhaarVerified=true;
 
-
-                        localStorage.setItem("aadhaar",message);
-
+                        localStorage.setItem(
+                            "aadhaar",
+                            message
+                        );
 
 
                         chat.innerHTML += `
 
-                        <div class="bot-msg" style="margin-top:15px;">
+                        <div class="bot-msg"
+                        style="margin-top:15px">
 
-
-                        ✅ Aadhaar verification successful.
-
-
-                        <br><br>
-
-
-                        👤 Welcome 
-                        <b>${data.customer.name}</b>
-
+                        [AUTHENTICATION SUCCESS]
 
                         <br><br>
 
+                        👤 Welcome
+                        <b>
+                        ${data.customer.name}
+                        </b>
+
+                        <br><br>
 
                         📱 Mobile:
                         ${data.customer.mobile}
 
-
                         <br><br>
 
-
-                        📄 Your Applications:
-
+                        📄 APPLICATIONS:
 
                         <br><br>
-
 
                         ${
-                        data.applications.length > 0
+                        data.applications.length>0
 
                         ?
 
                         data.applications.map(app=>`
 
-                        📌 ${app.application_name}
+                        ┌──────────────────
 
                         <br>
 
-                        Application No:
+                        📌
+                        ${app.application_name}
+
+                        <br>
+
+                        APP:
                         ${app.application_no}
 
                         <br>
 
-                        Status:
+                        STATUS:
                         <b>${app.status}</b>
+
+                        <br>
+
+                        └──────────────────
 
                         <br><br>
 
-
                         `).join("")
-
 
                         :
 
-                        "No applications found"
-
+                        "NO APPLICATIONS FOUND"
 
                         }
-
 
                         </div>
 
                         `;
 
-
                     }
 
                     else{
-
 
                         chat.innerHTML += `
 
@@ -676,185 +1657,196 @@ function sendAI(){
 
                         `;
 
-
                     }
 
-
-                    chat.scrollTop=chat.scrollHeight;
-
+                    chat.scrollTop =
+                        chat.scrollHeight;
 
                 })
 
-
                 .catch(()=>{
-
 
                     chat.innerHTML += `
 
                     <div class="bot-msg">
 
-                    ⚠️ Server error.
+                    ⚠ SERVER CONNECTION ERROR
 
                     </div>
 
                     `;
 
-
                 });
-
-
 
             }
 
             else{
 
-
                 chat.innerHTML += `
 
                 <div class="bot-msg">
 
-                ⚠️ Please enter valid 12 digit Aadhaar Number.
+                ⚠ ENTER VALID
+                12 DIGIT AADHAAR NUMBER.
 
                 </div>
 
                 `;
 
-
             }
-
 
             return;
 
         }
 
 
-
-        // After verification
+        /* AFTER AUTHENTICATION */
 
         let reply="";
 
 
-        if(message.toLowerCase().includes("status")){
+        if(
+            message.toLowerCase()
+            .includes("status")
+        ){
 
-            reply="📄 Aapka application status check kar rahi hoon.";
-
-        }
-
-        else if(message.toLowerCase().includes("payment")){
-
-            reply="💳 Payment section open kar rahi hoon.";
+            reply=
+            "📄 Application status module activated.";
 
         }
 
-       else if(message.toLowerCase().includes("grievance")){
+        else if(
+            message.toLowerCase()
+            .includes("payment")
+        ){
+
+            reply=
+            "💳 Payment module activated.";
+
+        }
+
+        else if(
+            message.toLowerCase()
+            .includes("notice")
+        ){
+
+            reply=
+            "📢 Latest system notices are available on the ACZ dashboard.";
+
+        }
+
+        else if(
+            message.toLowerCase()
+            .includes("grievance")
+        ){
+
+            fetch(
+                '/kriparohii/grievance/?aadhaar='
+                +localStorage.getItem("aadhaar")
+            )
+
+            .then(response=>response.json())
+
+            .then(data=>{
+
+                let result="";
 
 
-fetch('/kriparohii/grievance/?aadhaar='+localStorage.getItem("aadhaar"))
+                if(data.success){
 
-.then(response=>response.json())
+                    if(data.grievances.length>0){
 
-.then(data=>{
+                        data.grievances.forEach(g=>{
 
+                            result += `
 
-let result="";
+                            🎫 Ticket:
+                            ${g.ticket_no}
 
+                            <br>
 
-if(data.success){
+                            📂 Category:
+                            ${g.category}
 
+                            <br>
 
-    if(data.grievances.length > 0){
+                            📌 Status:
+                            ${g.status}
 
+                            <br>
 
-        data.grievances.forEach(g=>{
+                            ⚡ Priority:
+                            ${g.priority}
 
+                            <br>
 
-            result += `
+                            📝 Remark:
+                            ${g.remarks || "No remark"}
 
-            🎫 Ticket No: ${g.ticket_no}
+                            <br><br>
 
-            <br>
-            📂 Category: ${g.category}
+                            `;
 
-            <br>
-            📌 Status: ${g.status}
+                        });
 
-            <br>
-            ⚡ Priority: ${g.priority}
+                    }
 
-            <br>
-            📝 Remark: ${g.remarks || "No remark"}
+                    else{
 
-            <br><br>
+                        result=
+                        "✅ No grievance found.";
 
-            `;
+                    }
 
+                }
 
-        });
+                else{
 
+                    result=
+                    "❌ "+data.message;
 
-    }
-
-    else{
-
-        result="✅ Aapki koi grievance nahi mili.";
-
-    }
-
-
-}
-
-else{
-
-    result="❌ "+data.message;
-
-}
+                }
 
 
+                chat.innerHTML += `
 
-chat.innerHTML += `
+                <div class="bot-msg"
+                style="margin-top:15px">
 
-<div class="bot-msg" style="margin-top:15px;">
+                🤖 KRIPAROHII:
 
-🤖 Kriparohii:
+                <br><br>
 
-<br><br>
+                ${result}
 
-${result}
+                </div>
 
-</div>
-
-`;
-
-
-chat.scrollTop=chat.scrollHeight;
+                `;
 
 
-});
+                chat.scrollTop =
+                    chat.scrollHeight;
 
+            });
 
-return;
-
-
-}
-        else if(message.toLowerCase().includes("notice")){
-
-            reply="📢 Latest notices dashboard par available hain.";
+            return;
 
         }
 
         else{
 
-            reply="🤖 Main aapki request process kar rahi hoon.";
+            reply=
+            "🤖 Command received. Processing request...";
 
         }
 
 
-
         chat.innerHTML += `
 
-        <div class="bot-msg" style="margin-top:15px;">
+        <div class="bot-msg"
+        style="margin-top:15px">
 
-        🤖 Kriparohii:
+        🤖 KRIPAROHII:
 
         <br><br>
 
@@ -865,32 +1857,23 @@ return;
         `;
 
 
+        chat.scrollTop =
+            chat.scrollHeight;
 
-        chat.scrollTop=chat.scrollHeight;
-
-
-
-    },1500);
-
+    },1200);
 
 }
-
-
-
-
-
-
-
 
 
 function quickAI(text){
 
-    document.getElementById("ai-input").value=text;
+    document.getElementById(
+        "ai-input"
+    ).value=text;
 
     sendAI();
 
 }
-
 
 </script>
 
