@@ -15,7 +15,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from .excel_sync import sync_application_to_excel
 from .google_sheet import sync_application_to_sheet
 
 from .models import (
@@ -84,14 +83,12 @@ def add_application(request):
         )
 
         sync_application_to_sheet(application)
-        sync_application_to_excel(application)
 
         return redirect("all_applications")
 
     return render(request, "add_application.html", {
         "customers": customers
     })
-
 
 def update_status(request, app_id):
     application = get_object_or_404(Application, id=app_id)
@@ -109,7 +106,6 @@ def update_status(request, app_id):
             application.delivery_date = None
 
         application.save()
-        sync_application_to_excel(application)
 
         ApplicationStatusHistory.objects.create(
             application=application,
@@ -120,7 +116,6 @@ def update_status(request, app_id):
         sync_application_to_sheet(application, remark)
 
     return redirect("all_applications")
-
 
 def check_status(request):
     application = None
@@ -341,7 +336,6 @@ def payment_success(request, app_id):
             receipt_no=application.receipt_no,
         )
 
-    sync_application_to_excel(application)
 
     return render(request, "payment_success.html", {
         "application": application
@@ -510,11 +504,9 @@ def bulk_update_status(request):
                     remark=remark
                 )
 
-                sync_application_to_excel(application)
                 sync_application_to_sheet(application, remark)
 
-    return redirect("all_applications")
-def customer_forgot_password(request):
+    return redirect("all_applications")def customer_forgot_password(request):
     if request.method == "POST":
         aadhaar_no = request.POST.get("aadhaar_no")
         contact_no = request.POST.get("contact_no")
