@@ -1,53 +1,352 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ACZ Secure Registration</title>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{height:100vh;display:flex;justify-content:center;align-items:center;background:#040814;overflow:hidden}
-.grid{position:fixed;inset:0;background:
-linear-gradient(rgba(0,255,255,.08) 1px,transparent 1px),
-linear-gradient(90deg,rgba(0,255,255,.08) 1px,transparent 1px);
-background-size:40px 40px;animation:move 10s linear infinite}
-@keyframes move{to{background-position:40px 40px}}
-.orb{position:fixed;width:260px;height:260px;border-radius:50%;filter:blur(70px)}
-.o1{background:#00e5ff;left:-80px;top:-80px}.o2{background:#8a2eff;right:-80px;bottom:-80px}
-.card{position:relative;width:430px;padding:30px;border-radius:22px;background:rgba(12,20,40,.72);backdrop-filter:blur(16px);border:1px solid rgba(0,255,255,.3);box-shadow:0 0 30px #00d9ff;color:#fff;z-index:2}
-h2{text-align:center;color:#7ef9ff;text-shadow:0 0 15px #00e5ff}
-.scan{height:4px;background:linear-gradient(90deg,transparent,#00e5ff,transparent);animation:scan 2s infinite;margin:18px 0}
-@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-input{width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px;background:#16243b;color:#fff}
-button{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(90deg,#00e5ff,#6d32ff,#ff00cc);color:#fff;font-weight:bold;cursor:pointer}
-.info{background:#132238;padding:12px;border-radius:8px;margin:12px 0;border-left:4px solid #00e5ff}
-.small{text-align:center;color:#99eaff;font-size:12px;margin-top:10px}
-</style></head>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#040814;
+    overflow:auto;
+    padding:20px;
+}
+
+.grid{
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(0,255,255,.08) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,255,255,.08) 1px,transparent 1px);
+    background-size:40px 40px;
+    animation:move 10s linear infinite;
+}
+
+@keyframes move{
+    to{
+        background-position:40px 40px;
+    }
+}
+
+.orb{
+    position:fixed;
+    width:260px;
+    height:260px;
+    border-radius:50%;
+    filter:blur(70px);
+}
+
+.o1{
+    background:#00e5ff;
+    left:-80px;
+    top:-80px;
+}
+
+.o2{
+    background:#8a2eff;
+    right:-80px;
+    bottom:-80px;
+}
+
+.card{
+    position:relative;
+    width:430px;
+    max-width:100%;
+    padding:30px;
+    border-radius:22px;
+    background:rgba(12,20,40,.78);
+    backdrop-filter:blur(16px);
+    border:1px solid rgba(0,255,255,.3);
+    box-shadow:0 0 30px rgba(0,217,255,.45);
+    color:#fff;
+    z-index:2;
+}
+
+h2{
+    text-align:center;
+    color:#7ef9ff;
+    text-shadow:0 0 15px #00e5ff;
+    margin-bottom:5px;
+}
+
+.scan{
+    height:4px;
+    background:linear-gradient(
+        90deg,
+        transparent,
+        #00e5ff,
+        transparent
+    );
+    animation:scan 2s infinite;
+    margin:18px 0;
+}
+
+@keyframes scan{
+    from{
+        transform:translateX(-100%);
+    }
+    to{
+        transform:translateX(100%);
+    }
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:8px 0;
+    border:none;
+    outline:none;
+    border-radius:8px;
+    background:#16243b;
+    color:#fff;
+    border:1px solid rgba(0,229,255,.15);
+}
+
+input:focus{
+    border-color:#00e5ff;
+    box-shadow:0 0 10px rgba(0,229,255,.25);
+}
+
+button{
+    width:100%;
+    padding:13px;
+    margin-top:8px;
+    border:none;
+    border-radius:8px;
+    background:linear-gradient(
+        90deg,
+        #00e5ff,
+        #6d32ff,
+        #ff00cc
+    );
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.info{
+    background:#132238;
+    padding:14px;
+    border-radius:8px;
+    margin:12px 0;
+    border-left:4px solid #00e5ff;
+    line-height:1.6;
+}
+
+.small{
+    text-align:center;
+    color:#99eaff;
+    font-size:12px;
+    margin-top:15px;
+}
+
+.login-link{
+    text-align:center;
+    margin-top:15px;
+    font-size:13px;
+    color:#99eaff;
+}
+
+.login-link a{
+    color:#7ef9ff;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.login-link a:hover{
+    text-decoration:underline;
+}
+
+.security{
+    margin-top:15px;
+    padding:10px;
+    background:rgba(0,229,255,.05);
+    border-radius:8px;
+    text-align:center;
+    font-size:11px;
+    color:#8bbccc;
+}
+</style>
+
+</head>
+
 <body>
-<div class="grid"></div><div class="orb o1"></div><div class="orb o2"></div>
+
+<div class="grid"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+
 <div class="card">
+
+```
 <h2>🛡 ACZ Secure Registration</h2>
+
 <div class="scan"></div>
 
-{% if error %}<script>Swal.fire({icon:'error',title:'Error',text:'{{error}}'})</script>{% endif %}
+{% if message %}
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    Swal.fire({
+        icon: "error",
+        title: "Registration",
+        text: "{{ message|escapejs }}",
+        confirmButtonText: "OK"
+    });
+});
+</script>
+{% endif %}
+
+{% if success %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        Swal.fire({
+            icon: "success",
+            title: "Registration Successful!",
+            text: "{{ success|escapejs }}",
+            confirmButtonText: "Continue to Login"
+        }).then(function(){
+            window.location.href = "/customer-login/";
+        });
+    });
+</script>
+{% endif %}
+
 
 {% if not customer %}
-<form method="POST">
-{% csrf_token %}
-<input type="text" name="aadhaar_no" placeholder="Enter Aadhaar Number" required>
-<button name="verify">🔍 Verify Aadhaar</button>
-</form>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input
+            type="text"
+            name="aadhaar_no"
+            placeholder="Enter Aadhaar Number"
+            maxlength="12"
+            minlength="12"
+            pattern="[0-9]{12}"
+            inputmode="numeric"
+            required
+        >
+
+        <button type="submit" name="verify" value="1">
+            🔍 Verify Aadhaar
+        </button>
+    </form>
+
 {% else %}
-<div class="info">
-<b>Identity Verified</b><br><br>
-👤 {{customer.name}}<br>
-📱 {{customer.contact_no}}
-</div>
-<form method="POST">
-{% csrf_token %}
-<input type="hidden" name="aadhaar_no" value="{{customer.aadhaar_no}}">
-<input type="password" id="pwd" name="password" placeholder="Create Secure Password" required>
-<button name="register">🚀 Create Secure Account</button>
-</form>
+
+    <div class="info">
+        <b>✅ Identity Verified</b>
+        <br><br>
+
+        👤 {{ customer.name }}
+        <br>
+
+        📱 {{ customer.contact_no }}
+        <br>
+
+        🪪 {{ customer.aadhaar_no }}
+    </div>
+
+    <form method="POST" id="registerForm">
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aadhaar_no"
+            value="{{ customer.aadhaar_no }}"
+        >
+
+        <input
+            type="password"
+            id="pwd"
+            name="password"
+            placeholder="Create Secure Password"
+            minlength="6"
+            required
+        >
+
+        <input
+            type="password"
+            id="confirm_pwd"
+            name="confirm_password"
+            placeholder="Confirm Password"
+            minlength="6"
+            required
+        >
+
+        <button type="submit" name="register" value="1">
+            🚀 Create Secure Account
+        </button>
+    </form>
+
+    <script>
+    document.getElementById("registerForm").addEventListener("submit", function(e){
+
+        const password = document.getElementById("pwd").value;
+        const confirmPassword = document.getElementById("confirm_pwd").value;
+
+        if(password !== confirmPassword){
+            e.preventDefault();
+
+            Swal.fire({
+                icon: "error",
+                title: "Password Mismatch",
+                text: "Both passwords must be the same."
+            });
+
+            return false;
+        }
+
+        if(password.length < 6){
+            e.preventDefault();
+
+            Swal.fire({
+                icon: "warning",
+                title: "Weak Password",
+                text: "Password must contain at least 6 characters."
+            });
+
+            return false;
+        }
+    });
+    </script>
+
 {% endif %}
-<div class="small">Encrypted Registration • ACZ Secure Server</div>
+
+<div class="login-link">
+    Already registered?
+    <a href="/customer-login/">Login here</a>
 </div>
-</body></html>
+
+<div class="security">
+    🔐 Encrypted Registration • ACZ Secure Server
+</div>
+
+<div class="small">
+    Your information is securely processed.
+</div>
+```
+
+</div>
+
+</body>
+</html>

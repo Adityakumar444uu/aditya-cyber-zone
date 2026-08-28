@@ -142,9 +142,9 @@ def customer_register(request):
 
     if request.method == "POST":
 
-        # STEP 1 : Aadhaar Verify
+        # STEP 1: Aadhaar Verify
         if "verify" in request.POST:
-            aadhaar_no = request.POST.get("aadhaar_no")
+            aadhaar_no = request.POST.get("aadhaar_no", "").strip()
 
             try:
                 customer = Customer.objects.get(aadhaar_no=aadhaar_no)
@@ -153,33 +153,35 @@ def customer_register(request):
                     message = "Account already created. Please login."
 
                 else:
+                    # Aadhaar verified -> show password form
                     return render(request, "customer_register.html", {
                         "customer": customer,
-                        "verified": True
+                        "message": ""
                     })
 
             except Customer.DoesNotExist:
                 message = "Aadhaar not found. Please contact Admin."
 
-        # STEP 2 : Create Login Account
+        # STEP 2: Create Login Account
         elif "register" in request.POST:
-
-            aadhaar_no = request.POST.get("aadhaar_no")
-            password = request.POST.get("password")
-            confirm_password = request.POST.get("confirm_password")
+            aadhaar_no = request.POST.get("aadhaar_no", "").strip()
+            password = request.POST.get("password", "")
+            confirm_password = request.POST.get("confirm_password", "")
 
             try:
                 customer = Customer.objects.get(aadhaar_no=aadhaar_no)
 
                 if customer.user:
-                    message = "Account already exists."
+                    message = "Account already exists. Please login."
+
+                elif not password:
+                    message = "Please enter a password."
+
+                elif len(password) < 6:
+                    message = "Password must be at least 6 characters."
 
                 elif password != confirm_password:
-                    return render(request, "customer_register.html", {
-                        "customer": customer,
-                        "verified": True,
-                        "message": "Password does not match."
-                    })
+                    message = "Password does not match."
 
                 else:
                     user = User.objects.create_user(
@@ -189,7 +191,7 @@ def customer_register(request):
                     )
 
                     customer.user = user
-                    customer.save()
+                    customer.save(update_fields=["user"])
 
                     return redirect("/customer-login/?registered=1")
 
@@ -200,12 +202,13 @@ def customer_register(request):
         "message": message,
         "customer": customer
     })
+
 def customer_login(request):
     error = None
 
     if request.method == "POST":
-        aadhaar_no = request.POST.get("aadhaar_no")
-        password = request.POST.get("password")
+        aadhaar_no = request.POST.get("aadhaar_no", "").strip()
+        password = request.POST.get("password", "")
 
         user = authenticate(
             request,
@@ -216,24 +219,44 @@ def customer_login(request):
         if user is not None:
             login(request, user)
             return redirect("customer_dashboard")
-        else:
-            error = "Invalid Aadhaar Number or Password."
+
+        error = "Invalid Aadhaar Number or Password."
+
+    registered = request.GET.get("registered") == "1"
 
     return render(request, "customer_login.html", {
-        "error": error
+        "error": error,
+        "registered": registered
     })
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+
 
 @login_required
 def customer_dashboard(request):
-    customer = Customer.objects.get(user=request.user)
+    customer = Customer.objects.filter(
+        user=request.user
+    ).first()
+
+    if not customer:
+        return redirect("/customer-login/")
 
     applications = Application.objects.filter(
         customer=customer
-    ).order_by("-application_date")
+    ).order_by("-id")
 
-    total_amount = sum(app.amount for app in applications)
-    total_paid = sum(app.paid_amount for app in applications)
-    total_due = sum(app.due_amount for app in applications)
+    total_amount = applications.aggregate(
+        total=Sum("amount")
+    )["total"] or 0
+
+    total_paid = applications.aggregate(
+        total=Sum("paid_amount")
+    )["total"] or 0
+
+    total_due = applications.aggregate(
+        total=Sum("due_amount")
+    )["total"] or 0
 
     return render(request, "customer_dashboard.html", {
         "customer": customer,
@@ -242,8 +265,6 @@ def customer_dashboard(request):
         "total_paid": total_paid,
         "total_due": total_due,
     })
-
-
 @login_required
 def create_payment(request, app_id):
     application = get_object_or_404(
