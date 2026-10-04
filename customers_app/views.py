@@ -1,3 +1,4 @@
+import os
 from .models import Customer
 import json
 from django.http import JsonResponse
@@ -562,13 +563,12 @@ def raise_grievance(request):
                         or ""
                     ).strip()
 
-                    attachment = request.FILES.get(
-                        "attachment"
-                    )
+                    attachment = None
+                    if os.environ.get("VERCEL") != "1":
+                        attachment = request.FILES.get("attachment")
 
-                    # Basic validation
+        # Basic validation
                     if not category:
-
                         error = (
                             "Please select a "
                             "grievance category."
