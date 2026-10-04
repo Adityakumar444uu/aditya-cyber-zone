@@ -392,29 +392,325 @@ def receipt(request, app_id):
 
 
 def raise_grievance(request):
+    """
+    Aadhaar based grievance registration.
+
+    Flow:
+    Aadhaar
+        ↓
+    Customer Verification
+        ↓
+    Customer Details
+        ↓
+    Customer Applications
+        ↓
+    Select Application
+        ↓
+    Submit Grievance
+        ↓
+    Ticket Generated
+    """
+
+    customer = None
+    applications = []
     ticket_no = None
+    message = None
+    error = None
 
-    if request.method == "POST":
-        grievance = Grievance.objects.create(
-            name=request.POST.get("name"),
-            mobile=request.POST.get("mobile"),
-            category=request.POST.get("category"),
-            priority=request.POST.get("priority"),
-            description=request.POST.get("description"),
+    # -------------------------------------------------
+    # STEP 1: AADHAAR VERIFICATION
+    # -------------------------------------------------
+    if request.method == "POST" and "verify_aadhaar" in request.POST:
+
+        aadhaar_no = request.POST.get(
+            "aadhaar_no",
+            ""
+        ).strip()
+
+        if not aadhaar_no:
+            error = "Please enter your Aadhaar number."
+
+        else:
+            try:
+                customer = Customer.objects.get(
+                    aadhaar_no=aadhaar_no
+                )
+
+                # Fetch only this customer's applications
+                applications = (
+                    Application.objects
+                    .filter(customer=customer)
+                    .select_related("part", "sub_part")
+                    .order_by(
+                        "-application_date",
+                        "-id"
+                    )
+                )
+
+                # Store verified customer in session
+                request.session[
+                    "grievance_customer_id"
+                ] = customer.id
+
+                request.session[
+                    "grievance_aadhaar_verified"
+                ] = True
+
+                message = (
+                    "Aadhaar verified successfully."
+                )
+
+            except Customer.DoesNotExist:
+
+                error = (
+                    "Aadhaar number not found. "
+                    "Please contact Aditya Cyber Zone."
+                )
+
+    # -------------------------------------------------
+    # STEP 2: REGISTER GRIEVANCE
+    # -------------------------------------------------
+    elif (
+        request.method == "POST"
+        and "submit_grievance" in request.POST
+    ):
+
+        verified_customer_id = request.session.get(
+            "grievance_customer_id"
         )
 
-        GrievanceHistory.objects.create(
-            grievance=grievance,
-            status="Pending",
-            remarks="Grievance submitted successfully."
+        verified = request.session.get(
+            "grievance_aadhaar_verified",
+            False
         )
 
-        ticket_no = grievance.ticket_no
+        # Customer must verify Aadhaar first
+        if not verified or not verified_customer_id:
 
-    return render(request, "raise_grievance.html", {
-        "ticket_no": ticket_no
-    })
+            error = (
+                "Please verify your Aadhaar first."
+            )
 
+        else:
+
+            try:
+
+                customer = Customer.objects.get(
+                    id=verified_customer_id
+                )
+
+                # Fetch customer's applications
+                applications = (
+                    Application.objects
+                    .filter(customer=customer)
+                    .select_related(
+                        "part",
+                        "sub_part"
+                    )
+                    .order_by(
+                        "-application_date",
+                        "-id"
+                    )
+                )
+
+                application_id = request.POST.get(
+                    "application_id"
+                )
+
+                if not application_id:
+
+                    error = (
+                        "Please select an application."
+                    )
+
+                else:
+
+                    # SECURITY:
+                    # Selected application must belong
+                    # to the verified customer.
+                    application = get_object_or_404(
+                        Application,
+                        id=application_id,
+                        customer=customer
+                    )
+
+                    subject = (
+                        request.POST.get(
+                            "subject"
+                        )
+                        or "General Grievance"
+                    ).strip()
+
+                    category = (
+                        request.POST.get(
+                            "category"
+                        )
+                        or ""
+                    ).strip()
+
+                    priority = (
+                        request.POST.get(
+                            "priority"
+                        )
+                        or "Normal"
+                    ).strip()
+
+                    description = (
+                        request.POST.get(
+                            "description"
+                        )
+                        or ""
+                    ).strip()
+
+                    attachment = request.FILES.get(
+                        "attachment"
+                    )
+
+                    # Basic validation
+                    if not category:
+
+                        error = (
+                            "Please select a "
+                            "grievance category."
+                        )
+
+                    elif not description:
+
+                        error = (
+                            "Please enter your "
+                            "grievance description."
+                        )
+
+                    else:
+
+                        # Create grievance
+                        grievance = Grievance.objects.create(
+
+                            customer=customer,
+
+                            application=application,
+
+                            # Snapshot information
+                            name=customer.name,
+
+                            mobile=customer.contact_no,
+
+                            subject=subject,
+
+                            category=category,
+
+                            priority=priority,
+
+                            description=description,
+
+                            attachment=attachment,
+
+                            status="Pending",
+                        )
+
+                        # Create first history entry
+                        GrievanceHistory.objects.create(
+
+                            grievance=grievance,
+
+                            status="Pending",
+
+                            remarks=(
+                                "Grievance submitted "
+                                "successfully."
+                            ),
+                        )
+
+                        ticket_no = (
+                            grievance.ticket_no
+                        )
+
+                        # Clear verification session
+                        request.session.pop(
+                            "grievance_customer_id",
+                            None
+                        )
+
+                        request.session.pop(
+                            "grievance_aadhaar_verified",
+                            None
+                        )
+
+                        message = (
+                            "Grievance registered "
+                            "successfully."
+                        )
+
+                        customer = None
+                        applications = []
+
+            except Customer.DoesNotExist:
+
+                error = (
+                    "Customer verification expired. "
+                    "Please verify Aadhaar again."
+                )
+
+    return render(
+        request,
+        "raise_grievance.html",
+        {
+            "customer": customer,
+            "applications": applications,
+            "ticket_no": ticket_no,
+            "message": message,
+            "error": error,
+        },
+    )
+
+
+def grievance_status(request):
+    """
+    Track all grievances belonging to a customer
+    using Aadhaar number.
+    """
+
+    customer = None
+    grievances = []
+    error = None
+
+    aadhaar_no = request.GET.get(
+        "aadhaar_no",
+        ""
+    ).strip()
+
+    if aadhaar_no:
+
+        try:
+
+            customer = Customer.objects.get(
+                aadhaar_no=aadhaar_no
+            )
+
+            grievances = (
+                Grievance.objects
+                .filter(customer=customer)
+                .select_related("application")
+                .prefetch_related("history")
+                .order_by("-created_at")
+            )
+
+        except Customer.DoesNotExist:
+
+            error = (
+                "Aadhaar number not found. "
+                "Please check and try again."
+            )
+
+    return render(
+        request,
+        "grievance_status.html",
+        {
+            "customer": customer,
+            "grievances": grievances,
+            "error": error,
+        },
+    )
 
 def grievance_status(request):
     grievance = None
@@ -422,7 +718,9 @@ def grievance_status(request):
     ticket_no = request.GET.get("ticket_no")
 
     if ticket_no:
-        grievance = Grievance.objects.filter(ticket_no=ticket_no).first()
+        grievance = Grievance.objects.filter(
+            ticket_no=ticket_no
+        ).first()
 
         if grievance:
             history = GrievanceHistory.objects.filter(

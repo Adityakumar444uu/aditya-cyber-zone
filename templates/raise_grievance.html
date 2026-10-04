@@ -1,171 +1,961 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Raise Grievance | ACZ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raise Grievance | Aditya Cyber Zone</title>
 
     <style>
         *{
             margin:0;
             padding:0;
             box-sizing:border-box;
-            font-family:'Segoe UI',Arial;
+            font-family:'Segoe UI',Arial,sans-serif;
         }
 
         body{
             min-height:100vh;
-            background:linear-gradient(135deg,#020024,#090979,#00d4ff);
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            padding:20px;
+            background:
+                radial-gradient(circle at top left,#112b55 0%,transparent 35%),
+                radial-gradient(circle at bottom right,#004c66 0%,transparent 35%),
+                linear-gradient(135deg,#020024,#071a3d,#001f2e);
+
+            color:#fff;
+            padding:25px 15px;
+        }
+
+        .container{
+            width:100%;
+            max-width:900px;
+            margin:auto;
         }
 
         .box{
-            width:100%;
-            max-width:650px;
-            background:rgba(255,255,255,0.13);
-            backdrop-filter:blur(14px);
-            border-radius:22px;
-            padding:35px;
-            box-shadow:0 0 35px rgba(0,255,255,0.45);
-            border:1px solid rgba(255,255,255,0.3);
-            animation:up .7s ease;
+            background:rgba(255,255,255,0.09);
+            backdrop-filter:blur(18px);
+            -webkit-backdrop-filter:blur(18px);
+
+            border:1px solid rgba(255,255,255,0.18);
+            border-radius:24px;
+
+            padding:30px;
+
+            box-shadow:
+                0 0 35px rgba(0,247,255,0.18),
+                inset 0 0 20px rgba(255,255,255,0.02);
+
+            animation:showBox .6s ease;
         }
 
-        @keyframes up{
-            from{opacity:0;transform:translateY(35px);}
-            to{opacity:1;transform:translateY(0);}
+        @keyframes showBox{
+            from{
+                opacity:0;
+                transform:translateY(25px);
+            }
+
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        .header{
+            text-align:center;
+            margin-bottom:30px;
+        }
+
+        .header-icon{
+            width:70px;
+            height:70px;
+
+            margin:0 auto 12px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            border-radius:50%;
+
+            background:rgba(0,247,255,0.12);
+            border:1px solid rgba(0,247,255,0.35);
+
+            font-size:32px;
+
+            box-shadow:0 0 25px rgba(0,247,255,0.25);
         }
 
         h1{
-            text-align:center;
             color:#00f7ff;
-            margin-bottom:8px;
+            font-size:30px;
+            margin-bottom:6px;
         }
 
-        .sub{
-            text-align:center;
-            color:white;
-            margin-bottom:25px;
+        .subtitle{
+            color:#d7e9ff;
+            font-size:14px;
         }
 
-        label{
-            color:white;
-            font-weight:bold;
-            display:block;
-            margin-top:15px;
+        .message,
+        .error,
+        .success{
+            padding:15px 18px;
+            border-radius:14px;
+            margin-bottom:20px;
+            line-height:1.5;
         }
 
-        input,select,textarea{
-            width:100%;
-            padding:13px;
-            margin-top:8px;
-            border:none;
-            border-radius:12px;
-            outline:none;
-            font-size:15px;
+        .message{
+            background:rgba(0,170,255,0.12);
+            border:1px solid rgba(0,247,255,0.35);
+            color:#bdf8ff;
         }
 
-        textarea{
-            height:120px;
-            resize:none;
-        }
-
-        button{
-            width:100%;
-            margin-top:25px;
-            padding:15px;
-            border:none;
-            border-radius:30px;
-            background:linear-gradient(90deg,#00f7ff,#00ff88);
-            font-size:18px;
-            font-weight:bold;
-            cursor:pointer;
-            transition:.3s;
-        }
-
-        button:hover{
-            transform:scale(1.04);
-            box-shadow:0 0 20px #00f7ff;
+        .error{
+            background:rgba(255,50,50,0.13);
+            border:1px solid rgba(255,80,80,0.45);
+            color:#ffd2d2;
         }
 
         .success{
-            background:rgba(0,255,136,0.25);
-            border:1px solid #00ff88;
-            color:white;
-            padding:18px;
-            border-radius:15px;
+            background:rgba(0,255,136,0.12);
+            border:1px solid rgba(0,255,136,0.45);
+            color:#e0ffef;
             text-align:center;
-            margin-bottom:20px;
+        }
+
+        .success h2{
+            color:#00ff88;
+            margin-bottom:8px;
         }
 
         .ticket{
+            margin:15px auto;
+            padding:14px 20px;
+
+            max-width:400px;
+
+            background:rgba(0,0,0,0.22);
+            border-radius:14px;
+
             color:#00ff88;
-            font-size:25px;
-            font-weight:bold;
-            margin-top:8px;
+            font-size:27px;
+            font-weight:800;
+            letter-spacing:1px;
+
+            border:1px solid rgba(0,255,136,0.25);
         }
 
-        .back{
+        .section{
+            margin-top:25px;
+            padding:22px;
+
+            background:rgba(255,255,255,0.045);
+
+            border:1px solid rgba(255,255,255,0.10);
+            border-radius:18px;
+        }
+
+        .section-title{
+            display:flex;
+            align-items:center;
+            gap:10px;
+
+            font-size:19px;
+            font-weight:700;
+
+            color:#00f7ff;
+
+            margin-bottom:18px;
+        }
+
+        label{
             display:block;
-            text-align:center;
+            margin-top:16px;
+            margin-bottom:7px;
+
+            color:#e8f6ff;
+            font-size:14px;
+            font-weight:600;
+        }
+
+        input,
+        select,
+        textarea{
+            width:100%;
+
+            padding:13px 14px;
+
+            border:none;
+            outline:none;
+
+            border-radius:11px;
+
+            background:rgba(255,255,255,0.93);
+            color:#111;
+
+            font-size:15px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus{
+            box-shadow:0 0 0 3px rgba(0,247,255,0.20);
+        }
+
+        textarea{
+            min-height:130px;
+            resize:vertical;
+        }
+
+        .verify-btn,
+        .submit-btn{
+            width:100%;
+            border:none;
+            cursor:pointer;
+
+            padding:14px;
+
+            border-radius:30px;
+
+            font-size:17px;
+            font-weight:800;
+
+            transition:.25s;
+
             margin-top:20px;
+        }
+
+        .verify-btn{
+            background:linear-gradient(90deg,#00c8ff,#00f7ff);
+            color:#00131a;
+        }
+
+        .submit-btn{
+            background:linear-gradient(90deg,#00f7ff,#00ff88);
+            color:#00131a;
+        }
+
+        .verify-btn:hover,
+        .submit-btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 0 25px rgba(0,247,255,0.35);
+        }
+
+        .customer-card{
+            display:grid;
+            grid-template-columns:repeat(2,1fr);
+            gap:15px;
+        }
+
+        .customer-item{
+            padding:15px;
+
+            border-radius:13px;
+
+            background:rgba(0,0,0,0.18);
+
+            border:1px solid rgba(255,255,255,0.08);
+        }
+
+        .customer-label{
+            color:#8fc8df;
+            font-size:12px;
+            margin-bottom:5px;
+        }
+
+        .customer-value{
+            color:#fff;
+            font-weight:700;
+            word-break:break-word;
+        }
+
+        .verified{
+            color:#00ff88;
+            font-weight:800;
+        }
+
+        .application-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+            gap:15px;
+        }
+
+        .application-card{
+            position:relative;
+            cursor:pointer;
+
+            padding:18px;
+
+            border-radius:17px;
+
+            background:rgba(255,255,255,0.055);
+
+            border:1px solid rgba(255,255,255,0.10);
+
+            transition:.25s;
+        }
+
+        .application-card:hover{
+            transform:translateY(-3px);
+            border-color:rgba(0,247,255,0.45);
+            box-shadow:0 0 20px rgba(0,247,255,0.12);
+        }
+
+        .application-card input[type="radio"]{
+            position:absolute;
+            top:18px;
+            right:18px;
+
+            width:18px;
+            height:18px;
+
+            accent-color:#00f7ff;
+        }
+
+        .application-name{
+            padding-right:35px;
+
+            color:#00f7ff;
+
+            font-size:17px;
+            font-weight:800;
+
+            margin-bottom:8px;
+        }
+
+        .application-number{
+            color:#d9edff;
+            font-size:13px;
+            margin-bottom:12px;
+        }
+
+        .app-row{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+
+            padding:6px 0;
+
+            font-size:13px;
+        }
+
+        .app-row span:first-child{
+            color:#92b8cc;
+        }
+
+        .app-row span:last-child{
+            color:#fff;
+            font-weight:600;
+            text-align:right;
+        }
+
+        .status{
+            display:inline-block;
+
+            padding:5px 10px;
+
+            border-radius:20px;
+
+            background:rgba(0,247,255,0.10);
+
+            color:#00f7ff !important;
+
+            font-size:12px;
+        }
+
+        .no-applications{
+            padding:18px;
+
+            border-radius:14px;
+
+            background:rgba(255,180,0,0.08);
+            border:1px solid rgba(255,180,0,0.25);
+
+            color:#ffe7a3;
+
+            text-align:center;
+        }
+
+        .required{
+            color:#ff6b6b;
+        }
+
+        .bottom-links{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+
+            margin-top:25px;
+        }
+
+        .bottom-links a{
             color:#00f7ff;
             text-decoration:none;
-            font-weight:bold;
+            font-weight:700;
+        }
+
+        .bottom-links a:hover{
+            text-decoration:underline;
+        }
+
+        .info-note{
+            margin-top:10px;
+
+            color:#93b8c9;
+
+            font-size:12px;
+            line-height:1.5;
+        }
+
+        @media(max-width:600px){
+
+            .box{
+                padding:20px;
+                border-radius:18px;
+            }
+
+            h1{
+                font-size:24px;
+            }
+
+            .customer-card{
+                grid-template-columns:1fr;
+            }
+
+            .section{
+                padding:16px;
+            }
+
+            .ticket{
+                font-size:21px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-    <h1>📢 Raise Grievance</h1>
-    <p class="sub">Aditya Cyber Zone Support Portal</p>
+    <div class="box">
 
-    {% if ticket_no %}
-    <div class="success">
-        <h3>✅ Complaint Registered Successfully</h3>
-        <p>Your Ticket Reference Number</p>
-        <div class="ticket">{{ ticket_no }}</div>
-        <p>Is ticket number ko save kar lo.</p>
+        <!-- HEADER -->
+        <div class="header">
+
+            <div class="header-icon">
+                📢
+            </div>
+
+            <h1>Raise Grievance</h1>
+
+            <p class="subtitle">
+                Aditya Cyber Zone Support Portal
+            </p>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+        {% if ticket_no %}
+
+        <div class="success">
+
+            <h2>✅ Grievance Registered Successfully</h2>
+
+            <p>
+                Your grievance has been successfully submitted.
+            </p>
+
+            <p style="margin-top:8px;">
+                Your Ticket Reference Number:
+            </p>
+
+            <div class="ticket">
+                {{ ticket_no }}
+            </div>
+
+            <p>
+                Please save this Ticket Number for future reference.
+            </p>
+
+            <div class="bottom-links">
+
+                <a href="/grievance-status/">
+                    🎫 Track Grievance
+                </a>
+
+                <a href="/">
+                    🏠 Home
+                </a>
+
+            </div>
+
+        </div>
+
+        {% else %}
+
+
+        <!-- ERROR -->
+        {% if error %}
+
+        <div class="error">
+            ❌ {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- MESSAGE -->
+        {% if message %}
+
+        <div class="message">
+            ✅ {{ message }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- STEP 1: AADHAAR -->
+        {% if not customer %}
+
+        <div class="section">
+
+            <div class="section-title">
+                🔐 Step 1 — Verify Customer
+            </div>
+
+            <p style="color:#bdd9e7;font-size:14px;line-height:1.6;">
+                Enter your Aadhaar number to securely fetch your
+                registered customer details and applications.
+            </p>
+
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <label>
+                    Aadhaar Number
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="aadhaar_no"
+                    placeholder="Enter Aadhaar Number"
+                    maxlength="20"
+                    autocomplete="off"
+                    inputmode="numeric"
+                    required
+                >
+
+                <p class="info-note">
+                    Your Aadhaar is used only to locate your ACZ customer
+                    record and its associated applications.
+                </p>
+
+                <button
+                    type="submit"
+                    name="verify_aadhaar"
+                    class="verify-btn"
+                >
+                    🔍 Verify Aadhaar
+                </button>
+
+            </form>
+
+        </div>
+
+        {% endif %}
+
+
+        {% if customer %}
+
+
+        <!-- CUSTOMER DETAILS -->
+        <div class="section">
+
+            <div class="section-title">
+                👤 Customer Details
+                <span class="verified">
+                    ✅ Verified
+                </span>
+            </div>
+
+
+            <div class="customer-card">
+
+                <div class="customer-item">
+
+                    <div class="customer-label">
+                        CUSTOMER NAME
+                    </div>
+
+                    <div class="customer-value">
+                        {{ customer.name }}
+                    </div>
+
+                </div>
+
+
+                <div class="customer-item">
+
+                    <div class="customer-label">
+                        MOBILE NUMBER
+                    </div>
+
+                    <div class="customer-value">
+
+                        {% if customer.contact_no %}
+                            ******{{ customer.contact_no|slice:"-4:" }}
+                        {% else %}
+                            Not Available
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="customer-item">
+
+                    <div class="customer-label">
+                        AADHAAR VERIFICATION
+                    </div>
+
+                    <div class="customer-value verified">
+                        ✓ Verified
+                    </div>
+
+                </div>
+
+
+                <div class="customer-item">
+
+                    <div class="customer-label">
+                        TOTAL APPLICATIONS
+                    </div>
+
+                    <div class="customer-value">
+                        {{ applications|length }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STEP 2: APPLICATIONS -->
+        <div class="section">
+
+            <div class="section-title">
+                📄 Step 2 — Select Application
+            </div>
+
+            {% if applications %}
+
+            <p style="color:#bdd9e7;font-size:14px;margin-bottom:18px;">
+                Select the application for which you want to raise
+                the grievance.
+            </p>
+
+
+            <div class="application-grid">
+
+                {% for application in applications %}
+
+                <label
+                    class="application-card"
+                    style="margin:0;"
+                >
+
+                    <input
+                        type="radio"
+                        name="application_id"
+                        value="{{ application.id }}"
+                        form="grievance-form"
+                        required
+                    >
+
+
+                    <div class="application-name">
+                        {{ application.application_name }}
+                    </div>
+
+
+                    <div class="application-number">
+                        Application No:
+                        <strong>
+                            {{ application.application_no }}
+                        </strong>
+                    </div>
+
+
+                    <div class="app-row">
+
+                        <span>Status</span>
+
+                        <span class="status">
+                            {{ application.status }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="app-row">
+
+                        <span>Application Date</span>
+
+                        <span>
+                            {{ application.application_date|date:"d M Y" }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="app-row">
+
+                        <span>Total Amount</span>
+
+                        <span>
+                            ₹{{ application.amount }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="app-row">
+
+                        <span>Paid</span>
+
+                        <span>
+                            ₹{{ application.paid_amount }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="app-row">
+
+                        <span>Due</span>
+
+                        <span>
+                            ₹{{ application.due_amount }}
+                        </span>
+
+                    </div>
+
+
+                    {% if application.remarks %}
+
+                    <div class="app-row">
+
+                        <span>Remark</span>
+
+                        <span>
+                            {{ application.remarks }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+                </label>
+
+                {% endfor %}
+
+            </div>
+
+            {% else %}
+
+            <div class="no-applications">
+
+                ⚠️ No application is registered against this
+                customer record.
+
+                <br><br>
+
+                Please contact Aditya Cyber Zone support.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if applications %}
+
+        <!-- STEP 3: GRIEVANCE FORM -->
+        <div class="section">
+
+            <div class="section-title">
+                📝 Step 3 — Grievance Details
+            </div>
+
+
+            <form
+                method="POST"
+                id="grievance-form"
+                enctype="multipart/form-data"
+            >
+
+                {% csrf_token %}
+
+
+                <label>
+                    Subject
+                    <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    name="subject"
+                    placeholder="Enter grievance subject"
+                    maxlength="200"
+                    required
+                >
+
+
+                <label>
+                    Complaint Category
+                    <span class="required">*</span>
+                </label>
+
+                <select
+                    name="category"
+                    required
+                >
+
+                    <option value="">
+                        Select Category
+                    </option>
+
+                    <option value="Application Issue">
+                        Application Issue
+                    </option>
+
+                    <option value="Payment Issue">
+                        Payment Issue
+                    </option>
+
+                    <option value="Document Issue">
+                        Document Issue
+                    </option>
+
+                    <option value="Status Update Issue">
+                        Status Update Issue
+                    </option>
+
+                    <option value="Delay">
+                        Application Delay
+                    </option>
+
+                    <option value="Technical Issue">
+                        Technical Issue
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+
+                <label>
+                    Priority
+                    <span class="required">*</span>
+                </label>
+
+                <select
+                    name="priority"
+                    required
+                >
+
+                    <option value="Normal">
+                        Normal
+                    </option>
+
+                    <option value="High">
+                        High
+                    </option>
+
+                    <option value="Urgent">
+                        Urgent
+                    </option>
+
+                </select>
+
+
+                <label>
+                    Complaint Details
+                    <span class="required">*</span>
+                </label>
+
+                <textarea
+                    name="description"
+                    placeholder="Write your complete grievance here..."
+                    required
+                ></textarea>
+
+
+                <label>
+                    Attachment
+                    <span style="color:#93b8c9;">
+                        (Optional)
+                    </span>
+                </label>
+
+                <input
+                    type="file"
+                    name="attachment"
+                    accept=".jpg,.jpeg,.png,.pdf,.webp"
+                >
+
+                <p class="info-note">
+                    You can upload a screenshot, receipt or supporting
+                    document if required.
+                </p>
+
+
+                <button
+                    type="submit"
+                    name="submit_grievance"
+                    class="submit-btn"
+                >
+                    🚀 Submit Grievance
+                </button>
+
+            </form>
+
+        </div>
+
+        {% endif %}
+
+
+        {% endif %}
+
+
+               <!-- FOOTER -->
+        <div class="bottom-links">
+
+            <a href="/">
+                ⬅ Back to Home
+            </a>
+
+            <a href="/grievance-status/">
+                🎫 Check Grievance Status
+            </a>
+
+        </div>
+
+        {% endif %}
+
     </div>
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <label>Full Name</label>
-        <input type="text" name="name" placeholder="Enter customer name" required>
-
-        <label>Mobile Number</label>
-        <input type="text" name="mobile" placeholder="Enter mobile number" required>
-
-        <label>Complaint Category</label>
-        <select name="category" required>
-            <option value="">Select Category</option>
-            <option value="Application Issue">Application Issue</option>
-            <option value="Payment Issue">Payment Issue</option>
-            <option value="Document Issue">Document Issue</option>
-            <option value="Status Update Issue">Status Update Issue</option>
-            <option value="Other">Other</option>
-        </select>
-
-        <label>Priority</label>
-        <select name="priority" required>
-            <option value="Normal">Normal</option>
-            <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
-        </select>
-
-        <label>Complaint Details</label>
-        <textarea name="description" placeholder="Write your complaint here..." required></textarea>
-
-        <button type="submit">🚀 Submit Grievance</button>
-    </form>
-
-    <a class="back" href="/">⬅ Back to Home</a>
 
 </div>
 
