@@ -1,230 +1,1487 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Check Status</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Check Application Status | Aditya Cyber Zone</title>
 
     <style>
-        body{
-            margin:0;
-            font-family:Arial, sans-serif;
-            min-height:100vh;
-            background:linear-gradient(135deg,#020024,#003b73,#00d4ff);
-            display:flex;
-            justify-content:center;
-            align-items:center;
+        * {
+            box-sizing: border-box;
         }
 
-        .box{
-            width:90%;
-            max-width:750px;
-            background:rgba(255,255,255,0.15);
-            padding:35px;
-            border-radius:25px;
-            box-shadow:0 0 35px rgba(0,229,255,0.45);
-            backdrop-filter:blur(14px);
-            color:white;
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0284c7;
+            --blue: #2563eb;
+            --green: #16a34a;
+            --red: #dc2626;
+            --dark: #020617;
+            --text: #0f172a;
+            --muted: #64748b;
         }
 
-        h2{
-            text-align:center;
-            color:#00e5ff;
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at 10% 15%,
+                    rgba(6, 182, 212, 0.18),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 85%,
+                    rgba(37, 99, 235, 0.18),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #020617,
+                    #07152e,
+                    #020617
+                );
+
+            display: flex;
+            justify-content: center;
+            padding: 35px 15px;
         }
 
-        form{
-            display:flex;
-            gap:10px;
-            margin-top:25px;
+        .page {
+            width: 100%;
+            max-width: 900px;
         }
 
-        input{
-            flex:1;
-            padding:14px;
-            border:none;
-            border-radius:10px;
-            font-size:16px;
-            outline:none;
+        /* ================= HEADER ================= */
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
         }
 
-        button{
-            padding:14px 24px;
-            border:none;
-            border-radius:10px;
-            background:#00e5ff;
-            color:#00111f;
-            font-weight:bold;
-            cursor:pointer;
+        .logo {
+            width: 68px;
+            height: 68px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #06b6d4,
+                    #2563eb
+                );
+
+            font-size: 21px;
+            font-weight: 900;
+
+            box-shadow:
+                0 0 35px rgba(6, 182, 212, 0.30);
+
+            animation: logoGlow 2.5s infinite;
         }
 
-        #loader{
-            display:none;
-            text-align:center;
-            margin-top:30px;
+        @keyframes logoGlow {
+            0%, 100% {
+                box-shadow:
+                    0 0 25px rgba(6, 182, 212, 0.25);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 45px rgba(6, 182, 212, 0.45);
+            }
         }
 
-        .spinner{
-            width:60px;
-            height:60px;
-            border:6px solid rgba(255,255,255,0.3);
-            border-top:6px solid #00e5ff;
-            border-radius:50%;
-            margin:0 auto 15px;
-            animation:spin 1s linear infinite;
+        .header h1 {
+            margin: 15px 0 7px;
+            font-size: 29px;
         }
 
-        @keyframes spin{
-            100%{transform:rotate(360deg);}
+        .header p {
+            margin: 0;
+            color: #94a3b8;
+            font-size: 14px;
         }
 
-        #resultBox{
-            display:none;
-            margin-top:30px;
-            background:white;
-            color:#111;
-            padding:25px;
-            border-radius:20px;
-            animation:slide 0.6s ease;
+        /* ================= SEARCH ================= */
+
+        .search-card {
+            padding: 22px;
+
+            border-radius: 22px;
+
+            background: rgba(15, 23, 42, 0.80);
+
+            border: 1px solid rgba(148, 163, 184, 0.13);
+
+            backdrop-filter: blur(18px);
+
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.35);
         }
 
-        @keyframes slide{
-            from{opacity:0;transform:translateY(20px);}
-            to{opacity:1;transform:translateY(0);}
+        form {
+            display: flex;
+            gap: 12px;
         }
 
-        .status-badge{
-            display:inline-block;
-            padding:12px 28px;
-            border-radius:30px;
-            color:white;
-            font-weight:bold;
-            margin:15px 0;
+        input {
+            flex: 1;
+            min-width: 0;
+
+            padding: 16px 18px;
+
+            border-radius: 13px;
+
+            border: 1px solid #334155;
+
+            outline: none;
+
+            background: #020617;
+            color: white;
+
+            font-size: 15px;
+
+            transition: 0.25s;
         }
 
-        .Pending{background:orange;}
-        .Submitted{background:#007bff;}
-        .InProcess{background:#6f42c1;}
-        .Approved{background:#17a2b8;}
-        .Rejected{background:#dc3545;}
-        .Delivered{background:#28a745;}
-
-        .timeline{
-            display:flex;
-            gap:8px;
-            margin-top:25px;
+        input::placeholder {
+            color: #64748b;
         }
 
-        .step{
-            flex:1;
-            text-align:center;
-            background:#ddd;
-            color:#555;
-            padding:10px;
-            border-radius:20px;
-            font-size:13px;
-            font-weight:bold;
+        input:focus {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px rgba(6, 182, 212, 0.10);
         }
 
-        .step.active{
-            background:#28a745;
-            color:white;
+        .search-btn {
+            border: none;
+            border-radius: 13px;
+
+            padding: 0 25px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #06b6d4,
+                    #2563eb
+                );
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition: 0.25s;
         }
 
-        .error{
-            margin-top:25px;
-            text-align:center;
-            color:#ffdddd;
-            font-weight:bold;
-            background:rgba(255,0,0,0.25);
-            padding:12px;
-            border-radius:12px;
+        .search-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 28px rgba(37, 99, 235, 0.30);
+        }
+
+        /* ================= PRELOADER ================= */
+
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 35px 10px 10px;
+        }
+
+        .loader-ring {
+            width: 60px;
+            height: 60px;
+
+            margin: auto;
+
+            border-radius: 50%;
+
+            border: 4px solid #1e293b;
+
+            border-top-color: #06b6d4;
+            border-right-color: #2563eb;
+
+            animation: spin 0.9s linear infinite;
+
+            box-shadow:
+                0 0 25px rgba(6, 182, 212, 0.20);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-title {
+            margin-top: 17px;
+
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .loader-text {
+            margin-top: 6px;
+
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* ================= RESULT ================= */
+
+        #resultBox {
+            display: none;
+
+            margin-top: 25px;
+
+            background: #f8fafc;
+            color: var(--text);
+
+            border-radius: 26px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 30px 70px rgba(0, 0, 0, 0.40);
+
+            animation: resultShow 0.6s ease;
+        }
+
+        @keyframes resultShow {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ================= APPLICATION HEADER ================= */
+
+        .application-header {
+            padding: 28px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a,
+                    #172554
+                );
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .application-header::after {
+            content: "";
+
+            position: absolute;
+
+            width: 220px;
+            height: 220px;
+
+            border-radius: 50%;
+
+            right: -100px;
+            top: -100px;
+
+            background: rgba(6, 182, 212, 0.10);
+        }
+
+        .application-label {
+            color: #67e8f9;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1.2px;
+
+            margin-bottom: 8px;
+        }
+
+        .application-name {
+    margin: 0;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    color: #ffffff !important;
+
+    text-shadow:
+        0 0 12px rgba(6, 182, 212, 0.25);
+
+    position: relative;
+    z-index: 5;
+}
+
+        .application-number {
+            margin-top: 8px;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+
+            position: relative;
+            z-index: 1;
+        }
+
+       .application-number strong {
+    color: #67e8f9 !important;
+    font-weight: 800;
+}
+
+        /* ================= STATUS ================= */
+
+        .status-area {
+            margin-top: 20px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            position: relative;
+            z-index: 2;
+        }
+
+        .status-label {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .status {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 9px 16px;
+
+            border-radius: 30px;
+
+            font-size: 12px;
+
+            font-weight: 800;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: currentColor;
+
+            box-shadow:
+                0 0 9px currentColor;
+        }
+
+        .status-Pending {
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.14);
+        }
+
+        .status-Submitted {
+            color: #60a5fa;
+            background: rgba(37, 99, 235, 0.14);
+        }
+
+        .status-InProcess {
+            color: #c084fc;
+            background: rgba(124, 58, 237, 0.14);
+        }
+
+        .status-Approved {
+            color: #22d3ee;
+            background: rgba(6, 182, 212, 0.14);
+        }
+
+        .status-Rejected {
+            color: #f87171;
+            background: rgba(220, 38, 38, 0.14);
+        }
+
+        .status-Delivered {
+            color: #4ade80;
+            background: rgba(22, 163, 74, 0.14);
+        }
+
+        /* ================= INFO ================= */
+
+        .info-section {
+            padding: 24px 28px 5px;
+        }
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 13px;
+        }
+
+        .info-card {
+            padding: 15px;
+
+            border-radius: 14px;
+
+            background: white;
+
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            display: block;
+
+            color: #64748b;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            display: block;
+
+            color: #0f172a;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            word-break: break-word;
+        }
+
+        /* ================= TIMELINE ================= */
+
+        .timeline-section {
+            padding: 30px 28px 25px;
+        }
+
+        .timeline-heading {
+            margin-bottom: 35px;
+        }
+
+        .timeline-heading h3 {
+            margin: 0;
+
+            font-size: 17px;
+        }
+
+        .timeline-heading p {
+            margin: 5px 0 0;
+
+            color: #64748b;
+
+            font-size: 12px;
+        }
+
+        .timeline {
+            position: relative;
+
+            display: flex;
+
+            justify-content: space-between;
+        }
+
+        .timeline-line {
+            position: absolute;
+
+            top: 20px;
+
+            left: 8%;
+            right: 8%;
+
+            height: 4px;
+
+            border-radius: 20px;
+
+            background: #e2e8f0;
+
+            z-index: 0;
+        }
+
+        .timeline-progress {
+            position: absolute;
+
+            top: 20px;
+            left: 8%;
+
+            height: 4px;
+
+            width: 0;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #06b6d4,
+                    #2563eb
+                );
+
+            z-index: 1;
+
+            transition: width 1s ease;
+        }
+
+        .timeline-step {
+            width: 25%;
+
+            position: relative;
+
+            z-index: 2;
+
+            text-align: center;
+        }
+
+        .timeline-circle {
+            width: 42px;
+            height: 42px;
+
+            margin: auto;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: #f1f5f9;
+
+            border: 4px solid #e2e8f0;
+
+            color: #94a3b8;
+
+            font-size: 14px;
+
+            font-weight: 900;
+
+            transition: 0.4s;
+        }
+
+        .timeline-title {
+            margin-top: 10px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            color: #94a3b8;
+        }
+
+        /* COMPLETED */
+
+        .timeline-step.completed .timeline-circle {
+            background: var(--green);
+
+            border-color: #bbf7d0;
+
+            color: white;
+
+            box-shadow:
+                0 0 0 5px rgba(22, 163, 74, 0.10),
+                0 6px 18px rgba(22, 163, 74, 0.25);
+        }
+
+        .timeline-step.completed .timeline-title {
+            color: var(--green);
+        }
+
+        /* CURRENT */
+
+        .timeline-step.current .timeline-circle {
+            background: var(--primary);
+
+            border-color: #a5f3fc;
+
+            color: white;
+
+            animation: currentPulse 1.6s infinite;
+        }
+
+        .timeline-step.current .timeline-title {
+            color: var(--primary-dark);
+        }
+
+        @keyframes currentPulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 0 0 rgba(6, 182, 212, 0.35);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 0 10px rgba(6, 182, 212, 0);
+            }
+        }
+
+        /* ================= REJECTED ================= */
+
+        .rejected-box {
+            display: none;
+
+            margin: 0 28px 22px;
+
+            padding: 17px;
+
+            border-radius: 15px;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+
+            color: #991b1b;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .rejected-box strong {
+            display: block;
+
+            margin-bottom: 4px;
+
+            font-size: 14px;
+        }
+
+        /* ================= REMARKS ================= */
+
+        .remarks {
+            margin: 0 28px 22px;
+
+            padding: 17px;
+
+            border-radius: 15px;
+
+            background: #f1f5f9;
+
+            color: #475569;
+
+            font-size: 13px;
+
+            line-height: 1.55;
+        }
+
+        .remarks strong {
+            display: block;
+
+            color: #0f172a;
+
+            margin-bottom: 5px;
+        }
+
+        /* ================= UPDATED ================= */
+
+        .updated {
+            text-align: center;
+
+            padding: 0 25px 25px;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        /* ================= ERROR ================= */
+
+        .error {
+            margin-top: 20px;
+
+            padding: 14px;
+
+            border-radius: 13px;
+
+            text-align: center;
+
+            background: rgba(127, 29, 29, 0.25);
+
+            border: 1px solid rgba(248, 113, 113, 0.25);
+
+            color: #fecaca;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 20px 12px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .search-card {
+                padding: 17px;
+            }
+
+            form {
+                flex-direction: column;
+            }
+
+            .search-btn {
+                height: 48px;
+            }
+
+            .application-header {
+                padding: 23px 20px;
+            }
+
+            .application-name {
+                font-size: 21px;
+            }
+
+            .status-area {
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+            .info-section {
+                padding: 20px 20px 5px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-section {
+                padding: 25px 20px;
+            }
+
+            .timeline {
+                display: block;
+
+                padding-left: 10px;
+            }
+
+            .timeline-line {
+                left: 29px;
+                right: auto;
+
+                top: 21px;
+                bottom: 21px;
+
+                width: 4px;
+                height: auto;
+            }
+
+            .timeline-progress {
+                left: 29px;
+
+                top: 21px;
+
+                width: 4px !important;
+
+                height: 0;
+
+                transition: height 1s ease;
+            }
+
+            .timeline-step {
+                width: 100%;
+
+                min-height: 82px;
+
+                display: flex;
+
+                align-items: center;
+
+                text-align: left;
+
+                gap: 15px;
+            }
+
+            .timeline-circle {
+                margin: 0;
+
+                flex-shrink: 0;
+            }
+
+            .timeline-title {
+                margin-top: 0;
+
+                font-size: 12px;
+            }
+
+            .remarks,
+            .rejected-box {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="page">
 
-    <h2>Check Application Status</h2>
+    <!-- HEADER -->
 
-    <form method="GET" onsubmit="showLoader()">
-        <input type="text" name="application_no" placeholder="Enter Application Number" required>
-        <button type="submit">Check Status</button>
-    </form>
+    <div class="header">
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p>Loading your status...</p>
-    </div>
-
-    {% if application %}
-    <div id="resultBox">
-
-        <h3>{{ application.application_name }}</h3>
-
-        <p><b>Customer Name:</b> {{ application.customer.name }}</p>
-        <p><b>Application No:</b> {{ application.application_no }}</p>
-        <p><b>Status:</b> {{ application.status }}</p>
-        <p><b>Remarks:</b> {{ application.remarks }}</p>
-
-        <div class="status-badge
-            {% if application.status == 'Pending' %}Pending
-            {% elif application.status == 'Submitted' %}Submitted
-            {% elif application.status == 'In Process' %}InProcess
-            {% elif application.status == 'Approved' %}Approved
-            {% elif application.status == 'Rejected' %}Rejected
-            {% elif application.status == 'Delivered' %}Delivered
-            {% endif %}
-        ">
-            {{ application.status }}
+        <div class="logo">
+            ACZ
         </div>
 
-        <div class="timeline">
-            <div class="step active">Submitted</div>
+        <h1>
+            Check Application Status
+        </h1>
 
-            <div class="step {% if application.status == 'In Process' or application.status == 'Approved' or application.status == 'Delivered' %}active{% endif %}">
-                In Process
-            </div>
-
-            <div class="step {% if application.status == 'Approved' or application.status == 'Delivered' %}active{% endif %}">
-                Approved
-            </div>
-
-            <div class="step {% if application.status == 'Delivered' %}active{% endif %}">
-                Delivered
-            </div>
-        </div>
-
-        <p style="text-align:center;margin-top:20px;color:#777;">
-            Last Updated: {{ application.status_updated_at }}
+        <p>
+            Track your application progress quickly and securely
         </p>
 
     </div>
-    {% endif %}
 
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% endif %}
+
+    <!-- SEARCH CARD -->
+
+    <div class="search-card">
+
+        <form method="GET" onsubmit="showLoader()">
+
+            <input
+                type="text"
+                name="application_no"
+                placeholder="Enter Application Number"
+                autocomplete="off"
+                required
+            >
+
+            <button
+                type="submit"
+                class="search-btn"
+            >
+                Check Status
+            </button>
+
+        </form>
+
+
+        <!-- PRELOADER -->
+
+        <div id="loader">
+
+            <div class="loader-ring"></div>
+
+            <div class="loader-title">
+                Checking Application...
+            </div>
+
+            <div class="loader-text">
+                Please wait while we fetch your latest status
+            </div>
+
+        </div>
+
+
+        {% if application %}
+
+        <!-- RESULT -->
+
+        <div id="resultBox">
+
+            <!-- APPLICATION HEADER -->
+
+            <div class="application-header">
+
+                <div class="application-label">
+                    Applied Application
+                </div>
+
+                <h2 class="application-name">
+                    {{ application.application_name }}
+                </h2>
+
+                <div class="application-number">
+                    Application No:
+                    <strong>
+                        {{ application.application_no }}
+                    </strong>
+                </div>
+
+
+                <div class="status-area">
+
+                    <span class="status-label">
+                        Current Application Status
+                    </span>
+
+                    <div
+                        class="status
+                        {% if application.status == 'Pending' %}
+                            status-Pending
+                        {% elif application.status == 'Submitted' %}
+                            status-Submitted
+                        {% elif application.status == 'In Process' %}
+                            status-InProcess
+                        {% elif application.status == 'Approved' %}
+                            status-Approved
+                        {% elif application.status == 'Rejected' %}
+                            status-Rejected
+                        {% elif application.status == 'Delivered' %}
+                            status-Delivered
+                        {% endif %}
+                    "
+                    >
+
+                        <span class="status-dot"></span>
+
+                        {{ application.status }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CUSTOMER INFORMATION -->
+
+            <div class="info-section">
+
+                <div class="info-grid">
+
+                    <div class="info-card">
+
+                        <span class="info-label">
+                            Customer Name
+                        </span>
+
+                        <span class="info-value">
+                            {{ application.customer.name }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="info-card">
+
+                        <span class="info-label">
+                            Application Number
+                        </span>
+
+                        <span class="info-value">
+                            {{ application.application_no }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TIMELINE -->
+
+            <div class="timeline-section">
+
+                <div class="timeline-heading">
+
+                    <h3>
+                        Application Progress
+                    </h3>
+
+                    <p>
+                        Your application journey
+                    </p>
+
+                </div>
+
+
+                <div class="timeline">
+
+                    <div class="timeline-line"></div>
+
+                    <div
+                        id="timelineProgress"
+                        class="timeline-progress"
+                    ></div>
+
+
+                    <!-- SUBMITTED -->
+
+                    <div
+                        id="stepSubmitted"
+                        class="timeline-step"
+                    >
+
+                        <div class="timeline-circle">
+                            ✓
+                        </div>
+
+                        <div class="timeline-title">
+                            Submitted
+                        </div>
+
+                    </div>
+
+
+                    <!-- IN PROCESS -->
+
+                    <div
+                        id="stepProcess"
+                        class="timeline-step"
+                    >
+
+                        <div class="timeline-circle">
+                            2
+                        </div>
+
+                        <div class="timeline-title">
+                            In Process
+                        </div>
+
+                    </div>
+
+
+                    <!-- APPROVED -->
+
+                    <div
+                        id="stepApproved"
+                        class="timeline-step"
+                    >
+
+                        <div class="timeline-circle">
+                            3
+                        </div>
+
+                        <div class="timeline-title">
+                            Approved
+                        </div>
+
+                    </div>
+
+
+                    <!-- DELIVERED -->
+
+                    <div
+                        id="stepDelivered"
+                        class="timeline-step"
+                    >
+
+                        <div class="timeline-circle">
+                            4
+                        </div>
+
+                        <div class="timeline-title">
+                            Delivered
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REJECTED MESSAGE -->
+
+            <div
+                id="rejectedBox"
+                class="rejected-box"
+            >
+
+                <strong>
+                    Application Rejected
+                </strong>
+
+                Your application has been rejected.
+                Please check the remarks below for more information.
+
+            </div>
+
+
+            <!-- REMARKS -->
+
+            <div class="remarks">
+
+                <strong>
+                    Remarks
+                </strong>
+
+                {{ application.remarks|default:"No remarks available." }}
+
+            </div>
+
+
+            <!-- LAST UPDATED -->
+
+            <div class="updated">
+
+                Last Updated:
+                {{ application.status_updated_at }}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        {% if error %}
+
+        <div class="error">
+            {{ error }}
+        </div>
+
+        {% endif %}
+
+    </div>
 
 </div>
 
+
 <script>
-    function showLoader(){
-        document.getElementById("loader").style.display = "block";
-    }
 
-    window.onload = function(){
-        var resultBox = document.getElementById("resultBox");
-        var loader = document.getElementById("loader");
+    /* =========================
+       SHOW SEARCH LOADER
+    ========================= */
 
-        if(resultBox){
+    function showLoader() {
+
+        const loader =
+            document.getElementById("loader");
+
+        if (loader) {
             loader.style.display = "block";
-
-            setTimeout(function(){
-                loader.style.display = "none";
-                resultBox.style.display = "block";
-            }, 1200);
         }
+
     }
+
+
+    /* =========================
+       PAGE LOAD
+    ========================= */
+
+    window.onload = function () {
+
+        const resultBox =
+            document.getElementById("resultBox");
+
+        const loader =
+            document.getElementById("loader");
+
+        if (!resultBox) {
+            return;
+        }
+
+        if (loader) {
+            loader.style.display = "block";
+        }
+
+        resultBox.style.display = "none";
+
+
+        setTimeout(function () {
+
+            if (loader) {
+                loader.style.display = "none";
+            }
+
+            resultBox.style.display = "block";
+
+            updateTimeline();
+
+        }, 1000);
+
+    };
+
+
+    /* =========================
+       UPDATE TIMELINE
+    ========================= */
+
+    function updateTimeline() {
+
+        const status =
+            "{{ application.status|default:'' }}";
+
+        const submitted =
+            document.getElementById("stepSubmitted");
+
+        const process =
+            document.getElementById("stepProcess");
+
+        const approved =
+            document.getElementById("stepApproved");
+
+        const delivered =
+            document.getElementById("stepDelivered");
+
+        const progress =
+            document.getElementById("timelineProgress");
+
+        const rejected =
+            document.getElementById("rejectedBox");
+
+
+        if (!submitted) {
+            return;
+        }
+
+
+        /*
+            Status levels:
+
+            Pending     = current at Submitted
+            Submitted   = current at Submitted
+            In Process  = current at In Process
+            Approved    = current at Approved
+            Delivered   = completed
+            Rejected    = special state
+        */
+
+        let level = 1;
+
+
+        if (status === "Pending") {
+
+            level = 1;
+
+        }
+
+        else if (status === "Submitted") {
+
+            level = 1;
+
+        }
+
+        else if (status === "In Process") {
+
+            level = 2;
+
+        }
+
+        else if (status === "Approved") {
+
+            level = 3;
+
+        }
+
+        else if (status === "Delivered") {
+
+            level = 4;
+
+        }
+
+
+        /* =========================
+           SUBMITTED
+        ========================= */
+
+        if (
+            status === "Pending" ||
+            status === "Submitted"
+        ) {
+
+            submitted.classList.add("current");
+
+        }
+
+        else {
+
+            submitted.classList.add("completed");
+
+        }
+
+
+        /* =========================
+           IN PROCESS
+        ========================= */
+
+        if (level >= 2) {
+
+            if (status === "In Process") {
+
+                process.classList.add("current");
+
+            }
+
+            else {
+
+                process.classList.add("completed");
+
+            }
+
+        }
+
+
+        /* =========================
+           APPROVED
+        ========================= */
+
+        if (level >= 3) {
+
+            if (status === "Approved") {
+
+                approved.classList.add("current");
+
+            }
+
+            else {
+
+                approved.classList.add("completed");
+
+            }
+
+        }
+
+
+        /* =========================
+           DELIVERED
+        ========================= */
+
+        if (status === "Delivered") {
+
+            delivered.classList.add("current");
+
+        }
+
+
+        /* =========================
+           REJECTED
+        ========================= */
+
+        if (status === "Rejected") {
+
+            submitted.classList.remove("completed");
+
+            submitted.classList.remove("current");
+
+            submitted.classList.add("completed");
+
+            if (rejected) {
+
+                rejected.style.display = "block";
+
+            }
+
+        }
+
+
+        /* =========================
+           PROGRESS LINE
+        ========================= */
+
+        if (!progress) {
+            return;
+        }
+
+
+        if (window.innerWidth <= 650) {
+
+            let height = "0px";
+
+
+            if (
+                status === "In Process"
+            ) {
+
+                height = "82px";
+
+            }
+
+            else if (
+                status === "Approved"
+            ) {
+
+                height = "164px";
+
+            }
+
+            else if (
+                status === "Delivered"
+            ) {
+
+                height = "246px";
+
+            }
+
+
+            progress.style.height = height;
+
+        }
+
+        else {
+
+            let width = "0%";
+
+
+            if (
+                status === "In Process"
+            ) {
+
+                width = "33%";
+
+            }
+
+            else if (
+                status === "Approved"
+            ) {
+
+                width = "66%";
+
+            }
+
+            else if (
+                status === "Delivered"
+            ) {
+
+                width = "100%";
+
+            }
+
+
+            progress.style.width = width;
+
+        }
+
+    }
+
 </script>
 
 </body>
