@@ -314,12 +314,12 @@ class Grievance(models.Model):
     ]
 
     customer = models.ForeignKey(
-    Customer,
-    on_delete=models.CASCADE,
-    related_name="grievances",
-    null=True,
-    blank=True
-)
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="grievances",
+        null=True,
+        blank=True
+    )
 
     # The exact application against which the grievance is raised
     application = models.ForeignKey(
@@ -398,6 +398,21 @@ class Grievance(models.Model):
 
     def save(self, *args, **kwargs):
 
+        # Check whether grievance is being changed to Closed
+        closing_now = False
+
+        if self.pk:
+            old_grievance = Grievance.objects.filter(
+                pk=self.pk
+            ).only("status").first()
+
+            if (
+                old_grievance
+                and old_grievance.status != "Closed"
+                and self.status == "Closed"
+            ):
+                closing_now = True
+
         # If application is selected, always use its customer.
         if self.application:
             self.customer = self.application.customer
@@ -434,7 +449,37 @@ class Grievance(models.Model):
         else:
             self.closed_at = None
 
+        # Save grievance
         super().save(*args, **kwargs)
+
+        # ---------------------------------------------
+        # AUTO DELETE ATTACHMENTS WHEN GRIEVANCE CLOSES
+        # ---------------------------------------------
+        if closing_now:
+
+            # Delete main grievance attachment
+            if self.attachment:
+                self.attachment.delete(save=False)
+
+                Grievance.objects.filter(
+                    pk=self.pk
+                ).update(
+                    attachment=None
+                )
+
+                self.attachment = None
+
+            # Delete attachments from all grievance messages
+            for message in self.messages.all():
+
+                if message.attachment:
+                    message.attachment.delete(save=False)
+
+                    message.attachment = None
+
+                    message.save(
+                        update_fields=["attachment"]
+                    )
 
     def __str__(self):
         return self.ticket_no

@@ -427,15 +427,17 @@ class PaymentHistoryAdmin(admin.ModelAdmin):
 class GrievanceAdmin(admin.ModelAdmin):
 
     list_display = (
-        'id',
-        'ticket_no',
-        'name',
-        'mobile',
-        'category',
-        'priority',
-        'status',
-        'created_at',
-    )
+    'id',
+    'ticket_no',
+    'name',
+    'mobile',
+    'application',
+    'category',
+    'priority',
+    'status',
+    'attachment',
+    'created_at',
+)
 
     list_editable = (
         'status',

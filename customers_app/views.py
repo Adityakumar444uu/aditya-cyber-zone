@@ -563,9 +563,8 @@ def raise_grievance(request):
                         or ""
                     ).strip()
 
-                    attachment = None
-                    if os.environ.get("VERCEL") != "1":
-                        attachment = request.FILES.get("attachment")
+                    attachment = request.FILES.get("attachment")
+                    print("DEBUG FILE:", request.FILES)
 
         # Basic validation
                     if not category:
