@@ -117,16 +117,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
+STORAGES = {
+    "default": {
+       "BACKEND": "cloudinary_storage.storage.RawMediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 PAYU_MERCHANT_KEY = os.environ.get("PAYU_MERCHANT_KEY", "agqUY0")
 PAYU_MERCHANT_SALT = os.environ.get("PAYU_MERCHANT_SALT", "pVWOiBTevwuOcEsPClinHQBQ20XjzGl9")
 PAYU_BASE_URL = os.environ.get("PAYU_BASE_URL", "https://test.payu.in/_payment")
