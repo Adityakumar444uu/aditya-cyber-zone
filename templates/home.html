@@ -428,6 +428,172 @@
         @media (prefers-reduced-motion: reduce) {
             *, *:before, *:after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
         }
+    
+
+        /* ACZ refined responsive design layer */
+        :root {
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --navy: #0f1f3d;
+            --ink: #172b4d;
+            --muted: #667895;
+            --line: #e2eaf5;
+            --surface-soft: #f4f7fc;
+            --cyan: #0891b2;
+            --green: #059669;
+            --shadow: 0 18px 48px rgba(15, 31, 61, .075);
+            --radius: 20px;
+        }
+        body { background: #f6f8fc; color: #172b4d; }
+        .container { width: min(1200px, calc(100% - 48px)); }
+        .topline { background: linear-gradient(90deg, #0b1730, #122c55); }
+        .site-header { background: rgba(255,255,255,.96); box-shadow: 0 4px 22px rgba(16,33,61,.035); }
+        .header-inner { min-height: 76px; gap: 18px; }
+        .brand-mark { border-radius: 14px; background: linear-gradient(145deg,#397bff,#1749c7); }
+        .nav-link, .dropdown-toggle { border-radius: 9px; }
+        .hero-wrap {
+            background:
+                radial-gradient(ellipse at 85% 15%, rgba(37,99,235,.15), transparent 33%),
+                radial-gradient(ellipse at 5% 95%, rgba(8,145,178,.10), transparent 36%),
+                linear-gradient(135deg,#fbfdff 0%,#eef4ff 54%,#f8fbff 100%);
+        }
+        .hero { min-height: 485px; padding: 58px 0 52px; gap: 34px; }
+        .hero h1 { font-size: clamp(38px, 4.6vw, 62px); line-height: 1.06; }
+        .hero-copy { font-size: 15px; line-height: 1.8; }
+        .eyebrow { background: rgba(255,255,255,.92); }
+        .art-card { border-color: rgba(255,255,255,.96); box-shadow: 0 24px 70px rgba(34,82,160,.14), inset 0 1px 0 #fff; }
+        .trust-strip { background: #fff; border-bottom: 1px solid #e8eef7; }
+        .trust-inner { max-width: 1120px; }
+        .trust-item { padding-top: 20px; padding-bottom: 20px; }
+        .portal-section { padding: 60px 0 56px; background: #fff; }
+        .section { padding: 58px 0; }
+        .section-soft { background: #f4f7fc; }
+        .section-head { margin-bottom: 24px; gap: 20px; }
+        .section-kicker { color: #2563eb; letter-spacing: .14em; }
+        .section-title { font-size: clamp(25px, 3vw, 34px); letter-spacing: -.04em; line-height: 1.2; }
+        .section-description { max-width: 670px; font-size: 14px; line-height: 1.75; }
+        .portal-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+        .portal-card { border-radius: 22px; padding: 27px; box-shadow: 0 10px 32px rgba(23,43,77,.045); }
+        .portal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .portal-card.admin { background: linear-gradient(145deg,#f7faff,#fff); }
+        .portal-card.customer { background: linear-gradient(145deg,#f3fbff,#fff); }
+        .portal-actions { gap: 9px; }
+        .portal-button { min-height: 42px; }
+        .status-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+        .status-card { min-width: 0; border-radius: 17px; padding: 19px; box-shadow: 0 7px 24px rgba(23,43,77,.045); }
+        .status-card-value { font-size: 20px; line-height: 1.25; }
+        .status-card-icon { flex: 0 0 36px; }
+        .live-status-section { padding-top: 48px; padding-bottom: 48px; background: #fff; border-top: 1px solid #edf2fa; border-bottom: 1px solid #e8eef7; }
+        .live-status-section .section-head { align-items: center; }
+        #live-application-grid .status-card { position: relative; overflow: hidden; border-color: #e3eaf5; }
+        #live-application-grid .status-card:before { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:#94a3b8; }
+        #live-application-grid .status-card:nth-child(1):before { background:#f59e0b; }
+        #live-application-grid .status-card:nth-child(2):before { background:#3b82f6; }
+        #live-application-grid .status-card:nth-child(3):before { background:#8b5cf6; }
+        #live-application-grid .status-card:nth-child(4):before { background:#10b981; }
+        #live-application-grid .status-card:nth-child(5):before { background:#ef4444; }
+        #live-application-grid .status-card:nth-child(6):before { background:#0891b2; }
+        #live-application-grid .status-card:nth-child(1) .status-card-icon { color:#b45309;background:#fff7e6; }
+        #live-application-grid .status-card:nth-child(2) .status-card-icon { color:#1d4ed8;background:#eff6ff; }
+        #live-application-grid .status-card:nth-child(3) .status-card-icon { color:#6d28d9;background:#f5f3ff; }
+        #live-application-grid .status-card:nth-child(4) .status-card-icon { color:#047857;background:#ecfdf5; }
+        #live-application-grid .status-card:nth-child(5) .status-card-icon { color:#b91c1c;background:#fef2f2; }
+        #live-application-grid .status-card:nth-child(6) .status-card-icon { color:#0e7490;background:#ecfeff; }
+        #live-count-updated { display:flex; align-items:center; gap:8px; color:#71819a !important; }
+        .service-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+        .service-card { min-width: 0; border-radius: 18px; padding: 22px; box-shadow: 0 7px 25px rgba(23,43,77,.035); }
+        .service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+        .service-icon { border-radius: 13px; }
+        .notice-panel { border-radius: 20px; box-shadow: 0 10px 35px rgba(23,43,77,.06); }
+        .notice-panel-head { background: linear-gradient(110deg,#f1f6ff,#f7fbff); }
+        .ai-banner { border-radius: 24px; background: linear-gradient(125deg,#0f1f3d,#173c76 72%,#155eef); box-shadow: 0 18px 45px rgba(15,31,61,.14); }
+        .footer { background: #0b1730; }
+        #kriparohii-btn { background: linear-gradient(145deg,#397bff,#1749c7); }
+        #kriparohii-chat { border-radius: 20px; overflow: hidden; box-shadow: 0 22px 70px rgba(10,25,50,.25); }
+        a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid rgba(37,99,235,.35); outline-offset: 3px; }
+
+        @media (max-width: 1050px) {
+            .container { width: min(100% - 36px, 1200px); }
+            .header-inner { gap: 10px; }
+            .main-nav { gap: 0; }
+            .nav-link, .dropdown-toggle { padding: 9px 7px; font-size: 11px; }
+            .header-cta { padding: 10px 11px; font-size: 11px; }
+            .hero { min-height: 440px; }
+            .status-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+            .service-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        }
+        @media (max-width: 820px) {
+            .header-inner { min-height: 70px; }
+            .main-nav { padding: 12px 18px 18px; }
+            .hero { grid-template-columns: 1fr; padding: 48px 0 35px; gap: 12px; }
+            .hero-content { max-width: 680px; margin: 0 auto; }
+            .hero-art { min-height: 330px; }
+            .portal-section, .section { padding: 45px 0; }
+            .portal-grid { grid-template-columns: 1fr; }
+            .status-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+            .live-status-section { padding: 38px 0; }
+            .trust-inner { grid-template-columns: repeat(2,minmax(0,1fr)); }
+        }
+        @media (max-width: 560px) {
+            .container { width: calc(100% - 28px); }
+            .hero { padding: 38px 0 28px; }
+            .hero h1 { font-size: clamp(35px,10vw,47px); }
+            .hero-actions { gap: 9px; }
+            .btn-primary, .btn-secondary { min-height: 45px; padding: 0 14px; font-size: 12px; }
+            .hero-trust { gap: 10px 14px; font-size: 11px; }
+            .hero-art { min-height: 300px; }
+            .orbit { width: 260px; height: 260px; }
+            .orbit.orbit-two { width: 300px; height: 300px; }
+            .art-card { width: min(310px,84%); padding: 19px; }
+            .floating-chip { max-width: 130px; }
+            .section-head { margin-bottom: 20px; }
+            .section-title { font-size: 26px; }
+            .section-description { font-size: 13px; }
+            .portal-card { padding: 21px; }
+            .portal-actions { flex-direction: column; align-items: stretch; }
+            .portal-button { width: 100%; justify-content: center; }
+            .status-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+            .status-card { padding: 14px; border-radius: 14px; }
+            .status-card-label { font-size: 9px; letter-spacing: .02em; }
+            .status-card-icon { width: 30px; height: 30px; flex-basis: 30px; font-size: 13px; }
+            .status-card-value { margin-top: 10px; font-size: 19px; overflow-wrap: anywhere; }
+            .status-card-note { font-size: 10px; line-height: 1.4; }
+            .service-grid { grid-template-columns: 1fr; }
+            .service-card { min-height: auto; padding: 18px; }
+            .ai-banner { padding: 23px 19px; }
+            .notice-panel-head { gap: 10px; }
+            .notice-live { margin-left: auto; }
+            .footer-inner { gap: 18px; }
+            #kriparohii-chat { right: 12px; bottom: 80px; width: calc(100vw - 24px); max-height: min(600px,calc(100vh - 110px)); }
+        }
+        @media (max-width: 360px) {
+            .brand-name { font-size: 12px; }
+            .brand-tag { font-size: 7px; }
+            .brand-mark { width: 36px; height: 36px; }
+            .status-grid { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; align-items: stretch; }
+            .hero-actions a { width: 100%; }
+        }
+/* FIX: Customer portal secondary button text visibility */
+.portal-card.customer .portal-actions .portal-button.secondary {
+    background: #ffffff !important;
+    color: #155eef !important;
+    border: 1px solid #cbdcff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    -webkit-text-fill-color: #155eef !important;
+}
+
+.portal-card.customer .portal-actions .portal-button.secondary:hover {
+    background: #edf4ff !important;
+    color: #155eef !important;
+}
+
+.portal-card.customer .portal-actions .portal-button {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-indent: 0 !important;
+}
     </style>
 </head>
 
@@ -533,6 +699,86 @@
                         <div class="art-progress"><span></span></div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="section live-status-section" aria-label="Live application processing status">
+            <div class="container">
+<!-- Live Application Processing Status -->
+<div class="section-head" style="margin-top: 32px;">
+    <div>
+        <div class="section-kicker">LIVE APPLICATION TRACKER</div>
+        <h2 class="section-title">Application Processing Status</h2>
+        <p class="section-description">
+            Latest application processing counts across ACZ.
+            Automatically updated every 15 seconds.
+        </p>
+    </div>
+    <span style="font-size:12px;color:#16803d;font-weight:700;">
+        ● LIVE
+    </span>
+</div>
+
+<div class="status-grid" id="live-application-grid">
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">Pending</span>
+            <span class="status-card-icon">P</span>
+        </div>
+        <div class="status-card-value" id="count-pending">—</div>
+        <div class="status-card-note">Awaiting processing</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">Submitted</span>
+            <span class="status-card-icon">S</span>
+        </div>
+        <div class="status-card-value" id="count-submitted">—</div>
+        <div class="status-card-note">Applications submitted</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">In Process</span>
+            <span class="status-card-icon">IP</span>
+        </div>
+        <div class="status-card-value" id="count-in-process">—</div>
+        <div class="status-card-note">Currently being processed</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">Approved</span>
+            <span class="status-card-icon">A</span>
+        </div>
+        <div class="status-card-value" id="count-approved">—</div>
+        <div class="status-card-note">Applications approved</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">Rejected</span>
+            <span class="status-card-icon">R</span>
+        </div>
+        <div class="status-card-value" id="count-rejected">—</div>
+        <div class="status-card-note">Applications rejected</div>
+    </div>
+
+    <div class="status-card">
+        <div class="status-card-head">
+            <span class="status-card-label">Delivered</span>
+            <span class="status-card-icon">D</span>
+        </div>
+        <div class="status-card-value" id="count-delivered">—</div>
+        <div class="status-card-note">Completed applications</div>
+    </div>
+</div>
+
+<p id="live-count-updated"
+   style="font-size:11px;color:#8795aa;margin-top:12px;">
+    Loading latest counts...
+</p>
             </div>
         </section>
 
@@ -964,5 +1210,56 @@
             sendAI(command);
         }
     </script>
+<script>
+(function () {
+    const fields = {
+        "Pending": "count-pending",
+        "Submitted": "count-submitted",
+        "In Process": "count-in-process",
+        "Approved": "count-approved",
+        "Rejected": "count-rejected",
+        "Delivered": "count-delivered"
+    };
+
+    async function refreshApplicationCounts() {
+        try {
+            const response = await fetch(
+                "/live-application-counts/",
+                { cache: "no-store" }
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to load counts");
+            }
+
+            const data = await response.json();
+
+            Object.entries(fields).forEach(function ([status, id]) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent =
+                        data.counts[status] ?? 0;
+                }
+            });
+
+            const updated = document.getElementById("live-count-updated");
+            if (updated) {
+                updated.textContent =
+                    "Last updated: " +
+                    new Date().toLocaleTimeString("en-IN");
+            }
+        } catch (error) {
+            const updated = document.getElementById("live-count-updated");
+            if (updated) {
+                updated.textContent =
+                    "Live counts temporarily unavailable. Retrying...";
+            }
+        }
+    }
+
+    refreshApplicationCounts();
+    setInterval(refreshApplicationCounts, 15000);
+})();
+</script>
 </body>
 </html>

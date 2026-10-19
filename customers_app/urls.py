@@ -55,4 +55,9 @@ path(
     "kriparohii/grievance/",
     views.kriparohii_grievance
 ),
+path(
+    "live-application-counts/",
+    views.live_application_counts,
+    name="live_application_counts",
+),
 ]

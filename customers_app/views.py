@@ -524,6 +524,41 @@ def receipt(request, app_id):
     })
 
 
+@login_required
+def consolidated_receipt(request):
+    customer = Customer.objects.filter(user=request.user).first()
+
+    if customer is None:
+        applications = Application.objects.none()
+        total_paid = Decimal("0.00")
+        total_due = Decimal("0.00")
+    else:
+        applications = Application.objects.filter(
+            customer=customer
+        ).order_by("-application_date", "-id")
+
+        totals = applications.aggregate(
+            total_paid=Sum("paid_amount"),
+            total_due=Sum("due_amount"),
+        )
+
+        total_paid = totals["total_paid"] or Decimal("0.00")
+        total_due = totals["total_due"] or Decimal("0.00")
+
+    response = render(request, "consolidated_receipt.html", {
+        "applications": applications,
+        "customer": customer,
+        "total_paid": total_paid,
+        "total_due": total_due,
+        "public_view": False,
+    })
+
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    return response
+
+
+
 def raise_grievance(request):
     """
     Aadhaar based grievance registration.
@@ -1254,3 +1289,27 @@ def kriparohii_grievance(request):
             "success":False,
             "message":"Customer not found"
         })
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
+
+
+@require_GET
+def live_application_counts(request):
+    statuses = [
+        "Pending",
+        "Submitted",
+        "In Process",
+        "Approved",
+        "Rejected",
+        "Delivered",
+    ]
+
+    counts = {
+        status: Application.objects.filter(status=status).count()
+        for status in statuses
+    }
+
+    return JsonResponse({
+        "counts": counts,
+        "total": sum(counts.values()),
+    })

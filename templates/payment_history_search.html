@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,6 +39,7 @@
         }
 
         h2 { margin-top: 0; font-size: 21px; }
+        h3 { line-height: 1.4; }
 
         .options {
             display: grid;
@@ -73,7 +74,9 @@
             font-weight: bold;
         }
 
-        input[type="text"], input[type="tel"], input[type="password"] {
+        input[type="text"],
+        input[type="tel"],
+        input[type="password"] {
             width: 100%;
             padding: 13px;
             border: 1px solid #cbd5e1;
@@ -87,7 +90,12 @@
             box-shadow: 0 0 0 3px #2563eb20;
         }
 
-        .hint { color: #64748b; font-size: 13px; margin-top: 7px; }
+        .hint {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 7px;
+        }
 
         .verify-box {
             margin-top: 20px;
@@ -99,21 +107,25 @@
 
         .verify-box h3 { margin: 0 0 8px; font-size: 16px; }
 
-        button, .home-link {
+        button, .home-link, .receipt-link {
             display: inline-block;
-            padding: 13px 19px;
+            padding: 12px 17px;
             border: 0;
             border-radius: 9px;
             color: white;
             background: #1d4ed8;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
-            margin-top: 18px;
+            margin-top: 12px;
         }
 
-        .print-btn { background: #087443; margin-top: 0; }
+        button:hover, .home-link:hover, .receipt-link:hover {
+            filter: brightness(.93);
+        }
+
+        .print-btn, .individual-receipt { background: #087443; }
         .home-link { background: #334155; }
 
         .error {
@@ -135,6 +147,7 @@
             background: #f8fafc;
             border-radius: 9px;
             overflow-wrap: anywhere;
+            min-width: 0;
         }
 
         .detail small {
@@ -171,10 +184,37 @@
 
         .section-title { margin-top: 25px; }
 
+        .application-card {
+            background: #f8fafc;
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+            padding: 18px;
+        }
+
+        .receipt-panel {
+            margin: 20px 0;
+            padding: 18px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+        }
+
+        .receipt-panel h3 {
+            margin: 0 0 8px;
+            color: #1e3a8a;
+        }
+
+        .receipt-panel p {
+            margin: 0 0 12px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
         @media (max-width: 620px) {
             .options { grid-template-columns: 1fr; }
             .card { padding: 17px; }
             .header { padding: 21px; }
+            .details { grid-template-columns: 1fr; }
         }
 
         @media print {
@@ -193,6 +233,7 @@
             }
             .header p { color: black; }
             .card { padding: 14px; }
+            .application-card { break-inside: avoid; }
             table { min-width: 0; }
             th, td { padding: 7px; font-size: 11px; }
         }
@@ -303,14 +344,32 @@
                 </div>
             </div>
 
+            {% if public_receipt_token and applications %}
+                <div class="receipt-panel no-print">
+                    <h3>Download Payment Receipts</h3>
+                    <p>
+                        View a receipt for an individual application or
+                        create one consolidated receipt for the verified
+                        applications.
+                    </p>
+
+                    <a class="receipt-link"
+                       href="{% url 'public_consolidated_receipt' %}?token={{ public_receipt_token|urlencode }}"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        View Consolidated Receipt
+                    </a>
+                </div>
+            {% endif %}
+
             <h2 class="section-title">Application Details</h2>
 
             {% for application in applications %}
-                <div class="card" style="background:#f8fafc;box-shadow:none;border:1px solid #e2e8f0;">
+                <div class="card application-card">
                     <div class="details">
                         <div class="detail">
                             <small>Application Number</small>
-                            <strong>{{ application.application_no }}</strong>
+                            <strong>{{ application.application_no|default:"—" }}</strong>
                         </div>
 
                         <div class="detail">
@@ -343,6 +402,17 @@
                             <strong>{{ application.payment_status|default:"—" }}</strong>
                         </div>
                     </div>
+
+                    {% if public_receipt_token %}
+                        <div class="no-print">
+                            <a class="receipt-link individual-receipt"
+                               href="{% url 'public_receipt' application.id %}?token={{ public_receipt_token|urlencode }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                View Individual Receipt
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             {% empty %}
                 <p class="empty">No applications were found.</p>
@@ -413,9 +483,13 @@
     const mobileInput = document.getElementById("verify_mobile");
 
     function updateFields() {
-        const selected = document.querySelector(
+        const selectedRadio = document.querySelector(
             'input[name="search_type"]:checked'
-        ).value;
+        );
+
+        if (!selectedRadio) return;
+
+        const selected = selectedRadio.value;
 
         if (selected === "aadhaar_no") {
             searchLabel.textContent = "Aadhaar Number";
@@ -482,3 +556,4 @@
 </script>
 </body>
 </html>
+```

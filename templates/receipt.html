@@ -1,141 +1,392 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Payment Receipt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt | Aditya Cyber Zone</title>
+
     <style>
-        body{
-            font-family:Arial;
-            background:#f2f2f2;
-            padding:30px;
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 30px 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #eef2f7;
+            color: #1e293b;
         }
-        .receipt{
-            width:700px;
-            margin:auto;
-            background:white;
-            padding:30px;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
+
+        .receipt {
+            max-width: 820px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #dbe3ef;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, .10);
         }
-        h2,h3{
-            text-align:center;
-            margin:5px;
+
+        .header {
+            background: #10294b;
+            color: white;
+            padding: 28px 35px;
+            text-align: center;
         }
-        table{
-            width:100%;
-            margin-top:25px;
-            border-collapse:collapse;
+
+        .brand {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
-        td{
-            padding:12px;
-            border-bottom:1px solid #ddd;
+
+        .subtitle {
+            margin-top: 8px;
+            color: #dbeafe;
+            font-size: 13px;
         }
-        .label{
-            font-weight:bold;
-            width:40%;
+
+        .receipt-title {
+            margin-top: 20px;
+            font-size: 21px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .paid{
-            color:green;
-            font-weight:bold;
+
+        .content { padding: 30px 35px; }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
         }
-        .btn{
-            display:inline-block;
-            margin-top:20px;
-            padding:10px 15px;
-            background:#007bff;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
+
+        .meta-label {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 6px;
         }
-        @media print{
-            .no-print{
-                display:none;
+
+        .meta-value {
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected, .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #10294b;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 2px solid #10294b;
+            padding-bottom: 9px;
+            margin: 25px 0 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5eaf1;
+            font-size: 13px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        td:first-child {
+            width: 42%;
+            color: #64748b;
+        }
+
+        td:last-child {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .amount-box {
+            margin-top: 24px;
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid #dbe3ef;
+            border-radius: 9px;
+        }
+
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 0;
+            font-size: 14px;
+        }
+
+        .amount-row.total {
+            margin-top: 8px;
+            padding-top: 14px;
+            border-top: 1px solid #cbd5e1;
+            font-size: 18px;
+            font-weight: bold;
+            color: #10294b;
+        }
+
+        .note {
+            margin-top: 25px;
+            padding: 13px;
+            background: #f8fafc;
+            border-left: 4px solid #10294b;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .footer {
+            padding: 18px 30px;
+            text-align: center;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .actions {
+            max-width: 820px;
+            margin: 20px auto 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .btn-primary { background: #10294b; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #1e293b; }
+
+        @media (max-width: 520px) {
+            body { padding: 12px 8px; }
+            .header { padding: 24px 15px; }
+            .content { padding: 20px 16px; }
+            .brand { font-size: 22px; }
+            td { padding: 10px 5px; font-size: 12px; }
+            td:first-child { width: 40%; }
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
+
+            .receipt {
+                max-width: 100%;
+                border: 1px solid #cbd5e1;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .actions, .no-print { display: none !important; }
+            .content { padding: 18px 24px; }
+            .header { padding: 20px; }
+            tr { page-break-inside: avoid; }
         }
     </style>
 </head>
+
 <body>
 
 <div class="receipt">
+    <header class="header">
+        <div class="brand">ADITYA CYBER ZONE</div>
+        <div class="subtitle">Customer Service &amp; Application Assistance</div>
+        <div class="receipt-title">Payment Receipt</div>
+    </header>
 
-    <h2>ADITYA CYBER ZONE</h2>
-    <h3>Payment Receipt</h3>
+    <main class="content">
+        <div class="top-row">
+            <div>
+                <div class="meta-label">Receipt Number</div>
+                <div class="meta-value">
+                    {% if application.receipt_no %}
+                        {{ application.receipt_no }}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </div>
+            </div>
 
-    <table>
-        <tr>
-            <td class="label">Receipt No</td>
-            <td>{{ application.receipt_no }}</td>
-        </tr>
+            <div>
+                <div class="meta-label">Payment Reference</div>
+                <div class="meta-value">
+                    {% if application.payment_reference_no %}
+                        {{ application.payment_reference_no }}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </div>
+            </div>
 
-        <tr>
-            <td class="label">Payment Reference No</td>
-            <td>{{ application.payment_reference_no }}</td>
-        </tr>
+            <div>
+                <div class="meta-label">Payment Status</div>
+                <div>
+                    <span class="status {% if application.payment_status == 'Paid' %}status-paid{% elif application.payment_status == 'Rejected' or application.payment_status == 'Failed' %}status-rejected{% endif %}">
+                        {{ application.payment_status|default:"Unknown" }}
+                    </span>
+                </div>
+            </div>
+        </div>
 
-        <tr>
-            <td class="label">Customer Name</td>
-            <td>{{ application.customer.name }}</td>
-        </tr>
+        <div class="section-title">Customer Details</div>
+        <table>
+            <tr>
+                <td>Customer Name</td>
+                <td>{{ application.customer.name|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Registered Mobile</td>
+                <td>{{ application.customer.contact_no|default:"—" }}</td>
+            </tr>
+        </table>
 
-        <tr>
-            <td class="label">Mobile No</td>
-            <td>{{ application.customer.contact_no }}</td>
-        </tr>
+        <div class="section-title">Application Details</div>
+        <table>
+            <tr>
+                <td>Application Name</td>
+                <td>{{ application.application_name|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Application Number</td>
+                <td>{{ application.application_no|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Application Date</td>
+                <td>{{ application.application_date|date:"d M Y"|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Application Status</td>
+                <td>{{ application.status|default:"—" }}</td>
+            </tr>
+        </table>
 
-        <tr>
-            <td class="label">Application</td>
-            <td>{{ application.application_name }}</td>
-        </tr>
+        <div class="section-title">Payment Details</div>
+        <table>
+            <tr>
+                <td>Payment Mode</td>
+                <td>{{ application.payment_mode|default:"—" }}</td>
+            </tr>
+            <tr>
+                <td>Payment / Transaction ID</td>
+                <td>
+                    {% if application.razorpay_payment_id %}
+                        {{ application.razorpay_payment_id }}
+                    {% elif application.payment_reference_no %}
+                        {{ application.payment_reference_no }}
+                    {% else %}
+                        Not available
+                    {% endif %}
+                </td>
+            </tr>
+            {% with latest_payment=application.payment_history.all|first %}
+                <tr>
+                    <td>Recorded Payment Date</td>
+                    <td>
+                        {% if latest_payment %}
+                            {{ latest_payment.created_at|date:"d M Y, h:i A" }}
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endwith %}
+        </table>
 
-        <tr>
-            <td class="label">Application No</td>
-            <td>{{ application.application_no }}</td>
-        </tr>
+        <div class="amount-box">
+            <div class="amount-row">
+                <span>Application Amount</span>
+                <strong>₹{{ application.amount|default:"0.00" }}</strong>
+            </div>
+            <div class="amount-row">
+                <span>Paid Amount</span>
+                <strong>₹{{ application.paid_amount|default:"0.00" }}</strong>
+            </div>
+            <div class="amount-row">
+                <span>Outstanding Due</span>
+                <strong>₹{{ application.due_amount|default:"0.00" }}</strong>
+            </div>
+            <div class="amount-row total">
+                <span>Payment Status</span>
+                <span>{{ application.payment_status|default:"Unknown" }}</span>
+            </div>
+        </div>
 
-        <tr>
-            <td class="label">Amount</td>
-            <td>₹{{ application.amount }}</td>
-        </tr>
+        <div class="note">
+            <strong>Important:</strong> This receipt displays the payment details
+            currently recorded in the Aditya Cyber Zone system. Please retain it
+            for your records. If any detail appears incorrect, contact Aditya Cyber Zone.
+        </div>
+    </main>
 
-        <tr>
-            <td class="label">Paid Amount</td>
-            <td>₹{{ application.paid_amount }}</td>
-        </tr>
+    <footer class="footer">
+        Thank you for choosing Aditya Cyber Zone.<br>
+        This receipt is computer-generated.
+    </footer>
+</div>
 
-        <tr>
-            <td class="label">Due Amount</td>
-            <td>₹{{ application.due_amount }}</td>
-        </tr>
+<div class="actions no-print">
+    {% if not public_view %}
+        <a href="{% url 'payment_history' %}" class="btn btn-secondary">
+            Back to Payment History
+        </a>
+    {% else %}
+        <a href="{% url 'payment_history_search' %}" class="btn btn-secondary">
+            Back to Search
+        </a>
+    {% endif %}
 
-        <tr>
-            <td class="label">Payment Status</td>
-            <td class="paid">{{ application.payment_status }}</td>
-        </tr>
-
-        <tr>
-            <td class="label">Payment Mode</td>
-            <td>{{ application.payment_mode }}</td>
-        </tr>
-
-        <tr>
-            <td class="label">Application Status</td>
-            <td>{{ application.status }}</td>
-        </tr>
-
-        <tr>
-            <td class="label">Payment Date</td>
-            <td>{{ application.status_updated_at }}</td>
-        </tr>
-    </table>
-
-    <p style="text-align:center;margin-top:25px;">
-        Thank you for choosing Aditya Cyber Zone.
-    </p>
-
-    <div class="no-print" style="text-align:center;">
-        <a href="/customer-dashboard/" class="btn">Back</a>
-        <a href="#" onclick="window.print()" class="btn">Print Receipt</a>
-    </div>
-
+    <button type="button" onclick="window.print()" class="btn btn-primary">
+        Print / Save as PDF
+    </button>
 </div>
 
 </body>

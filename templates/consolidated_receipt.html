@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolidated Payment Statement | Aditya Cyber Zone</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 25px 12px;
+            background: #eef2f7;
+            color: #1e293b;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .sheet {
+            max-width: 1050px;
+            margin: auto;
+            background: #fff;
+            border: 1px solid #dbe3ef;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, .08);
+        }
+        .header {
+            padding: 28px;
+            text-align: center;
+            color: white;
+            background: #10294b;
+        }
+        .brand { font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+        .subtitle { margin-top: 8px; font-size: 13px; color: #dbeafe; }
+        h1 { font-size: 19px; margin: 20px 0 0; text-transform: uppercase; }
+        .content { padding: 25px; }
+        .customer {
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 13px;
+        }
+        .customer strong { color: #10294b; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #10294b;
+            color: white;
+            text-align: left;
+            font-size: 12px;
+            padding: 12px 9px;
+        }
+        td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 9px;
+            font-size: 12px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .summary-card {
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .summary-label { font-size: 12px; color: #64748b; }
+        .summary-value { margin-top: 8px; font-size: 20px; font-weight: bold; color: #10294b; }
+        .note {
+            margin-top: 22px;
+            padding: 13px;
+            border-left: 4px solid #10294b;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .footer {
+            padding: 18px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+        .actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px auto;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 17px;
+            border: 0;
+            border-radius: 7px;
+            background: #10294b;
+            color: white;
+            font-weight: bold;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn-light { background: #e2e8f0; color: #1e293b; }
+        .empty { padding: 25px; text-align: center; color: #64748b; }
+        @media (max-width: 650px) {
+            .content { padding: 15px; }
+            .summary { grid-template-columns: 1fr; }
+            .brand { font-size: 21px; }
+        }
+        @page { size: A4 landscape; margin: 10mm; }
+        @media print {
+            body { padding: 0; background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+            .sheet { max-width: 100%; box-shadow: none; border: 0; }
+            .actions { display: none !important; }
+            .content { padding: 12px; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+<div class="sheet">
+    <header class="header">
+        <div class="brand">ADITYA CYBER ZONE</div>
+        <div class="subtitle">Customer Service &amp; Application Assistance</div>
+        <h1>Consolidated Payment Statement</h1>
+    </header>
+
+    <main class="content">
+        <section class="customer">
+            <strong>Customer Name:</strong>
+            {% if customer %}{{ customer.name|default:"—" }}{% else %}—{% endif %}
+            <br>
+            <strong>Registered Mobile:</strong>
+            {% if customer %}{{ customer.contact_no|default:"—" }}{% else %}—{% endif %}
+            <br>
+            <strong>Statement Generated:</strong>
+            {% now "d M Y, h:i A" %}
+        </section>
+
+        {% if applications %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application No.</th>
+                            <th>Application Name</th>
+                            <th>Application Date</th>
+                            <th>Receipt No.</th>
+                            <th>Payment Reference</th>
+                            <th>Amount</th>
+                            <th>Paid</th>
+                            <th>Due</th>
+                            <th>Payment Status</th>
+                            <th>Payment Mode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>{{ application.application_no|default:"—" }}</td>
+                            <td>{{ application.application_name|default:"—" }}</td>
+                            <td>{{ application.application_date|date:"d M Y"|default:"—" }}</td>
+                            <td>{{ application.receipt_no|default:"Not assigned" }}</td>
+                            <td>{{ application.payment_reference_no|default:"Not assigned" }}</td>
+                            <td>₹{{ application.amount|default:"0.00" }}</td>
+                            <td>₹{{ application.paid_amount|default:"0.00" }}</td>
+                            <td>₹{{ application.due_amount|default:"0.00" }}</td>
+                            <td>{{ application.payment_status|default:"Unknown" }}</td>
+                            <td>{{ application.payment_mode|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="summary">
+                <div class="summary-card">
+                    <div class="summary-label">Total Applications</div>
+                    <div class="summary-value">{{ applications|length }}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Total Paid</div>
+                    <div class="summary-value">₹{{ total_paid|default:"0.00" }}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Total Due</div>
+                    <div class="summary-value">₹{{ total_due|default:"0.00" }}</div>
+                </div>
+            </section>
+        {% else %}
+            <div class="empty">No applications were found for this statement.</div>
+        {% endif %}
+
+        <div class="note">
+            <strong>Note:</strong> This statement summarizes application-level amounts
+            currently recorded in the system. It is not a substitute for individual
+            transaction receipts. Receipt numbers and references are displayed only
+            when they exist in the records.
+        </div>
+    </main>
+
+    <footer class="footer">
+        Thank you for choosing Aditya Cyber Zone.<br>
+        This statement is computer-generated.
+    </footer>
+</div>
+
+<div class="actions">
+    {% if public_view %}
+        <a class="btn btn-light" href="{% url 'payment_history_search' %}">Back to Search</a>
+    {% else %}
+        <a class="btn btn-light" href="{% url 'payment_history' %}">Back to Payment History</a>
+    {% endif %}
+    <button class="btn" type="button" onclick="window.print()">Print / Save as PDF</button>
+</div>
+</body>
+</html>
