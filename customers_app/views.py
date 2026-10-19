@@ -368,16 +368,148 @@ def payment_success(request, app_id):
 
 @login_required
 def payment_history(request):
-    customer = Customer.objects.get(user=request.user)
+    customer = Customer.objects.filter(user=request.user).first()
 
-    history = PaymentHistory.objects.filter(
-        application__customer=customer
-    ).order_by("-created_at")
+    if customer is None:
+        history = PaymentHistory.objects.none()
+    else:
+        history = PaymentHistory.objects.filter(
+            application__customer=customer
+        ).order_by("-created_at")
 
     return render(request, "payment_history.html", {
         "history": history
     })
+from django.views.decorators.cache import never_cache
 
+
+@never_cache
+def payment_history_search(request):
+    customer = None
+    applications = []
+    history = []
+    error = None
+    searched = False
+    search_type = "mobile_no"
+
+    if request.method == "POST":
+        searched = True
+
+        search_type = request.POST.get(
+            "search_type", "mobile_no"
+        ).strip()
+
+        search_value = request.POST.get(
+            "search_value", ""
+        ).strip()
+
+        verify_aadhaar = request.POST.get(
+            "verify_aadhaar", ""
+        ).strip()
+
+        verify_mobile = request.POST.get(
+            "verify_mobile", ""
+        ).strip()
+
+        valid_types = {
+            "aadhaar_no",
+            "mobile_no",
+            "application_no",
+        }
+
+        if search_type not in valid_types:
+            error = "Please select a valid search option."
+
+        elif not search_value:
+            error = "Please enter the value to search."
+
+        else:
+            try:
+                if search_type == "aadhaar_no":
+                    # Aadhaar search: registered mobile verifies identity.
+                    if not verify_mobile:
+                        error = "Please enter your registered mobile number."
+                    else:
+                        customer = Customer.objects.filter(
+                            aadhaar_no=search_value,
+                            contact_no=verify_mobile,
+                        ).first()
+
+                elif search_type == "mobile_no":
+                    # Mobile search: Aadhaar verifies identity.
+                    if not verify_aadhaar:
+                        error = "Please enter your Aadhaar number."
+                    else:
+                        customer = Customer.objects.filter(
+                            contact_no=search_value,
+                            aadhaar_no=verify_aadhaar,
+                        ).first()
+
+                else:
+                    # Application search: both customer details must match.
+                    if not verify_aadhaar or not verify_mobile:
+                        error = (
+                            "Please enter both Aadhaar and "
+                            "registered mobile number."
+                        )
+                    else:
+                        application = Application.objects.filter(
+                            application_no=search_value,
+                            customer__aadhaar_no=verify_aadhaar,
+                            customer__contact_no=verify_mobile,
+                        ).select_related("customer").first()
+
+                        if application:
+                            customer = application.customer
+                            applications = [application]
+
+                if not error and customer is None:
+                    error = (
+                        "Details could not be verified. "
+                        "Please check and try again."
+                    )
+
+                if not error and customer is not None:
+                    if search_type != "application_no":
+                        applications = list(
+                            Application.objects.filter(
+                                customer=customer
+                            ).order_by("-application_date", "-id")
+                        )
+
+                    history = PaymentHistory.objects.filter(
+                        application__in=applications
+                    ).select_related(
+                        "application"
+                    ).order_by("-created_at")
+
+            except (ValueError, TypeError):
+                customer = None
+                applications = []
+                history = []
+                error = "Invalid details. Please check and try again."
+
+            if error:
+                customer = None
+                applications = []
+                history = []
+
+    response = render(
+        request,
+        "payment_history_search.html",
+        {
+            "customer": customer,
+            "applications": applications,
+            "history": history,
+            "error": error,
+            "searched": searched,
+            "search_type": search_type,
+        },
+    )
+
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    return response
 
 @login_required
 def receipt(request, app_id):

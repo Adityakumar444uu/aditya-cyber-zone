@@ -15,6 +15,11 @@ urlpatterns = [
     path('pay-now/<int:app_id>/', views.create_payment, name='create_payment'),
     path('payment-success/<int:app_id>/', views.payment_success, name='payment_success'),
     path('payment-history/', views.payment_history, name='payment_history'),
+path(
+    'payment-history-search/',
+    views.payment_history_search,
+    name='payment_history_search'
+),
     path('receipt/<int:app_id>/', views.receipt, name='receipt'),
 
     path('check-status/', views.check_status, name='check_status'),

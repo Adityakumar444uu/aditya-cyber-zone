@@ -1,153 +1,140 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Payment History</title>
-
-    <style>
-
-        body{
-            font-family:Arial;
-            background:#f2f2f2;
-            padding:30px;
-        }
-
-        .container{
-            background:white;
-            padding:25px;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
-        }
-
-        h2{
-            margin-bottom:20px;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-        th{
-            background:#007bff;
-            color:white;
-            padding:12px;
-        }
-
-        td{
-            padding:12px;
-            text-align:center;
-            border-bottom:1px solid #ddd;
-        }
-
-        tr:hover{
-            background:#f8f9fa;
-        }
-
-        .paid{
-            color:green;
-            font-weight:bold;
-        }
-
-        .btn{
-            display:inline-block;
-            padding:8px 12px;
-            background:#007bff;
-            color:white;
-            text-decoration:none;
-            border-radius:6px;
-        }
-
-        .back{
-            background:#343a40;
-            margin-bottom:20px;
-        }
-
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment History | Aditya Cyber Zone</title>
+<style>
+:root{--navy:#081426;--navy2:#10223c;--blue:#1769e0;--cyan:#42d7f5;--ink:#17243b;--muted:#6c7b91;--line:#e4eaf2;--bg:#f4f7fb;--green:#138a58;--red:#c53c4b;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+a{text-decoration:none;color:inherit}.topbar{height:76px;background:linear-gradient(110deg,var(--navy),#12305a);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,72px);box-shadow:0 8px 25px #091a3020}
+.brand{display:flex;gap:12px;align-items:center;font-weight:900;letter-spacing:.8px;font-size:17px}.brand-icon{height:42px;width:42px;border-radius:13px;background:linear-gradient(135deg,#2f8bff,var(--cyan));display:grid;place-items:center;font-size:22px;box-shadow:0 5px 18px #42d7f544}.brand small{display:block;font-size:10px;letter-spacing:3px;color:#a9c8ee;margin-top:3px}
+.toplinks{display:flex;align-items:center;gap:10px}.navlink{padding:10px 14px;border-radius:10px;color:#e4edfb;font-size:13px;font-weight:700}.navlink:hover{background:#ffffff17}.profile{background:#ffffff15;border:1px solid #ffffff25;border-radius:999px;padding:9px 14px;font-size:13px}
+.page{max-width:1180px;margin:34px auto 70px;padding:0 22px}.crumbs{font-size:12px;color:var(--muted);margin-bottom:19px}.crumbs a{color:var(--blue);font-weight:700}
+.hero{background:linear-gradient(120deg,#0a1930,#123f78 70%,#126d9d);color:white;border-radius:24px;padding:32px clamp(22px,4vw,42px);position:relative;overflow:hidden;box-shadow:0 15px 35px #0b2b5220}
+.hero:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid #ffffff17;right:-80px;top:-125px;box-shadow:0 0 0 35px #ffffff08,0 0 0 75px #ffffff05}
+.hero-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;position:relative;z-index:1}.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:#91e9ff;text-transform:uppercase}.hero h1{font-size:clamp(27px,4vw,38px);margin:10px 0 8px;letter-spacing:-.8px}.hero p{margin:0;color:#d1e0f5;line-height:1.6;font-size:14px;max-width:620px}.secure{background:#ffffff12;border:1px solid #ffffff30;padding:12px 15px;border-radius:13px;font-size:12px;font-weight:700;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}.stat{background:#fff;border:1px solid var(--line);border-radius:17px;padding:19px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 5px 18px #17243b05}.stat-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:21px;background:#eaf2ff}.stat:nth-child(2) .stat-icon{background:#e4f8ef}.stat:nth-child(3) .stat-icon{background:#fff4df}.stat-label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.7px;text-transform:uppercase}.stat-value{font-size:22px;font-weight:900;margin-top:5px;letter-spacing:-.5px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 8px 28px #14274608}.panel-head{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:18px}.panel-title{font-size:18px;font-weight:900}.panel-sub{font-size:12px;color:var(--muted);margin-top:5px}.tools{display:flex;gap:9px;align-items:center}.search{width:min(270px,45vw);border:1px solid #dce4ef;border-radius:11px;padding:11px 13px;font-size:13px;outline:none;background:#fbfcfe}.search:focus{border-color:#4c91ef;box-shadow:0 0 0 3px #1769e015}.btn{border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;padding:11px 14px;font-weight:800;font-size:12px;white-space:nowrap}.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#0c54bd}.btn-light{background:#edf4ff;color:#165bc0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:780px}thead{background:#f8fafd}th{text-align:left;padding:13px 18px;color:#748299;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:900;border-bottom:1px solid var(--line)}td{padding:17px 18px;border-bottom:1px solid #edf1f6;font-size:13px;vertical-align:middle}tbody tr:hover{background:#fbfdff}tbody tr:last-child td{border-bottom:0}.service{font-weight:850;color:#1b2c45}.subtext{font-size:11px;color:var(--muted);margin-top:5px}.amount{font-weight:900;font-size:14px;font-variant-numeric:tabular-nums}.reference{font-size:11px;color:#53647d;font-family:Consolas,monospace;max-width:190px;overflow-wrap:anywhere}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:10px;font-weight:900;white-space:nowrap;background:#e5f8ef;color:#117a4c}.pill:before{content:"";width:6px;height:6px;background:currentColor;border-radius:50%}.pill.pending{background:#fff3d9;color:#966000}.pill.failed,.pill.rejected{background:#ffe9eb;color:#b62f42}.mode{font-size:12px;font-weight:750;color:#33455f}.actions{display:flex;gap:7px}.receipt-link{background:#edf4ff;color:#155dc7;padding:8px 10px;border-radius:9px;font-weight:850;font-size:11px;white-space:nowrap}.empty{padding:56px 20px;text-align:center}.empty-icon{margin:0 auto 14px;width:62px;height:62px;border-radius:20px;background:#edf4ff;display:grid;place-items:center;font-size:28px}.empty h3{margin:0 0 7px;font-size:18px}.empty p{margin:0 auto 20px;max-width:430px;color:var(--muted);font-size:13px;line-height:1.7}.empty[hidden]{display:none}
+.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#7d899b;font-size:11px;margin-top:22px;padding:0 3px}.footer a{color:#356ec0;font-weight:800}.notice{margin-top:16px;background:#eef7ff;border:1px solid #d5eaff;border-radius:13px;padding:13px 16px;color:#315576;font-size:12px;line-height:1.6}.notice strong{color:#174d87}
+@media(max-width:720px){.topbar{height:auto;min-height:70px;padding:14px 18px}.toplinks .navlink{display:none}.profile{font-size:11px}.page{margin-top:20px;padding:0 13px}.hero{border-radius:18px;padding:25px 20px}.hero-top{display:block}.secure{display:inline-block;margin-top:17px}.stats{grid-template-columns:1fr;gap:9px}.stat{padding:14px 16px}.panel-head{align-items:flex-start;flex-direction:column;padding:19px}.tools{width:100%}.search{width:100%;flex:1}.panel-title{font-size:17px}.footer{line-height:1.8}}
+@media print{.topbar,.crumbs,.tools,.actions,.notice,.footer .noprint{display:none!important}body{background:#fff}.page{margin:0 auto;padding:0}.hero{background:#fff;color:#111;box-shadow:none;border:1px solid #ddd}.hero p,.eyebrow{color:#444}.secure{color:#111;border-color:#ccc}.stats{break-inside:avoid}.panel{box-shadow:none}}
+</style>
 </head>
 <body>
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="brand-icon">☁</span>
+    <span>ADITYA<small>CYBER ZONE</small></span>
+  </a>
+  <nav class="toplinks">
+    <a class="navlink" href="/">Home</a>
+    <a class="navlink" href="/applications/">My Applications</a>
+    <a class="navlink" href="/check-status/">Track Status</a>
+    <span class="profile">👤 {{ request.user.username|default:"Customer" }}</span>
+  </nav>
+</header>
 
-<div class="container">
+<main class="page">
+  <div class="crumbs"><a href="/">Home</a> &nbsp;›&nbsp; Customer Portal &nbsp;›&nbsp; <strong>Payment History</strong></div>
 
-<a href="/customer-dashboard/" class="btn back">
-← Back to Dashboard
-</a>
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">Customer financial records</div>
+        <h1>Payment History</h1>
+        <p>View your recorded transactions, payment references and receipts in one place. Keep this page for your personal payment records.</p>
+      </div>
+      <div class="secure">🛡️ &nbsp;Private account records</div>
+    </div>
+  </section>
 
-<h2>Payment History</h2>
+  <section class="stats" aria-label="Payment history overview">
+    <div class="stat"><div class="stat-icon">🧾</div><div><div class="stat-label">Transactions shown</div><div class="stat-value">{{ history|length }}</div></div></div>
+    <div class="stat"><div class="stat-icon">✓</div><div><div class="stat-label">Payment records</div><div class="stat-value">{{ history|length }}</div></div></div>
+    <div class="stat"><div class="stat-icon">🔐</div><div><div class="stat-label">Account security</div><div class="stat-value" style="font-size:18px">Protected</div></div></div>
+  </section>
 
-<table>
+  <section class="panel">
+    <div class="panel-head">
+      <div><div class="panel-title">Your transactions</div><div class="panel-sub">Latest payment records appear first.</div></div>
+      <div class="tools">
+        <input class="search" id="paymentSearch" type="search" placeholder="Search receipt, reference, mode…" aria-label="Search payment history">
+        <button class="btn btn-light" type="button" onclick="window.print()">⤓ Print</button>
+      </div>
+    </div>
 
-<tr>
+    {% if history %}
+    <div class="table-wrap" id="historyTableWrap">
+      <table id="historyTable">
+        <thead><tr><th>Transaction</th><th>Date</th><th>Amount</th><th>Mode</th><th>Status</th><th>Receipt</th></tr></thead>
+        <tbody>
+        {% for item in history %}
+          <tr>
+            <td>
+              <div class="service">Application #{{ item.application.id }}</div>
+              <div class="subtext">Receipt: {{ item.receipt_no|default:"Not generated" }}</div>
+              <div class="reference">{{ item.payment_reference_no|default:"Reference not available" }}</div>
+            </td>
+            <td>
+              <div style="font-weight:750">{{ item.created_at|date:"d M Y"|default:"—" }}</div>
+              <div class="subtext">{{ item.created_at|date:"h:i A"|default:"" }}</div>
+            </td>
+            <td><div class="amount">₹{{ item.amount|default:"0.00" }}</div></td>
+            <td><span class="mode">{{ item.payment_mode|default:"—" }}</span></td>
+            <td>
+              {% with status=item.payment_status|default:"Unknown" %}
+                <span class="pill {% if status == 'Pending' or status == 'Processing' %}pending{% elif status == 'Failed' or status == 'Rejected' %}failed{% endif %}">{{ status }}</span>
+              {% endwith %}
+            </td>
+            <td><div class="actions"><a class="receipt-link" href="/receipt/{{ item.application.id }}/">View receipt ↗</a></div></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="empty" id="noSearchResults" hidden>
+      <div class="empty-icon">🔎</div><h3>No matching transaction</h3><p>Try another receipt number, reference number, payment mode or application ID.</p>
+    </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">🧾</div>
+      <h3>No payment records yet</h3>
+      <p>Your recorded payments will appear here after a transaction is added to your account. If you have already paid, contact Aditya Cyber Zone with your application details.</p>
+      <a class="btn btn-primary" href="/applications/">View my applications →</a>
+    </div>
+    {% endif %}
+  </section>
 
-<th>Date</th>
+  <div class="notice"><strong>Payment record note:</strong> This page displays records currently saved in your account. If a transaction is missing or a payment status looks incorrect, please contact support before making another payment.</div>
 
-<th>Application</th>
+  <footer class="footer">
+    <span>© 2026 Aditya Cyber Zone. All rights reserved.</span>
+    <span><a href="/applications/">My Applications</a> &nbsp;·&nbsp; <a href="/raise-grievance/">Get Support</a></span>
+  </footer>
+</main>
 
-<th>Amount</th>
-
-<th>Payment Mode</th>
-
-<th>Status</th>
-
-<th>Reference No</th>
-
-<th>Receipt No</th>
-
-<th>Receipt</th>
-
-</tr>
-
-{% for payment in history %}
-
-<tr>
-
-<td>{{ payment.created_at }}</td>
-
-<td>{{ payment.application.application_name }}</td>
-
-<td>₹{{ payment.amount }}</td>
-
-<td>{{ payment.payment_mode }}</td>
-
-<td class="paid">
-{{ payment.payment_status }}
-</td>
-
-<td>{{ payment.payment_reference_no }}</td>
-
-<td>{{ payment.receipt_no }}</td>
-
-<td>
-
-<a
-href="/receipt/{{ payment.application.id }}/"
-class="btn">
-
-View Receipt
-
-</a>
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-
-<td colspan="8">
-
-No Payment History Found
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
-
-</div>
-
+<script>
+(function(){
+  const input = document.getElementById('paymentSearch');
+  const table = document.getElementById('historyTable');
+  const empty = document.getElementById('noSearchResults');
+  if(!input || !table) return;
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  input.addEventListener('input', function(){
+    const query = this.value.trim().toLowerCase();
+    let visible = 0;
+    rows.forEach(function(row){
+      const match = row.innerText.toLowerCase().includes(query);
+      row.style.display = match ? '' : 'none';
+      if(match) visible++;
+    });
+    if(empty) empty.hidden = visible !== 0;
+    const wrap = document.getElementById('historyTableWrap');
+    if(wrap) wrap.style.display = visible === 0 ? 'none' : '';
+  });
+})();
+</script>
 </body>
 </html>

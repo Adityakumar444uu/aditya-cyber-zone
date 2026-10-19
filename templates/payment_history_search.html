@@ -1,0 +1,484 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History | Aditya Cyber Zone</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px 14px;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #172033;
+        }
+
+        .container { max-width: 960px; margin: auto; }
+
+        .header {
+            background: linear-gradient(135deg, #102344, #1d4ed8);
+            color: white;
+            padding: 26px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 { margin: 0 0 8px; }
+        .header p { margin: 0; color: #dbeafe; }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px #0f172a0c;
+        }
+
+        h2 { margin-top: 0; font-size: 21px; }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .option {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+            padding: 15px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 11px;
+            cursor: pointer;
+            background: #fff;
+            font-weight: bold;
+        }
+
+        .option:has(input:checked) {
+            border: 2px solid #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .option input { accent-color: #2563eb; }
+
+        label.field-label {
+            display: block;
+            margin: 16px 0 7px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="tel"], input[type="password"] {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px #2563eb20;
+        }
+
+        .hint { color: #64748b; font-size: 13px; margin-top: 7px; }
+
+        .verify-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 11px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .verify-box h3 { margin: 0 0 8px; font-size: 16px; }
+
+        button, .home-link {
+            display: inline-block;
+            padding: 13px 19px;
+            border: 0;
+            border-radius: 9px;
+            color: white;
+            background: #1d4ed8;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 18px;
+        }
+
+        .print-btn { background: #087443; margin-top: 0; }
+        .home-link { background: #334155; }
+
+        .error {
+            padding: 13px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 9px;
+            margin-bottom: 15px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .detail {
+            padding: 14px;
+            background: #f8fafc;
+            border-radius: 9px;
+            overflow-wrap: anywhere;
+        }
+
+        .detail small {
+            display: block;
+            color: #64748b;
+            margin-bottom: 7px;
+        }
+
+        .detail strong { overflow-wrap: anywhere; }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            overflow-wrap: anywhere;
+        }
+
+        th { background: #eff6ff; color: #1e3a8a; }
+
+        .empty {
+            padding: 14px;
+            background: #fff7ed;
+            border-radius: 9px;
+            color: #9a3412;
+        }
+
+        .section-title { margin-top: 25px; }
+
+        @media (max-width: 620px) {
+            .options { grid-template-columns: 1fr; }
+            .card { padding: 17px; }
+            .header { padding: 21px; }
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none !important; }
+            .container { max-width: 100%; }
+            .header, .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+            .header {
+                background: white;
+                color: black;
+                padding: 12px;
+            }
+            .header p { color: black; }
+            .card { padding: 14px; }
+            table { min-width: 0; }
+            th, td { padding: 7px; font-size: 11px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <header class="header">
+        <h1>Aditya Cyber Zone</h1>
+        <p>Secure Customer Payment History</p>
+    </header>
+
+    <section class="card no-print">
+        <h2>Search Your Payment History</h2>
+        <p>Select any one option to start your search.</p>
+
+        {% if error %}
+            <div class="error" role="alert">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="options">
+                <label class="option">
+                    <input type="radio" name="search_type"
+                           value="aadhaar_no"
+                           {% if search_type == "aadhaar_no" %}checked{% endif %}>
+                    Aadhaar Number
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="search_type"
+                           value="mobile_no"
+                           {% if search_type == "mobile_no" %}checked{% endif %}>
+                    Registered Mobile
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="search_type"
+                           value="application_no"
+                           {% if search_type == "application_no" %}checked{% endif %}>
+                    Application Number
+                </label>
+            </div>
+
+            <label class="field-label" id="search-label" for="search_value">
+                Registered Mobile Number
+            </label>
+
+            <input id="search_value" name="search_value" type="tel"
+                   inputmode="numeric" maxlength="15" required
+                   placeholder="Enter registered mobile number">
+
+            <p class="hint" id="search-hint">
+                Enter the mobile number registered with Aditya Cyber Zone.
+            </p>
+
+            <div class="verify-box">
+                <h3>Identity Verification</h3>
+                <p class="hint">
+                    To protect your payment records, verify the other required
+                    customer details before viewing the results.
+                </p>
+
+                <div id="aadhaar-field">
+                    <label class="field-label" for="verify_aadhaar">
+                        Aadhaar Number
+                    </label>
+                    <input id="verify_aadhaar" name="verify_aadhaar"
+                           type="password" inputmode="numeric"
+                           minlength="12" maxlength="12"
+                           pattern="[0-9]{12}"
+                           autocomplete="off"
+                           placeholder="Enter 12-digit Aadhaar number">
+                </div>
+
+                <div id="mobile-field">
+                    <label class="field-label" for="verify_mobile">
+                        Registered Mobile Number
+                    </label>
+                    <input id="verify_mobile" name="verify_mobile"
+                           type="tel" inputmode="numeric" maxlength="15"
+                           autocomplete="off"
+                           placeholder="Enter registered mobile number">
+                </div>
+            </div>
+
+            <button type="submit">Verify &amp; Search</button>
+        </form>
+    </section>
+
+    {% if customer %}
+        <section class="card">
+            <h2>Verified Customer</h2>
+
+            <div class="details">
+                <div class="detail">
+                    <small>Customer Name</small>
+                    <strong>{{ customer.name }}</strong>
+                </div>
+
+                <div class="detail">
+                    <small>Applications Found</small>
+                    <strong>{{ applications|length }}</strong>
+                </div>
+            </div>
+
+            <h2 class="section-title">Application Details</h2>
+
+            {% for application in applications %}
+                <div class="card" style="background:#f8fafc;box-shadow:none;border:1px solid #e2e8f0;">
+                    <div class="details">
+                        <div class="detail">
+                            <small>Application Number</small>
+                            <strong>{{ application.application_no }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Application Name</small>
+                            <strong>{{ application.application_name|default:"—" }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Application Status</small>
+                            <strong>{{ application.status|default:"—" }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Total Amount</small>
+                            <strong>₹{{ application.amount|default:"0.00" }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Paid Amount</small>
+                            <strong>₹{{ application.paid_amount|default:"0.00" }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Due Amount</small>
+                            <strong>₹{{ application.due_amount|default:"0.00" }}</strong>
+                        </div>
+
+                        <div class="detail">
+                            <small>Payment Status</small>
+                            <strong>{{ application.payment_status|default:"—" }}</strong>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="empty">No applications were found.</p>
+            {% endfor %}
+
+            <h2 class="section-title">Transaction History</h2>
+
+            {% if history %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Application No.</th>
+                                <th>Amount</th>
+                                <th>Mode</th>
+                                <th>Status</th>
+                                <th>Reference</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in history %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"d-m-Y H:i" }}</td>
+                                    <td>{{ payment.application.application_no|default:"—" }}</td>
+                                    <td>₹{{ payment.amount|default:"0.00" }}</td>
+                                    <td>{{ payment.payment_mode|default:"—" }}</td>
+                                    <td>{{ payment.payment_status|default:"—" }}</td>
+                                    <td>{{ payment.payment_reference_no|default:"—" }}</td>
+                                    <td>{{ payment.receipt_no|default:"—" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="empty">
+                    No transaction history entries were found.
+                    Application payment totals are displayed above.
+                </p>
+            {% endif %}
+
+            <div class="no-print" style="margin-top:20px;">
+                <button class="print-btn" type="button"
+                        onclick="window.print()">
+                    Print / Save as PDF
+                </button>
+            </div>
+        </section>
+    {% endif %}
+
+    <div class="no-print">
+        <a class="home-link" href="/">Back to Home</a>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    const radios = document.querySelectorAll('input[name="search_type"]');
+    const searchInput = document.getElementById("search_value");
+    const searchLabel = document.getElementById("search-label");
+    const searchHint = document.getElementById("search-hint");
+    const aadhaarField = document.getElementById("aadhaar-field");
+    const mobileField = document.getElementById("mobile-field");
+    const aadhaarInput = document.getElementById("verify_aadhaar");
+    const mobileInput = document.getElementById("verify_mobile");
+
+    function updateFields() {
+        const selected = document.querySelector(
+            'input[name="search_type"]:checked'
+        ).value;
+
+        if (selected === "aadhaar_no") {
+            searchLabel.textContent = "Aadhaar Number";
+            searchInput.type = "password";
+            searchInput.inputMode = "numeric";
+            searchInput.maxLength = 12;
+            searchInput.pattern = "[0-9]{12}";
+            searchInput.placeholder = "Enter 12-digit Aadhaar number";
+            searchHint.textContent =
+                "Enter the Aadhaar number registered with your customer record.";
+
+            aadhaarField.hidden = true;
+            aadhaarInput.required = false;
+            aadhaarInput.disabled = true;
+
+            mobileField.hidden = false;
+            mobileInput.required = true;
+            mobileInput.disabled = false;
+
+        } else if (selected === "mobile_no") {
+            searchLabel.textContent = "Registered Mobile Number";
+            searchInput.type = "tel";
+            searchInput.inputMode = "numeric";
+            searchInput.removeAttribute("pattern");
+            searchInput.maxLength = 15;
+            searchInput.placeholder = "Enter registered mobile number";
+            searchHint.textContent =
+                "Enter the mobile number registered with Aditya Cyber Zone.";
+
+            aadhaarField.hidden = false;
+            aadhaarInput.required = true;
+            aadhaarInput.disabled = false;
+
+            mobileField.hidden = true;
+            mobileInput.required = false;
+            mobileInput.disabled = true;
+
+        } else {
+            searchLabel.textContent = "Application Number";
+            searchInput.type = "text";
+            searchInput.inputMode = "text";
+            searchInput.removeAttribute("pattern");
+            searchInput.maxLength = 100;
+            searchInput.placeholder = "Enter application number";
+            searchHint.textContent =
+                "Enter the application number whose payment history you need.";
+
+            aadhaarField.hidden = false;
+            aadhaarInput.required = true;
+            aadhaarInput.disabled = false;
+
+            mobileField.hidden = false;
+            mobileInput.required = true;
+            mobileInput.disabled = false;
+        }
+    }
+
+    radios.forEach(function (radio) {
+        radio.addEventListener("change", updateFields);
+    });
+
+    updateFields();
+})();
+</script>
+</body>
+</html>
