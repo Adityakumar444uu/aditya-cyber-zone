@@ -1,184 +1,291 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Customer Dashboard</title>
-    <style>
-        body{
-            font-family:Arial;
-            background:#eef2f7;
-            padding:30px;
-        }
-        .box{
-            background:white;
-            padding:25px;
-            border-radius:12px;
-            box-shadow:0 0 10px #ccc;
-        }
-        .logout{
-            background:red;
-            color:white;
-            padding:10px 15px;
-            border-radius:6px;
-            text-decoration:none;
-            float:right;
-        }
-        .btn{
-            color:white;
-            padding:10px 14px;
-            border-radius:7px;
-            text-decoration:none;
-            display:inline-block;
-            margin:4px;
-            font-size:14px;
-        }
-        .blue{background:#007bff;}
-        .green{background:#28a745;}
-        .red{background:#dc3545;}
-        .dark{background:#343a40;}
-        .orange{background:#ff9800;}
 
-        .cards{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-            gap:15px;
-            margin:20px 0;
-        }
-        .card{
-            background:#f8f9fa;
-            padding:18px;
-            border-radius:10px;
-            text-align:center;
-            border-left:5px solid #007bff;
-        }
-        .card h3{
-            margin:0;
-            color:#333;
-        }
-        .card p{
-            font-size:22px;
-            font-weight:bold;
-            margin:8px 0 0;
-        }
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:20px;
-            background:white;
-        }
-        th{
-            background:#007bff;
-            color:white;
-            padding:12px;
-        }
-        td{
-            padding:10px;
-            border-bottom:1px solid #ddd;
-            text-align:center;
-            font-size:14px;
-        }
-        .paid{
-            color:green;
-            font-weight:bold;
-        }
-        .unpaid{
-            color:red;
-            font-weight:bold;
-        }
-    </style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My ACZ Account | Aditya Cyber Zone</title>
+<style>
+:root{--navy:#101a35;--blue:#3157d5;--light:#f4f7fc;--text:#172033;--muted:#69758b;--line:#e6ebf3;--green:#14804a;--red:#bd3434;--amber:#9a6500}
+*{box-sizing:border-box}
+body{margin:0;background:var(--light);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text)}
+a{color:inherit;text-decoration:none}
+.topbar{background:linear-gradient(120deg,#111a35,#243f87);color:white;padding:22px max(20px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:14px;background:#fff;color:#203b91;display:grid;place-items:center;font-weight:900;font-size:18px}
+.brand h1{font-size:18px;margin:0 0 4px}
+.brand p{margin:0;color:#dbe5ff;font-size:12px}
+.top-actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.btn-white{background:#fff;color:#233d89}
+.btn-outline{border:1px solid #ffffff70;color:white;background:#ffffff12}
+.btn-primary{background:var(--blue);color:white}
+.btn-soft{background:#eef2ff;color:#2846a3}
+.btn-dark{background:#17213b;color:white}
+.container{max-width:1180px;margin:26px auto;padding:0 18px}
+.welcome{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase}
+.welcome h2{font-size:26px;margin:5px 0}
+.welcome p{margin:0;color:var(--muted);font-size:14px}
+.secure{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #cfe8d9;background:#f0fbf4;color:#17663e;border-radius:999px;font-size:12px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0}
+.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 5px 20px #182b4b06}
+.stat-head{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:700}
+.stat-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#eef2ff;color:#2948ae;font-size:17px}
+.stat strong{display:block;font-size:25px;margin-top:12px;letter-spacing:-.5px}
+.stat small{display:block;color:var(--muted);margin-top:5px;font-size:11px}
+.section{background:white;border:1px solid var(--line);border-radius:18px;margin:18px 0;overflow:hidden;box-shadow:0 5px 20px #182b4b05}
+.section-head{padding:19px 21px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.section-head h3{font-size:17px;margin:0 0 4px}
+.section-head p{font-size:12px;color:var(--muted);margin:0}
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;padding:12px 18px;background:#f9faff;color:#78839a;font-size:10px;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+td{padding:15px 18px;border-top:1px solid #eef1f6;font-size:12px;vertical-align:middle}
+td strong{display:block;font-size:13px;margin-bottom:4px}
+td small{color:var(--muted);font-size:11px}
+.status{display:inline-flex;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;white-space:nowrap;background:#edf1f7;color:#596579}
+.s-pending{background:#fff5d9;color:#8a5b00}
+.s-submitted,.s-in-process{background:#e8f1ff;color:#2256a5}
+.s-approved,.s-delivered{background:#e6f8ed;color:#167347}
+.s-rejected{background:#ffebeb;color:#b22b2b}
+.s-verified{background:#e6f8ed;color:#167347}
+.s-waiting{background:#fff5d9;color:#8a5b00}
+.payment-paid{color:var(--green);font-weight:800}
+.payment-due{color:var(--red);font-weight:800}
+.row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.mini{padding:7px 10px;border-radius:8px;font-size:11px}
+.empty{padding:35px 20px;text-align:center;color:var(--muted)}
+.empty .empty-icon{font-size:32px;margin-bottom:8px}
+.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.note{padding:14px 17px;border-radius:12px;background:#f0f5ff;border:1px solid #dce6ff;color:#3a4d78;font-size:12px;line-height:1.6;margin:16px 0}
+.notice{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:14px;margin:14px 0;border:1px solid}
+.notice-icon{font-size:23px}
+.notice h3{margin:0 0 5px;font-size:15px}
+.notice p{margin:0;font-size:13px;line-height:1.6}
+.notice-success{background:#ecfdf3;border-color:#b7e4c7;color:#17663e}
+.notice-error{background:#fff0f0;border-color:#f1c0c0;color:#a52525}
+.notice-warning{background:#fff8e6;border-color:#f0d99a;color:#805600}
+.notice-info{background:#eef5ff;border-color:#cadcff;color:#244a94}
+.submission{border:1px solid var(--line);border-radius:10px;padding:10px;margin:7px 0;background:#fbfcff;min-width:180px}
+.submission strong{font-size:12px}
+.submission small{display:block;margin-top:5px;line-height:1.5}
+.footer{text-align:center;color:#8490a4;font-size:11px;padding:20px 0 32px}
+.footer strong{color:#536078}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.container{margin-top:20px}.welcome h2{font-size:22px}}
+@media(max-width:480px){.stats{gap:9px}.stat{padding:13px}.stat strong{font-size:21px}.topbar{padding:17px}.brand h1{font-size:16px}.welcome h2{font-size:20px}.btn{padding:9px 11px}}
+@media print{body{background:white}.topbar{background:#fff!important;color:#111;padding:0 0 15px;border-bottom:2px solid #222}.brand p{color:#444}.top-actions,.no-print,.footer{display:none!important}.container{max-width:none;margin:12px 0;padding:0}.stat,.section{box-shadow:none;break-inside:avoid;border-color:#bbb}.stats{grid-template-columns:repeat(4,1fr);gap:8px}.stat{padding:10px}.stat strong{font-size:18px}th{background:#eee!important;color:#111}td,th{padding:8px;font-size:10px}.section{margin:12px 0}.section-head{padding:12px}.table-wrap{overflow:visible}table{min-width:0}.row-actions{display:none}.status{border:1px solid #aaa;background:white!important;color:#111!important}.welcome{margin:12px 0}.notice{break-inside:avoid}}
+</style>
 </head>
 <body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">ACZ</div>
+    <div><h1>Aditya Cyber Zone</h1><p>Customer Portal · Applications & Payments</p></div>
+  </div>
+  <div class="top-actions no-print">
+    <button class="btn btn-white" type="button" onclick="window.print()">⬇ Download PDF</button>
+    <a class="btn btn-outline" href="{% url 'customer_logout' %}">Log out ↗</a>
+  </div>
+</header>
 
-<div class="box">
-
-    <a class="logout" href="/customer-logout/">Logout</a>
-
-    <h2>Welcome, {{ customer.name }}</h2>
-    <p><b>Aadhaar:</b> {{ customer.aadhaar_no }} | <b>Mobile:</b> {{ customer.contact_no }}</p>
-
+<main class="container">
+  <div class="welcome">
     <div>
-        <a href="/raise-grievance/" class="btn red">Raise Grievance</a>
-        <a href="/my-grievances/" class="btn green">My Grievances</a>
-        <a href="/payment-history/" class="btn dark">Payment History</a>
+      <div class="eyebrow">My account</div>
+      <h2>Welcome, {{ customer.name|default:request.user.first_name|default:request.user.username }}</h2>
+      <p>Apni applications, payment status aur receipts yahan check karein.</p>
+    </div>
+    <div class="secure">🔒 Your account data is private</div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="notice {% if message.tags == 'success' %}notice-success{% elif message.tags == 'error' %}notice-error{% elif message.tags == 'warning' %}notice-warning{% else %}notice-info{% endif %}" role="status">
+        <div class="notice-icon">
+          {% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}⚠{% else %}ℹ{% endif %}
+        </div>
+        <div>
+          <h3>
+            {% if message.tags == 'success' %}Payment submission received
+            {% elif message.tags == 'error' %}Please check your submission
+            {% else %}Account notification{% endif %}
+          </h3>
+          <p>{{ message }}</p>
+          {% if message.tags == 'success' %}
+            <p><strong>Your payment is under verification. Please allow up to 24 hours.</strong></p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <section class="stats" aria-label="Payment summary">
+    <div class="stat"><div class="stat-head"><span>Total Applications</span><span class="stat-icon">▤</span></div><strong>{{ applications|length }}</strong><small>Aapke account se linked</small></div>
+    <div class="stat"><div class="stat-head"><span>Total Amount</span><span class="stat-icon">₹</span></div><strong>₹{{ total_amount|floatformat:2 }}</strong><small>All applications ka total</small></div>
+    <div class="stat"><div class="stat-head"><span>Amount Paid</span><span class="stat-icon">✓</span></div><strong class="payment-paid">₹{{ total_paid|floatformat:2 }}</strong><small>Verified payments only</small></div>
+    <div class="stat"><div class="stat-head"><span>Balance Due</span><span class="stat-icon">◷</span></div><strong class="payment-due">₹{{ total_due|floatformat:2 }}</strong><small>Remaining amount</small></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div><h3>📄 My Applications</h3><p>Application status aur payment verification details</p></div>
+      <button class="btn btn-soft no-print" type="button" onclick="window.print()">Download application summary</button>
     </div>
 
-    <div class="cards">
-        <div class="card">
-            <h3>Total Amount</h3>
-            <p>₹{{ total_amount }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Paid Amount</h3>
-            <p>₹{{ total_paid }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Due Amount</h3>
-            <p>₹{{ total_due }}</p>
-        </div>
-    </div>
-
-    <h3>Your Applications</h3>
-
-    <table>
-        <tr>
-            <th>Application</th>
-            <th>Application No</th>
-            <th>Amount</th>
-            <th>Paid</th>
-            <th>Due</th>
-            <th>Payment Status</th>
-            <th>Payment Mode</th>
-            <th>Reference No</th>
-            <th>App Status</th>
-            <th>Receipt</th>
-        </tr>
-
+    {% if applications %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Application</th><th>Applied on</th><th>Status</th><th>Amount</th><th>Paid / Due</th><th>Payment verification</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
         {% for app in applications %}
-        <tr>
-            <td>{{ app.application_name }}</td>
-            <td>{{ app.application_no }}</td>
-            <td>₹{{ app.amount }}</td>
-            <td>₹{{ app.paid_amount }}</td>
-            <td>₹{{ app.due_amount }}</td>
-
+          <tr>
             <td>
-                {% if app.payment_status == "Paid" %}
-                    <span class="paid">Paid</span>
-                {% else %}
-                    <span class="unpaid">Unpaid</span>
-                {% endif %}
+              <strong>{{ app.application_name|default:"Application" }}</strong>
+              <small>Application No: {{ app.application_no|default:"Not assigned" }}</small>
+              {% if app.part %}<small>{{ app.part }}{% if app.sub_part %} · {{ app.sub_part }}{% endif %}</small>{% endif %}
             </td>
-
-            <td>{{ app.payment_mode }}</td>
-
+            <td>{{ app.application_date|date:"d M Y"|default:"—" }}</td>
             <td>
-                {% if app.payment_reference_no %}
-                    {{ app.payment_reference_no }}
-                {% else %}
-                    Not Generated
-                {% endif %}
+              <span class="status {% if app.status == 'Pending' %}s-pending{% elif app.status == 'Submitted' %}s-submitted{% elif app.status == 'In Process' %}s-in-process{% elif app.status == 'Approved' %}s-approved{% elif app.status == 'Delivered' %}s-delivered{% elif app.status == 'Rejected' %}s-rejected{% endif %}">{{ app.status|default:"Pending" }}</span>
+              {% if app.remarks %}<small style="display:block;margin-top:6px">{{ app.remarks|truncatechars:70 }}</small>{% endif %}
             </td>
-
-            <td>{{ app.status }}</td>
-
             <td>
-                {% if app.payment_status == "Paid" %}
-                    <a class="btn blue" href="/receipt/{{ app.id }}/">Receipt</a>
-                {% else %}
-                    <a class="btn orange" href="/pay-now/{{ app.id }}/">Pay Now</a>
-                {% endif %}
+              <strong>₹{{ app.amount|floatformat:2 }}</strong>
+              <small>{{ app.payment_status|default:"Unpaid" }}</small>
             </td>
-        </tr>
-
-        {% empty %}
-        <tr>
-            <td colspan="10">No application found</td>
-        </tr>
+            <td>
+              <strong class="payment-paid">₹{{ app.paid_amount|floatformat:2 }}</strong>
+              <small class="payment-due">Due ₹{{ app.due_amount|floatformat:2 }}</small>
+            </td>
+            <td>
+              {% with submissions=app.upi_payment_submissions.all %}
+                {% if submissions %}
+                  {% for submission in submissions %}
+                    <div class="submission">
+                      <strong>UTR: {{ submission.utr }}</strong>
+                      <small>Submitted: {{ submission.submitted_at|date:"d M Y, h:i A" }}</small>
+                      {% if submission.status == "Pending" %}
+                        <span class="status s-waiting">Pending Verification</span>
+                        <small>Your payment is under verification. Please allow up to 24 hours.</small>
+                      {% elif submission.status == "Approved" %}
+                        <span class="status s-verified">Approved</span>
+                        <small>Payment verification approved.</small>
+                      {% elif submission.status == "Rejected" %}
+                        <span class="status s-rejected">Rejected</span>
+                        {% if submission.admin_note %}<small>Reason: {{ submission.admin_note }}</small>{% else %}<small>Please contact ACZ support before submitting again.</small>{% endif %}
+                      {% else %}
+                        <span class="status">{{ submission.get_status_display }}</span>
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  {% if app.due_amount > 0 %}
+                    <span class="status s-pending">Payment Due</span>
+                    <small style="display:block;margin-top:5px">Payment reference not submitted yet.</small>
+                  {% else %}
+                    <span class="status s-verified">No Due</span>
+                  {% endif %}
+                {% endif %}
+              {% endwith %}
+            </td>
+            <td>
+              <div class="row-actions no-print">
+                <a class="btn btn-soft mini" href="{% url 'receipt' app.id %}">View Receipt</a>
+                <button class="btn btn-dark mini" type="button" onclick="downloadApplication({{ app.id }})">⬇ Download</button>
+                {% if app.due_amount > 0 %}
+                  {% with submissions=app.upi_payment_submissions.all %}
+                    {% if submissions %}
+                      {% with latest=submissions|first %}
+                        {% if latest.status == "Pending" %}
+                          <span class="status s-waiting">Awaiting Verification</span>
+                        {% else %}
+                          <a class="btn btn-primary mini" href="{% url 'upi_payment' app.id %}">Pay / Resubmit</a>
+                        {% endif %}
+                      {% endwith %}
+                    {% else %}
+                      <a class="btn btn-primary mini" href="{% url 'upi_payment' app.id %}">Pay Now</a>
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </div>
+              <span class="print-only">ACZ customer copy</span>
+            </td>
+          </tr>
         {% endfor %}
-    </table>
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty"><div class="empty-icon">📂</div><strong>No applications found</strong><span>Aapke account par abhi koi application linked nahi hai.</span></div>
+    {% endif %}
+  </section>
 
-</div>
+  <section class="section">
+    <div class="section-head">
+      <div><h3>💳 Payment History</h3><p>Recorded payments, references aur receipt numbers</p></div>
+      <button class="btn btn-soft no-print" type="button" onclick="window.print()">Download payment summary</button>
+    </div>
+    {% if payment_history %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Payment date</th><th>Application</th><th>Amount</th><th>Mode</th><th>Payment status</th><th>Reference / Receipt</th><th>Receipt</th></tr></thead>
+        <tbody>
+        {% for payment in payment_history %}
+          <tr>
+            <td>{{ payment.created_at|date:"d M Y, h:i A"|default:"—" }}</td>
+            <td><strong>{{ payment.application.application_name|default:"Application" }}</strong><small>No: {{ payment.application.application_no|default:"Not assigned" }}</small></td>
+            <td><strong>₹{{ payment.amount|floatformat:2 }}</strong></td>
+            <td>{{ payment.payment_mode|default:"—" }}</td>
+            <td><span class="status {% if payment.payment_status == 'Paid' %}s-delivered{% else %}s-pending{% endif %}">{{ payment.payment_status|default:"Recorded" }}</span></td>
+            <td><strong>{{ payment.payment_reference_no|default:"—" }}</strong><small>Receipt: {{ payment.receipt_no|default:"—" }}</small></td>
+            <td class="no-print"><a class="btn btn-soft mini" href="{% url 'receipt' payment.application.id %}">Open receipt</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty"><div class="empty-icon">💳</div><strong>No verified payment history yet</strong><span>Admin verification ke baad confirmed payment records yahan dikhenge.</span></div>
+    {% endif %}
+  </section>
 
+  <div class="note">
+    <strong>Payment verification:</strong> UTR submit karne ke baad status Pending Verification rahega. Verification mein 24 hours tak lag sakte hain. Ek hi payment ko dobara submit na karein. Payment ko Paid tabhi maana jayega jab ACZ admin transaction verify karega.
+    <br><br>
+    <strong>Downloads:</strong> “Download PDF” se dashboard summary save karein. Har application ke “Download” se us application ki individual summary print/save karein. “View Receipt” se receipt khol sakte hain.
+  </div>
+  <div class="footer"><strong>Aditya Cyber Zone</strong> · Customer Portal<br>Yeh page sirf aapke login account se linked information dikhata hai.</div>
+</main>
+
+<script>
+function escapePrintText(value) {
+  return String(value || "").replace(/[&<>"']/g, function(ch) {
+    return ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[ch];
+  });
+}
+function downloadApplication(appId) {
+  const button = document.querySelector('button[onclick="downloadApplication(' + appId + ')"]');
+  const row = button ? button.closest('tr') : null;
+  if (!row) {
+    window.alert('Application details could not be found. Please refresh and try again.');
+    return;
+  }
+  const cells = Array.from(row.querySelectorAll('td')).slice(0, 5).map(cell => cell.innerText.trim());
+  const popup = window.open('', '_blank', 'width=850,height=700');
+  if (!popup) {
+    window.alert('Please allow pop-ups to download this application summary.');
+    return;
+  }
+  const labels = ['Application Details', 'Applied On', 'Current Status', 'Total Amount', 'Payment Details'];
+  const details = cells.map((value, index) => '<tr><th>' + labels[index] + '</th><td>' + escapePrintText(value).replace(/\n/g, '<br>') + '</td></tr>').join('');
+  const customerName = escapePrintText(document.querySelector('.welcome h2')?.innerText || 'Customer');
+  popup.document.open();
+  popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>ACZ Application ' + appId + '</title><style>body{font-family:Arial,sans-serif;color:#172033;margin:35px}header{border-bottom:2px solid #233d89;padding-bottom:14px;margin-bottom:22px}h1{font-size:22px;margin:0 0 6px;color:#233d89}p{color:#596579;margin:0}h2{font-size:18px;margin:20px 0 8px}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{border:1px solid #dbe1ec;padding:13px;text-align:left;vertical-align:top;font-size:13px}th{width:30%;background:#f3f6fc}footer{margin-top:28px;font-size:11px;color:#68758b}.actions{margin-top:22px}@media print{.actions{display:none}body{margin:15mm}}</style></head><body><header><h1>Aditya Cyber Zone</h1><p>Customer Application Summary</p></header><h2>' + customerName + '</h2><p>Application ID: ' + escapePrintText(appId) + '</p><table>' + details + '</table><footer>This summary contains information linked to the currently signed-in customer account.</footer><div class="actions"><button onclick="window.print()">Print / Save as PDF</button></div><script>window.onload=function(){setTimeout(function(){window.print()},300)};<\/script></body></html>');
+  popup.document.close();
+}
+</script>
 </body>
 </html>

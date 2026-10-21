@@ -19,7 +19,9 @@ from .models import (
     PaymentHistory,
     Grievance,
     GrievanceHistory,
+    UpiPaymentSubmission,
 )
+from django.db import transaction
 
 
 # =========================
@@ -708,3 +710,194 @@ class NoticeAdmin(admin.ModelAdmin):
         'title',
         'message'
     )
+
+    
+# =========================
+# UPI PAYMENT VERIFICATION
+# =========================
+
+@admin.register(UpiPaymentSubmission)
+class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "customer_name",
+        "application",
+        "amount",
+        "utr",
+        "status",
+        "submitted_at",
+        "reviewed_by",
+    )
+
+    list_filter = ("status", "submitted_at")
+    search_fields = (
+        "utr",
+        "application__application_no",
+        "application__customer__name",
+        "application__customer__aadhaar_no",
+        "application__customer__contact_no",
+    )
+
+    readonly_fields = (
+        "application",
+        "amount",
+        "utr",
+        "status",
+        "reviewed_by",
+        "submitted_at",
+        "reviewed_at",
+    )
+
+    fields = (
+        "application",
+        "amount",
+        "utr",
+        "status",
+        "admin_note",
+        "reviewed_by",
+        "submitted_at",
+        "reviewed_at",
+    )
+
+    actions = (
+        "approve_selected_payments",
+        "reject_selected_payments",
+    )
+
+    @admin.display(description="Customer")
+    def customer_name(self, obj):
+        return obj.application.customer.name
+
+    @admin.action(description="Approve verified UPI payments")
+    def approve_selected_payments(self, request, queryset):
+        approved = 0
+        skipped = 0
+
+        for item in queryset:
+            with transaction.atomic():
+                submission = (
+                    UpiPaymentSubmission.objects
+                    .select_for_update()
+                    .get(pk=item.pk)
+                )
+
+                if submission.status != "Pending":
+                    skipped += 1
+                    continue
+
+                application = (
+                    Application.objects
+                    .select_for_update()
+                    .get(pk=submission.application_id)
+                )
+
+                # Do not credit a payment exceeding the current due.
+                if (
+                    submission.amount <= 0
+                    or application.due_amount <= 0
+                    or submission.amount > application.due_amount
+                ):
+                    submission.admin_note = (
+                        "Approval blocked: submitted amount "
+                        "does not match the current due. "
+                        "Please review manually."
+                    )
+                    submission.save(update_fields=["admin_note"])
+                    skipped += 1
+                    continue
+
+                # Record payment only once after manual verification.
+                application.paid_amount += submission.amount
+                application.payment_mode = "Online"
+                application.save()
+
+                PaymentHistory.objects.create(
+                    application=application,
+                    amount=submission.amount,
+                    payment_mode="Online",
+                    payment_status="Paid",
+                    payment_reference_no=submission.utr,
+                    receipt_no=application.receipt_no,
+                )
+
+                submission.status = "Approved"
+                submission.reviewed_by = request.user
+                submission.reviewed_at = timezone.now()
+                submission.save(
+                    update_fields=[
+                        "status",
+                        "reviewed_by",
+                        "reviewed_at",
+                    ]
+                )
+
+                approved += 1
+
+        if approved:
+            self.message_user(
+                request,
+                f"{approved} payment(s) approved successfully.",
+                level="success",
+            )
+
+        if skipped:
+            self.message_user(
+                request,
+                f"{skipped} submission(s) skipped. "
+                "Check status and due amount.",
+                level="warning",
+            )
+
+    @admin.action(description="Reject selected UPI payments")
+    def reject_selected_payments(self, request, queryset):
+        rejected = 0
+        skipped = 0
+
+        for item in queryset:
+            with transaction.atomic():
+                submission = (
+                    UpiPaymentSubmission.objects
+                    .select_for_update()
+                    .get(pk=item.pk)
+                )
+
+                if submission.status != "Pending":
+                    skipped += 1
+                    continue
+
+                submission.status = "Rejected"
+                submission.reviewed_by = request.user
+                submission.reviewed_at = timezone.now()
+
+                if not submission.admin_note.strip():
+                    submission.admin_note = (
+                        "Payment could not be verified. "
+                        "Please contact Aditya Cyber Zone."
+                    )
+
+                submission.save(
+                    update_fields=[
+                        "status",
+                        "reviewed_by",
+                        "reviewed_at",
+                        "admin_note",
+                    ]
+                )
+
+                rejected += 1
+
+        if rejected:
+            self.message_user(
+                request,
+                f"{rejected} payment(s) rejected.",
+                level="success",
+            )
+
+        if skipped:
+            self.message_user(
+                request,
+                f"{skipped} submission(s) skipped because "
+                "they are no longer pending.",
+                level="warning",
+            )

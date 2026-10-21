@@ -60,4 +60,9 @@ path(
     views.live_application_counts,
     name="live_application_counts",
 ),
+path(
+    "upi-payment/<int:app_id>/",
+    views.upi_payment,
+    name="upi_payment",
+),
 ]

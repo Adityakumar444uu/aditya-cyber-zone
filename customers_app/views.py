@@ -15,8 +15,10 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 
 from .google_sheet import sync_application_to_sheet
+from .models import UpiPaymentSubmission
 
 from .models import (
     Customer,
@@ -29,6 +31,7 @@ from .models import (
 )
 
 
+@staff_member_required
 def customer_list(request):
     customers = Customer.objects.all().order_by("-id")
     recent_applications = Application.objects.all().order_by("-id")[:5]
@@ -54,69 +57,103 @@ def customer_list(request):
     })
 
 
+@staff_member_required
 def all_applications(request):
     status = request.GET.get("status")
-
+    applications = Application.objects.all()
     if status:
-        applications = Application.objects.filter(status=status).order_by("-application_date")
-    else:
-        applications = Application.objects.all().order_by("-application_date")
-
+        applications = applications.filter(status=status)
+    applications = applications.order_by("-application_date", "-id")
     return render(request, "all_applications.html", {
         "applications": applications,
-        "selected_status": status
+        "selected_status": status,
     })
 
 
+
+@login_required
+def customer_dashboard(request):
+    customer = Customer.objects.filter(user=request.user).first()
+
+    if not customer:
+        return redirect("/customer-login/")
+
+    applications = (
+        Application.objects
+        .filter(customer=customer)
+        .prefetch_related("upi_payment_submissions")
+        .order_by("-id")
+    )
+
+    totals = applications.aggregate(
+        total_amount=Sum("amount"),
+        total_paid=Sum("paid_amount"),
+        total_due=Sum("due_amount"),
+    )
+
+    payment_history = (
+        PaymentHistory.objects
+        .filter(application__customer=customer)
+        .select_related("application")
+        .order_by("-created_at")
+    )
+
+    return render(request, "customer_dashboard.html", {
+        "customer": customer,
+        "applications": applications,
+        "total_amount": totals["total_amount"] or Decimal("0.00"),
+        "total_paid": totals["total_paid"] or Decimal("0.00"),
+        "total_due": totals["total_due"] or Decimal("0.00"),
+        "payment_history": payment_history,
+    })
+
+
+@staff_member_required
 def add_application(request):
     customers = Customer.objects.all()
 
     if request.method == "POST":
         customer_id = request.POST.get("customer")
-        customer = Customer.objects.get(id=customer_id)
-
+        customer = get_object_or_404(Customer, id=customer_id)
         application = Application.objects.create(
             customer=customer,
             application_name=request.POST.get("application_name"),
             application_no=request.POST.get("application_no"),
             application_date=timezone.now().date(),
-            status=request.POST.get("status") or "Pending"
+            status=request.POST.get("status") or "Pending",
         )
-
         sync_application_to_sheet(application)
-
         return redirect("all_applications")
 
-    return render(request, "add_application.html", {
-        "customers": customers
-    })
+    return render(request, "add_application.html", {"customers": customers})
 
 
+@staff_member_required
 def update_status(request, app_id):
+    if request.method != "POST":
+        return redirect("all_applications")
+
     application = get_object_or_404(Application, id=app_id)
+    new_status = request.POST.get("status")
+    remark = request.POST.get("remark") or request.POST.get("remarks") or ""
 
-    if request.method == "POST":
-        new_status = request.POST.get("status")
-        remark = request.POST.get("remark") or request.POST.get("remarks") or ""
+    valid_statuses = {
+        value for value, label in Application._meta.get_field("status").choices
+    }
+    if new_status not in valid_statuses:
+        return redirect("all_applications")
 
-        application.status = new_status
-        application.remarks = remark
+    application.status = new_status
+    application.remarks = remark
+    application.delivery_date = timezone.now() if new_status == "Delivered" else None
+    application.save()
 
-        if new_status == "Delivered":
-            application.delivery_date = timezone.now()
-        else:
-            application.delivery_date = None
-
-        application.save()
-
-        ApplicationStatusHistory.objects.create(
-            application=application,
-            status=new_status,
-            remark=remark
-        )
-
-        sync_application_to_sheet(application, remark)
-
+    ApplicationStatusHistory.objects.create(
+        application=application,
+        status=new_status,
+        remark=remark,
+    )
+    sync_application_to_sheet(application, remark)
     return redirect("all_applications")
 
 
@@ -901,18 +938,17 @@ def grievance_status(request):
 
 def user_login(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
 
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
-
-        if user:
+        if user is not None and user.is_active and user.is_staff:
             login(request, user)
             return redirect("/admin/")
+
+        return render(request, "login.html", {
+            "error": "Invalid credentials or admin access not permitted."
+        })
 
     return render(request, "login.html")
 
@@ -940,13 +976,13 @@ def home(request):
     })
 
 
+@staff_member_required
 def customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     applications = Application.objects.filter(customer=customer)
-
     return render(request, "customer_detail.html", {
         "customer": customer,
-        "applications": applications
+        "applications": applications,
     })
 
 
@@ -965,36 +1001,35 @@ def my_grievances(request):
     })
 
 
+@staff_member_required
 def bulk_update_status(request):
-    if request.method == "POST":
-        selected_ids = request.POST.getlist("selected_applications")
-        new_status = request.POST.get("bulk_status")
-        remark = request.POST.get("bulk_remark") or ""
+    if request.method != "POST":
+        return redirect("all_applications")
 
-        if selected_ids and new_status:
-            applications = Application.objects.filter(id__in=selected_ids)
+    selected_ids = request.POST.getlist("selected_applications")
+    new_status = request.POST.get("bulk_status")
+    remark = request.POST.get("bulk_remark") or ""
+    valid_statuses = {
+        value for value, label in Application._meta.get_field("status").choices
+    }
 
-            for application in applications:
-                application.status = new_status
-                application.remarks = remark
-                 
-
-                if new_status == "Delivered":
-                    application.delivery_date = timezone.now()
-                else:
-                    application.delivery_date = None
-
-                application.save()
-
-                ApplicationStatusHistory.objects.create(
-                    application=application,
-                    status=new_status,
-                    remark=remark
-                )
-
-                sync_application_to_sheet(application, remark)
+    if selected_ids and new_status in valid_statuses:
+        applications = Application.objects.filter(id__in=selected_ids)
+        for application in applications:
+            application.status = new_status
+            application.remarks = remark
+            application.delivery_date = timezone.now() if new_status == "Delivered" else None
+            application.save()
+            ApplicationStatusHistory.objects.create(
+                application=application,
+                status=new_status,
+                remark=remark,
+            )
+            sync_application_to_sheet(application, remark)
 
     return redirect("all_applications")
+
+
 def customer_forgot_password(request):
     if request.method == "POST":
         aadhaar_no = request.POST.get("aadhaar_no")
@@ -1312,4 +1347,65 @@ def live_application_counts(request):
     return JsonResponse({
         "counts": counts,
         "total": sum(counts.values()),
+    })
+
+
+from urllib.parse import urlencode
+from decimal import Decimal
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Application, Customer, UpiPaymentSubmission
+
+
+@login_required
+def upi_payment(request, app_id):
+    application = get_object_or_404(
+        Application,
+        id=app_id,
+        customer__user=request.user,
+    )
+
+    if application.due_amount <= 0:
+        messages.info(request, "Is application ka koi due amount nahi hai.")
+        return redirect("customer_dashboard")
+
+    if request.method == "POST":
+        utr = request.POST.get("utr", "").strip()
+
+        if len(utr) < 6 or len(utr) > 100:
+            messages.error(request, "Valid UTR/reference number daalo.")
+        elif UpiPaymentSubmission.objects.filter(
+            utr__iexact=utr
+        ).exists():
+            messages.error(request, "Ye UTR pehle submit ho chuka hai.")
+        else:
+            UpiPaymentSubmission.objects.create(
+                application=application,
+                amount=application.due_amount,
+                utr=utr,
+                status="Pending",
+            )
+            messages.success(
+                request,
+                "UTR submit ho gaya. Payment under verification hai. Kripya 24 hours tak wait karein.",
+            )
+            return redirect("customer_dashboard")
+
+    amount = application.due_amount
+    upi_id = "7050369920-2@ibl"
+
+    upi_link = "upi://pay?" + urlencode({
+        "pa": upi_id,
+        "pn": "Aditya Cyber Zone",
+        "am": f"{amount:.2f}",
+        "cu": "INR",
+        "tn": f"ACZ Application {application.id}",
+    })
+
+    return render(request, "upi_payment.html", {
+        "application": application,
+        "amount": amount,
+        "upi_id": upi_id,
+        "upi_link": upi_link,
     })
