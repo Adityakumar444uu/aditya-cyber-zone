@@ -1366,31 +1366,69 @@ def upi_payment(request, app_id):
         customer__user=request.user,
     )
 
+    application.refresh_from_db()
+
     if application.due_amount <= 0:
-        messages.info(request, "Is application ka koi due amount nahi hai.")
+        messages.info(
+            request,
+            "Is application ka koi due amount nahi hai."
+        )
+        return redirect("customer_dashboard")
+
+    # Block repeat submissions while verification is pending.
+    if UpiPaymentSubmission.objects.filter(
+        application=application,
+        status="Pending",
+    ).exists():
+        messages.warning(
+            request,
+            "Is application ki payment pehle hi submit ho chuki hai "
+            "aur verification pending hai. Kripya 24 hours tak wait karein."
+        )
         return redirect("customer_dashboard")
 
     if request.method == "POST":
         utr = request.POST.get("utr", "").strip()
 
         if len(utr) < 6 or len(utr) > 100:
-            messages.error(request, "Valid UTR/reference number daalo.")
+            messages.error(
+                request,
+                "Valid UTR/reference number daalo."
+            )
+
         elif UpiPaymentSubmission.objects.filter(
             utr__iexact=utr
         ).exists():
-            messages.error(request, "Ye UTR pehle submit ho chuka hai.")
-        else:
-            UpiPaymentSubmission.objects.create(
-                application=application,
-                amount=application.due_amount,
-                utr=utr,
-                status="Pending",
-            )
-            messages.success(
+            messages.error(
                 request,
-                "UTR submit ho gaya. Payment under verification hai. Kripya 24 hours tak wait karein.",
+                "Ye UTR pehle submit ho chuka hai."
             )
-            return redirect("customer_dashboard")
+
+        else:
+            # Recheck before saving the submission.
+            if UpiPaymentSubmission.objects.filter(
+                application=application,
+                status="Pending",
+            ).exists():
+                messages.warning(
+                    request,
+                    "Payment verification pending hai. "
+                    "Dobara submit nahi kar sakte."
+                )
+            else:
+                UpiPaymentSubmission.objects.create(
+                    application=application,
+                    amount=application.due_amount,
+                    utr=utr,
+                    status="Pending",
+                )
+
+                messages.success(
+                    request,
+                    "UTR submit ho gaya. Payment under verification hai. "
+                    "Kripya 24 hours tak wait karein."
+                )
+                return redirect("customer_dashboard")
 
     amount = application.due_amount
     upi_id = "7050369920-2@ibl"

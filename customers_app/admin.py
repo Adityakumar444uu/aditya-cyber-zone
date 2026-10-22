@@ -728,9 +728,11 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
         "status",
         "submitted_at",
         "reviewed_by",
+        "open_payment",
     )
 
     list_filter = ("status", "submitted_at")
+
     search_fields = (
         "utr",
         "application__application_no",
@@ -738,6 +740,15 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
         "application__customer__aadhaar_no",
         "application__customer__contact_no",
     )
+
+    list_select_related = (
+        "application",
+        "application__customer",
+        "reviewed_by",
+    )
+
+    # Payment details must be opened and reviewed individually.
+    actions = None
 
     readonly_fields = (
         "application",
@@ -747,157 +758,296 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
         "reviewed_by",
         "submitted_at",
         "reviewed_at",
+        "customer_details",
+        "application_details",
+        "payment_review_status",
     )
 
-    fields = (
-        "application",
-        "amount",
-        "utr",
-        "status",
-        "admin_note",
-        "reviewed_by",
-        "submitted_at",
-        "reviewed_at",
-    )
-
-    actions = (
-        "approve_selected_payments",
-        "reject_selected_payments",
+    fieldsets = (
+        ("Customer Details", {
+            "fields": (
+                "customer_details",
+            )
+        }),
+        ("Application Details", {
+            "fields": (
+                "application_details",
+                "application",
+            )
+        }),
+        ("Submitted Payment", {
+            "fields": (
+                "amount",
+                "utr",
+                "submitted_at",
+                "status",
+            )
+        }),
+        ("Admin Verification", {
+            "fields": (
+                "admin_note",
+                "payment_review_status",
+                "reviewed_by",
+                "reviewed_at",
+            )
+        }),
     )
 
     @admin.display(description="Customer")
     def customer_name(self, obj):
         return obj.application.customer.name
 
-    @admin.action(description="Approve verified UPI payments")
-    def approve_selected_payments(self, request, queryset):
-        approved = 0
-        skipped = 0
+    @admin.display(description="Open payment")
+    def open_payment(self, obj):
+        from django.urls import reverse
 
-        for item in queryset:
-            with transaction.atomic():
-                submission = (
-                    UpiPaymentSubmission.objects
-                    .select_for_update()
-                    .get(pk=item.pk)
-                )
+        url = reverse(
+            "admin:customers_app_upipaymentsubmission_change",
+            args=[obj.pk],
+        )
 
-                if submission.status != "Pending":
-                    skipped += 1
-                    continue
+        return format_html(
+            '<a class="button" href="{}">View Details</a>',
+            url,
+        )
 
-                application = (
-                    Application.objects
-                    .select_for_update()
-                    .get(pk=submission.application_id)
-                )
+    @admin.display(description="Customer information")
+    def customer_details(self, obj):
+        customer = obj.application.customer
 
-                # Do not credit a payment exceeding the current due.
-                if (
-                    submission.amount <= 0
-                    or application.due_amount <= 0
-                    or submission.amount > application.due_amount
-                ):
-                    submission.admin_note = (
-                        "Approval blocked: submitted amount "
-                        "does not match the current due. "
-                        "Please review manually."
-                    )
-                    submission.save(update_fields=["admin_note"])
-                    skipped += 1
-                    continue
+        return format_html(
+            "<b>Name:</b> {}<br>"
+            "<b>Mobile:</b> {}<br>"
+            "<b>Aadhaar:</b> {}",
+            customer.name or "—",
+            customer.contact_no or "—",
+            customer.aadhaar_no or "—",
+        )
 
-                # Record payment only once after manual verification.
-                application.paid_amount += submission.amount
-                application.payment_mode = "Online"
-                application.save()
+    @admin.display(description="Application information")
+    def application_details(self, obj):
+        application = obj.application
 
-                PaymentHistory.objects.create(
-                    application=application,
-                    amount=submission.amount,
-                    payment_mode="Online",
-                    payment_status="Paid",
-                    payment_reference_no=submission.utr,
-                    receipt_no=application.receipt_no,
-                )
+        return format_html(
+            "<b>Application No:</b> {}<br>"
+            "<b>Service:</b> {}<br>"
+            "<b>Total Amount:</b> ₹{}<br>"
+            "<b>Already Paid:</b> ₹{}<br>"
+            "<b>Current Due:</b> ₹{}<br>"
+            "<b>Payment Mode:</b> {}",
+            application.application_no or "—",
+            application.part,
+            application.amount,
+            application.paid_amount,
+            application.due_amount,
+            application.payment_mode or "—",
+        )
 
-                submission.status = "Approved"
-                submission.reviewed_by = request.user
-                submission.reviewed_at = timezone.now()
-                submission.save(
-                    update_fields=[
-                        "status",
-                        "reviewed_by",
-                        "reviewed_at",
-                    ]
-                )
-
-                approved += 1
-
-        if approved:
-            self.message_user(
-                request,
-                f"{approved} payment(s) approved successfully.",
-                level="success",
+    @admin.display(description="Verification status")
+    def payment_review_status(self, obj):
+        if obj.status == "Pending":
+            return format_html(
+                '<span style="color:#b45309;font-weight:bold;">{}</span>',
+                "Pending verification — check UTR in your bank/UPI app",
             )
 
-        if skipped:
-            self.message_user(
-                request,
-                f"{skipped} submission(s) skipped. "
-                "Check status and due amount.",
-                level="warning",
+        return format_html(
+            "<b>{}</b>",
+            obj.status,
+        )
+
+
+    def get_urls(self):
+        from django.urls import path
+
+        custom_urls = [
+            path(
+                "<int:object_id>/clear-payment/",
+                self.admin_site.admin_view(self.clear_payment),
+                name="customers_app_upipaymentsubmission_clear",
+            ),
+        ]
+
+        return custom_urls + super().get_urls()
+
+    
+    def render_change_form(
+        self, request, context, add=False, change=False, form_url="", obj=None
+    ):
+        from django.urls import reverse
+
+        if obj and obj.pk and obj.status == "Pending":
+            context["clear_payment_url"] = reverse(
+                "admin:customers_app_upipaymentsubmission_clear",
+                args=[obj.pk],
             )
 
-    @admin.action(description="Reject selected UPI payments")
-    def reject_selected_payments(self, request, queryset):
-        rejected = 0
-        skipped = 0
+        return super().render_change_form(
+            request,
+            context,
+            add=add,
+            change=change,
+            form_url=form_url,
+            obj=obj,
+        )
 
-        for item in queryset:
-            with transaction.atomic():
-                submission = (
-                    UpiPaymentSubmission.objects
-                    .select_for_update()
-                    .get(pk=item.pk)
+    
+    def response_change(self, request, obj):
+        if "_clear_payment" in request.POST:
+            return self.clear_payment(request, obj.pk)
+
+        if "_reject_payment" in request.POST:
+            return self.reject_payment(request, obj.pk)
+
+        return super().response_change(request, obj)
+
+
+
+    
+    def reject_payment(self, request, object_id):
+        from django.contrib import messages
+        from django.http import HttpResponseRedirect
+        from django.shortcuts import get_object_or_404
+        from django.urls import reverse
+        from django.utils import timezone
+
+        submission = get_object_or_404(
+            UpiPaymentSubmission,
+            pk=object_id
+        )
+
+        change_url = reverse(
+            "admin:customers_app_upipaymentsubmission_change",
+            args=[submission.pk]
+        )
+
+        if request.method != "POST":
+            return HttpResponseRedirect(change_url)
+
+        if submission.status != "Pending":
+            messages.warning(
+                request,
+                "This payment has already been reviewed."
+            )
+            return HttpResponseRedirect(change_url)
+
+        submission.status = "Rejected"
+        submission.reviewed_by = request.user
+        submission.reviewed_at = timezone.now()
+        submission.save(
+            update_fields=["status", "reviewed_by", "reviewed_at"]
+        )
+
+        messages.warning(
+            request,
+            "Payment rejected. The customer can submit payment details again."
+        )
+
+        return HttpResponseRedirect(change_url)
+
+
+    def clear_payment(self, request, object_id):
+        from django.contrib import messages
+        from django.http import HttpResponseRedirect
+        from django.shortcuts import get_object_or_404
+        from django.urls import reverse
+        from django.utils.http import url_has_allowed_host_and_scheme
+
+        if request.method != "POST":
+            messages.error(request, "Please use the Clear Payment button.")
+            return HttpResponseRedirect(
+                reverse(
+                    "admin:customers_app_upipaymentsubmission_change",
+                    args=[object_id],
                 )
+            )
 
-                if submission.status != "Pending":
-                    skipped += 1
-                    continue
+        submission = get_object_or_404(
+            UpiPaymentSubmission,
+            pk=object_id,
+        )
 
-                submission.status = "Rejected"
-                submission.reviewed_by = request.user
-                submission.reviewed_at = timezone.now()
+        change_url = reverse(
+            "admin:customers_app_upipaymentsubmission_change",
+            args=[object_id],
+        )
 
-                if not submission.admin_note.strip():
-                    submission.admin_note = (
-                        "Payment could not be verified. "
-                        "Please contact Aditya Cyber Zone."
-                    )
+        if submission.status != "Pending":
+            messages.warning(request, "This payment has already been reviewed.")
+            return HttpResponseRedirect(change_url)
 
-                submission.save(
-                    update_fields=[
-                        "status",
-                        "reviewed_by",
-                        "reviewed_at",
-                        "admin_note",
-                    ]
+        if not request.POST.get("confirm_clear"):
+            messages.error(
+                request,
+                "Confirm that you have verified the UTR in your bank/UPI app.",
+            )
+            return HttpResponseRedirect(change_url)
+
+        with transaction.atomic():
+            submission = (
+                UpiPaymentSubmission.objects
+                .select_for_update()
+                .get(pk=object_id)
+            )
+
+            if submission.status != "Pending":
+                messages.warning(request, "This payment has already been reviewed.")
+                return HttpResponseRedirect(change_url)
+
+            application = (
+                Application.objects
+                .select_for_update()
+                .get(pk=submission.application_id)
+            )
+
+            if (
+                submission.amount <= 0
+                or application.due_amount <= 0
+                or submission.amount > application.due_amount
+            ):
+                submission.admin_note = (
+                    "Approval blocked: submitted amount does not match "
+                    "the current due. Please review manually."
                 )
+                submission.save(update_fields=["admin_note"])
+                messages.error(
+                    request,
+                    "Payment not cleared. Submitted amount does not match the current due.",
+                )
+                return HttpResponseRedirect(change_url)
 
-                rejected += 1
+            application.paid_amount += submission.amount
+            application.payment_mode = "Online"
+            application.save()
 
-        if rejected:
-            self.message_user(
-                request,
-                f"{rejected} payment(s) rejected.",
-                level="success",
+            PaymentHistory.objects.create(
+                application=application,
+                amount=submission.amount,
+                payment_mode="Online",
+                payment_status="Paid",
+                payment_reference_no=submission.utr,
+                receipt_no=application.receipt_no,
             )
 
-        if skipped:
-            self.message_user(
-                request,
-                f"{skipped} submission(s) skipped because "
-                "they are no longer pending.",
-                level="warning",
+            submission.status = "Approved"
+            submission.reviewed_by = request.user
+            submission.reviewed_at = timezone.now()
+            submission.save(
+                update_fields=[
+                    "status",
+                    "reviewed_by",
+                    "reviewed_at",
+                ]
             )
+
+        messages.success(
+            request,
+            "Payment cleared and recorded successfully.",
+        )
+        return HttpResponseRedirect(change_url)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False

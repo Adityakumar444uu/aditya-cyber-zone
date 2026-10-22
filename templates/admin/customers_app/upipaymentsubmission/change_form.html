@@ -1,0 +1,283 @@
+
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        :root {
+            --acz-blue: #1769e0;
+            --acz-dark: #12233f;
+            --acz-green: #078653;
+            --acz-red: #dc3545;
+        }
+
+        .acz-payment-panel {
+            margin: 18px 0 24px;
+            padding: 24px;
+            border: 1px solid #dce7f5;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ffffff 0%, #f2f7ff 100%);
+            box-shadow: 0 10px 28px rgba(23, 60, 120, .08);
+        }
+
+        .acz-payment-heading {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .acz-payment-heading h2 {
+            margin: 0;
+            color: var(--acz-dark);
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .acz-payment-subtitle {
+            margin: 7px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .acz-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 30px;
+            background: #fff4d6;
+            color: #925d00;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .acz-status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: acz-pulse 1.5s infinite;
+        }
+
+        .acz-status.approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .acz-status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .acz-amount-card {
+            padding: 22px;
+            border-radius: 15px;
+            background: linear-gradient(120deg, #123e86, #1976ed);
+            color: white;
+            margin-bottom: 18px;
+        }
+
+        .acz-amount-label {
+            font-size: 13px;
+            opacity: .85;
+        }
+
+        .acz-amount-value {
+            margin-top: 7px;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 800;
+            letter-spacing: -.8px;
+        }
+
+        .acz-utr-box {
+            margin-top: 15px;
+            padding: 14px;
+            border: 1px dashed #a9c7f5;
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
+        .acz-utr-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .acz-utr-value {
+            margin-top: 6px;
+            color: #142b4c;
+            font-size: 17px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .acz-review-note {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: #fff7df;
+            color: #805500;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .acz-review-note strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .acz-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .acz-action-btn {
+            min-height: 46px;
+            padding: 12px 22px;
+            border: 0;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s, filter .2s;
+        }
+
+        .acz-action-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.04);
+        }
+
+        .acz-action-btn:focus-visible {
+            outline: 3px solid #93c5fd;
+            outline-offset: 3px;
+        }
+
+        .acz-approve {
+            background: linear-gradient(120deg, #078653, #10a66a);
+            color: white;
+            box-shadow: 0 6px 16px #07865330;
+        }
+
+        .acz-reject {
+            background: #fff;
+            border: 1px solid #fecaca;
+            color: #b42332;
+        }
+
+        .acz-reject:hover {
+            background: #fff1f2;
+        }
+
+        .acz-back {
+            display: inline-block;
+            margin-top: 14px;
+            color: #1769e0;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @keyframes acz-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .35; }
+        }
+
+        @media (max-width: 600px) {
+            .acz-payment-panel { padding: 16px; }
+            .acz-payment-heading h2 { font-size: 19px; }
+            .acz-actions { flex-direction: column; }
+            .acz-action-btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .acz-status::before { animation: none; }
+            .acz-action-btn { transition: none; }
+        }
+    </style>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    {% if original %}
+        <section class="acz-payment-panel">
+            <div class="acz-payment-heading">
+                <div>
+                    <h2>ACZ Payment Verification</h2>
+                    <p class="acz-payment-subtitle">
+                        Review the transaction details before taking action.
+                    </p>
+                </div>
+
+                <span class="acz-status
+                    {% if original.status == 'Approved' %}approved
+                    {% elif original.status == 'Rejected' %}rejected
+                    {% endif %}">
+                    {{ original.status }}
+                </span>
+            </div>
+
+            <div class="acz-amount-card">
+                <div class="acz-amount-label">Submitted Payment Amount</div>
+                <div class="acz-amount-value">
+                    ₹{{ original.amount|floatformat:2 }}
+                </div>
+            </div>
+
+            <div class="acz-utr-box">
+                <div class="acz-utr-label">Transaction Reference / UTR</div>
+                <div class="acz-utr-value">{{ original.utr }}</div>
+            </div>
+
+            <div class="acz-review-note">
+                <strong>Before approving</strong>
+                Verify the UTR, amount, transaction date and actual credit
+                in your bank or UPI application. A screenshot or UTR alone
+                is not proof that money was received.
+            </div>
+
+            {% if original.status == "Pending" %}
+                <div class="acz-actions">
+                    <button
+                        type="submit"
+                        name="_clear_payment"
+                        value="1"
+                        class="acz-action-btn acz-approve"
+                        onclick="return confirm('Have you verified that this payment was received? Approve and record it now?');">
+                        ✓ &nbsp; Approve &amp; Clear Payment
+                    </button>
+
+                    <button
+                        type="submit"
+                        name="_reject_payment"
+                        value="1"
+                        class="acz-action-btn acz-reject"
+                        onclick="return confirm('Reject this payment submission?');">
+                        ✕ &nbsp; Reject Payment
+                    </button>
+
+                    <input type="hidden" name="confirm_clear" value="1">
+                </div>
+            {% else %}
+                <p class="acz-review-note">
+                    <strong>Review completed</strong>
+                    This payment has already been reviewed. These action
+                    buttons are no longer available.
+                </p>
+            {% endif %}
+
+            <a class="acz-back" href="../">← Back to payment submissions</a>
+        </section>
+    {% endif %}
+
+       {{ block.super }}
+{% endblock %}
