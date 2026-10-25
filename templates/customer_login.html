@@ -1,71 +1,855 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ACZ Premium Login</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;height:100vh;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at top,#4b00ff,#09131f 45%,#02070d);
-overflow:hidden}
-body:before,body:after{content:'';position:fixed;border-radius:50%;filter:blur(70px);opacity:.7}
-body:before{width:260px;height:260px;background:#00e5ff;top:-60px;left:-40px;animation:f 8s infinite alternate}
-body:after{width:300px;height:300px;background:#ff00d4;bottom:-80px;right:-60px;animation:f 10s infinite alternate-reverse}
-@keyframes f{to{transform:translate(40px,-20px) scale(1.2)}}}
-#preloader{position:fixed;inset:0;background:#06101d;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#7ef9ff;z-index:9999}
-.loader{width:70px;height:70px;border:6px solid #1d3557;border-top-color:#7ef9ff;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.card{width:380px;background:rgba(255,255,255,.10);backdrop-filter:blur(18px);padding:30px;border-radius:22px;border:1px solid rgba(255,255,255,.2);box-shadow:0 0 20px #00e5ff,0 0 45px #7a00ff;color:#fff}
-h2{text-align:center;margin-bottom:20px}
-.input{position:relative;margin:16px 0}
-.input input{width:100%;padding:12px 42px 12px 12px;border:none;border-radius:8px;background:#18293d;color:#fff}
-.input i{position:absolute;right:14px;top:14px;cursor:pointer}
-button{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(90deg,#00e5ff,#7a00ff,#ff00d4);color:#fff;font-weight:bold;cursor:pointer;transition:.3s}
-a{color:#7ef9ff;text-decoration:none}
-button:hover{transform:scale(1.03);box-shadow:0 0 25px #00e5ff}
-h2{color:#7ef9ff;text-shadow:0 0 10px #00e5ff,0 0 20px #7a00ff}
-</style>
-</head>
-<body>
-<div id="preloader">
-<div class="loader"></div>
-<p style="margin-top:20px">Initializing ACZ Secure Login...</p>
-</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b5ed7">
+    <title>Customer Login | Aditya Cyber Zone</title>
 
-<div class="card">
-<h2><i class="fa-solid fa-shield-halved"></i> ACZ Login</h2>
-<form method="POST">
-{% csrf_token %}
-<div class="input">
-<input type="text" name="aadhaar_no" placeholder="Aadhaar Number" required>
-</div>
-<div class="input">
-<input id="pwd" type="password" name="password" placeholder="Password" required>
-<i class="fa-solid fa-eye" onclick="togglePwd(this)"></i>
-</div>
-<button type="submit">Secure Login</button>
-<div style="margin-top:15px;text-align:center">
-<a href="/customer-forgot-password/">Forgot Password?</a><br><br>
-<a href="/customer-register/">Create Account</a>
-</div>
-</form>
-{% if error %}
-<script>
-window.addEventListener("load",()=>Swal.fire({icon:"error",title:"Login Failed",text:"{{ error }}"}));
-</script>
-{% endif %}
-</div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-setTimeout(()=>document.getElementById("preloader").style.display="none",1800);
-function togglePwd(el){
- const p=document.getElementById("pwd");
- if(p.type==="password"){p.type="text";el.className="fa-solid fa-eye-slash";}
- else{p.type="password";el.className="fa-solid fa-eye";}
+    <style>
+        :root {
+            --primary: #0b5ed7;
+            --primary-dark: #084298;
+            --navy: #102b50;
+            --text: #1d2b42;
+            --muted: #64748b;
+            --border: #dce6f3;
+            --surface: #ffffff;
+            --page: #f3f7fd;
+            --green: #138754;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 8% 8%, #dceaff 0, transparent 34%),
+                radial-gradient(ellipse at 95% 95%, #dceeff 0, transparent 30%),
+                var(--page);
+            color: var(--text);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .topbar {
+            min-height: 76px;
+            padding: 15px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            background: rgba(255, 255, 255, .94);
+            border-bottom: 1px solid #e4ebf5;
+            box-shadow: 0 4px 20px rgba(16, 43, 80, .04);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--navy);
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: -.4px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #0b5ed7, #073b8e);
+            color: white;
+            box-shadow: 0 6px 15px rgba(11, 94, 215, .2);
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--muted);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .home-link {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+        }
+
+        .page {
+            width: min(1040px, 92%);
+            min-height: calc(100vh - 120px);
+            margin: 22px auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 36px;
+            padding: 25px 0;
+        }
+
+        .intro {
+            padding: 20px 5px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border-radius: 30px;
+            background: #e4efff;
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+        .intro h1 {
+            color: var(--navy);
+            font-size: clamp(30px, 4vw, 44px);
+            line-height: 1.2;
+            letter-spacing: -1.5px;
+            margin-bottom: 18px;
+        }
+
+        .intro h1 span {
+            color: var(--primary);
+        }
+
+        .intro > p {
+            max-width: 440px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .benefits {
+            display: grid;
+            gap: 17px;
+            margin-top: 30px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: white;
+            color: var(--primary);
+            border: 1px solid #e1eafa;
+        }
+
+        .benefit strong {
+            display: block;
+            color: var(--navy);
+            font-size: 13px;
+            margin: 2px 0 5px;
+        }
+
+        .benefit p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .login-card {
+            background: var(--surface);
+            padding: clamp(24px, 4vw, 38px);
+            border: 1px solid #e3ebf6;
+            border-radius: 22px;
+            box-shadow: 0 18px 55px rgba(24, 62, 115, .10);
+        }
+
+        .card-heading {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .login-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 15px;
+            border-radius: 17px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 23px;
+            background: linear-gradient(135deg, #0b5ed7, #073b8e);
+            box-shadow: 0 8px 18px rgba(11, 94, 215, .2);
+        }
+
+        .card-heading h2 {
+            color: var(--navy);
+            font-size: 25px;
+            margin-bottom: 9px;
+        }
+
+        .card-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .field {
+            margin-bottom: 19px;
+        }
+
+        .field label {
+            display: block;
+            color: #293d58;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap > i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8192aa;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            min-height: 49px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            outline: none;
+            padding: 13px 43px;
+            font: inherit;
+            font-size: 13px;
+            color: var(--text);
+            background: #fbfdff;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(11, 94, 215, .09);
+            background: white;
+        }
+
+        .input-wrap input::placeholder {
+            color: #9aa8ba;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #7b8ca4;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: flex-end;
+            margin: -3px 0 21px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            min-height: 49px;
+            border: 0;
+            border-radius: 11px;
+            background: linear-gradient(110deg, #0b5ed7, #084298);
+            color: white;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(11, 94, 215, .19);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(11, 94, 215, .25);
+        }
+
+        .register-prompt {
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 22px;
+        }
+
+        .register-prompt a {
+            font-weight: 800;
+        }
+
+        .steps {
+            border-top: 1px solid #eaf0f8;
+            padding-top: 21px;
+            margin-top: 24px;
+        }
+
+        .steps h3 {
+            color: var(--navy);
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .step-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .step {
+            text-align: center;
+            background: #f6f9fe;
+            border: 1px solid #e8eff9;
+            border-radius: 12px;
+            padding: 13px 5px;
+        }
+
+        .step-number {
+            width: 27px;
+            height: 27px;
+            margin: 0 auto 9px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #dceaff;
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .step strong {
+            display: block;
+            color: var(--navy);
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .step p {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .security-note {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            margin-top: 18px;
+            padding: 12px;
+            background: #effaf4;
+            border-radius: 10px;
+            color: #276749;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .security-note i {
+            margin-top: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 0 15px 22px;
+            color: #7a8aa0;
+            font-size: 11px;
+        }
+
+        #preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #f3f7fd;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 700;
+            transition: opacity .25s;
+        }
+
+        .loader {
+            width: 43px;
+            height: 43px;
+            border: 4px solid #dce8f8;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 760px) {
+            .topbar {
+                padding: 13px 5%;
+                min-height: 68px;
+            }
+
+            .brand {
+                font-size: 15px;
+            }
+
+            .brand-icon {
+                width: 39px;
+                height: 39px;
+            }
+
+            .home-link {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .page {
+                width: min(460px, 92%);
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                margin: 20px auto;
+                padding: 5px 0 22px;
+            }
+
+            .intro {
+                text-align: center;
+                padding: 12px 5px 5px;
+            }
+
+            .intro h1 {
+                font-size: 30px;
+                letter-spacing: -.8px;
+            }
+
+            .intro > p {
+                font-size: 13px;
+                margin: 0 auto;
+            }
+
+            .intro .eyebrow {
+                margin-bottom: 14px;
+            }
+
+            .benefits {
+                display: none;
+            }
+
+            .login-card {
+                width: 100%;
+                padding: 25px 20px;
+            }
+
+            footer {
+                padding-bottom: 18px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+/* ACZ Blue-White Preloader */
+#preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f3f7fd;
+    transition: opacity .35s ease, visibility .35s ease;
 }
-</script>
+
+#preloader.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.preloader-content {
+    width: min(360px, 100%);
+    padding: 36px 25px;
+    text-align: center;
+    border: 1px solid #e0eaf7;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(16, 43, 80, .12);
+}
+
+.preloader-logo {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    color: white;
+    font-size: 30px;
+    background: linear-gradient(135deg, #0b5ed7, #084298);
+    box-shadow: 0 9px 24px rgba(11, 94, 215, .22);
+    animation: aczLogoPulse 1.5s ease-in-out infinite;
+}
+
+.preloader-spinner {
+    width: 35px;
+    height: 35px;
+    margin: 0 auto 20px;
+    border: 4px solid #dce8f8;
+    border-top-color: #0b5ed7;
+    border-right-color: #0b5ed7;
+    border-radius: 50%;
+    animation: aczSpin .8s linear infinite;
+}
+
+.preloader-content h3 {
+    color: #102b50;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+#preloader-text {
+    margin-top: 9px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.preloader-track {
+    height: 5px;
+    margin-top: 22px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #e6eef9;
+}
+
+.preloader-progress {
+    width: 40%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0b5ed7, #65b7ff);
+    animation: aczProgress 1.3s ease-in-out infinite;
+}
+
+.preloader-secure {
+    display: block;
+    margin-top: 20px;
+    color: #0b5ed7;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+@keyframes aczSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aczLogoPulse {
+    50% { transform: scale(1.05); }
+}
+
+@keyframes aczProgress {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(280%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #preloader *,
+    #preloader *::before,
+    #preloader *::after {
+        animation-duration: 2s !important;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+
+<div id="preloader" aria-live="polite">
+    <div class="preloader-content">
+        <div class="preloader-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <div class="preloader-spinner"></div>
+
+        <h3>ADITYA CYBER ZONE</h3>
+        <p id="preloader-text">Loading Secure Customer Login...</p>
+
+        <div class="preloader-track">
+            <div class="preloader-progress"></div>
+        </div>
+
+        <span class="preloader-secure">
+            <i class="fa-solid fa-lock"></i> SECURE CUSTOMER PORTAL
+        </span>
+    </div>
+</div>
+
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Aditya Cyber Zone home">
+            <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span>
+                ADITYA CYBER ZONE
+                <small>CUSTOMER PORTAL</small>
+            </span>
+        </a>
+        <a class="home-link" href="/"><i class="fa-solid fa-house"></i> Home</a>
+    </header>
+
+    <main class="page">
+        <section class="intro">
+            <div class="eyebrow">
+                <i class="fa-solid fa-circle-check"></i>
+                SECURE CUSTOMER ACCESS
+            </div>
+
+            <h1>Welcome Back to <span>ACZ.</span></h1>
+
+            <p>
+                Sign in to your customer account to view your applications,
+                track service status, check payment details and access your receipts.
+            </p>
+
+            <div class="benefits">
+                <div class="benefit">
+                    <div class="benefit-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <div>
+                        <strong>Applications in One Place</strong>
+                        <p>Access your available application details from your dashboard.</p>
+                    </div>
+                </div>
+
+                <div class="benefit">
+                    <div class="benefit-icon"><i class="fa-solid fa-money-check-dollar"></i></div>
+                    <div>
+                        <strong>Payment Information</strong>
+                        <p>Check available payment records and receipt details.</p>
+                    </div>
+                </div>
+
+                <div class="benefit">
+                    <div class="benefit-icon"><i class="fa-solid fa-headset"></i></div>
+                    <div>
+                        <strong>Customer Support</strong>
+                        <p>Get back to your ACZ customer services whenever you need them.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="login-card">
+            <div class="card-heading">
+                <div class="login-icon"><i class="fa-solid fa-user-lock"></i></div>
+                <h2>Customer Login</h2>
+                <p>Enter your registered Aadhaar number and password to continue.</p>
+            </div>
+
+            <form method="POST" autocomplete="on">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="aadhaar_no">Registered Aadhaar Number</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-id-card"></i>
+                        <input
+                            id="aadhaar_no"
+                            type="password"
+                            name="aadhaar_no"
+                            placeholder="Enter your 12-digit Aadhaar"
+                            inputmode="numeric"
+                            pattern="[0-9]{12}"
+                            maxlength="12"
+                            autocomplete="username"
+                            aria-describedby="aadhaar-help"
+                            required
+                        >
+                    </div>
+                    <small id="aadhaar-help" style="display:block;margin-top:7px;color:#7b8ca4;font-size:10px;">
+                        Enter the Aadhaar number linked to your ACZ account.
+                    </small>
+                </div>
+
+                <div class="field">
+                    <label for="pwd">Password</label>
+                    <div class="input-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input
+                            id="pwd"
+                            type="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button
+                            class="toggle-password"
+                            type="button"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                            onclick="togglePwd(this)"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <a href="/customer-forgot-password/">Forgot Password?</a>
+                </div>
+
+                <button class="submit-btn" type="submit">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    &nbsp; Sign In Securely
+                </button>
+
+                <div class="register-prompt">
+                    Don't have an account?
+                    <a href="/customer-register/"> Create Account</a>
+                </div>
+            </form>
+
+            <div class="steps">
+                <h3><i class="fa-solid fa-list-check"></i> HOW TO LOG IN</h3>
+
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <strong>Aadhaar</strong>
+                        <p>Enter your registered number</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <strong>Password</strong>
+                        <p>Enter your account password</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <strong>Dashboard</strong>
+                        <p>View your ACZ services</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="security-note">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>For your security, only sign in on the official ACZ website. Never share your password or OTP with anyone.</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; <span id="year"></span> Aditya Cyber Zone. All rights reserved.
+    </footer>
+
+    <script>
+        // Keep the ACZ preloader visible long enough to be noticed.
+        (function () {
+            const preloaderStartedAt = Date.now();
+            const minimumVisibleTime = 3000;
+            let preloaderHidden = false;
+
+            function hidePreloader() {
+                if (preloaderHidden) return;
+                const loader = document.getElementById("preloader");
+                if (!loader) return;
+
+                const elapsed = Date.now() - preloaderStartedAt;
+                const remaining = Math.max(0, minimumVisibleTime - elapsed);
+
+                setTimeout(function () {
+                    if (preloaderHidden) return;
+                    preloaderHidden = true;
+                    loader.classList.add("preloader-hidden");
+                    setTimeout(function () {
+                        if (loader.isConnected) loader.remove();
+                    }, 400);
+                }, remaining);
+            }
+
+            window.addEventListener("load", hidePreloader, { once: true });
+            if (document.readyState === "complete") hidePreloader();
+            // Safety fallback if a resource never finishes loading.
+            setTimeout(hidePreloader, 5000);
+        })();
+
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        function togglePwd(button) {
+            const password = document.getElementById("pwd");
+            const icon = button.querySelector("i");
+            const show = password.type === "password";
+
+            password.type = show ? "text" : "password";
+            icon.className = show ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+            button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+            button.setAttribute("aria-pressed", String(show));
+        }
+
+        {% if error %}
+        window.addEventListener("load", function () {
+            Swal.fire({
+                icon: "error",
+                title: "Login Failed",
+                text: "{{ error|escapejs }}",
+                confirmButtonColor: "#0b5ed7"
+            });
+        });
+        {% endif %}
+    </script>
 </body>
 </html>

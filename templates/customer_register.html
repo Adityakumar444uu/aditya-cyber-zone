@@ -1,352 +1,1045 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ACZ Secure Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b5ed7">
+    <title>Customer Registration | Aditya Cyber Zone</title>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
+    <style>
+        :root {
+            --primary: #0b5ed7;
+            --primary-dark: #084298;
+            --navy: #102b50;
+            --text: #1d2b42;
+            --muted: #64748b;
+            --border: #dce6f3;
+            --page: #f3f7fd;
+            --green: #138754;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 8% 8%, #dceaff 0, transparent 34%),
+                radial-gradient(ellipse at 95% 95%, #dceeff 0, transparent 30%),
+                var(--page);
+            color: var(--text);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .topbar {
+            min-height: 76px;
+            padding: 15px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            background: rgba(255, 255, 255, .95);
+            border-bottom: 1px solid #e4ebf5;
+            box-shadow: 0 4px 20px rgba(16, 43, 80, .04);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #0b5ed7, #073b8e);
+            color: white;
+            box-shadow: 0 6px 15px rgba(11, 94, 215, .2);
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .home-link {
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .page {
+            width: min(1080px, 92%);
+            margin: 24px auto;
+            min-height: calc(100vh - 130px);
+            display: grid;
+            grid-template-columns: .92fr 1.08fr;
+            align-items: center;
+            gap: 42px;
+            padding: 12px 0 25px;
+        }
+
+        .intro {
+            padding: 15px 4px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            margin-bottom: 22px;
+            border-radius: 30px;
+            background: #e4efff;
+            color: var(--primary-dark);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .4px;
+        }
+
+        .intro h1 {
+            margin-bottom: 17px;
+            color: var(--navy);
+            font-size: clamp(30px, 4vw, 43px);
+            line-height: 1.2;
+            letter-spacing: -1.3px;
+        }
+
+        .intro h1 span {
+            color: var(--primary);
+        }
+
+        .intro > p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .features {
+            display: grid;
+            gap: 17px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            display: flex;
+            gap: 13px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            width: 41px;
+            height: 41px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            border: 1px solid #e1eafa;
+            background: white;
+            color: var(--primary);
+        }
+
+        .feature strong {
+            display: block;
+            margin: 2px 0 5px;
+            color: var(--navy);
+            font-size: 13px;
+        }
+
+        .feature p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .registration-card {
+            padding: clamp(23px, 4vw, 36px);
+            border: 1px solid #e3ebf6;
+            border-radius: 22px;
+            background: white;
+            box-shadow: 0 18px 55px rgba(24, 62, 115, .10);
+        }
+
+        .card-heading {
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .card-icon {
+            width: 57px;
+            height: 57px;
+            margin: 0 auto 14px;
+            display: grid;
+            place-items: center;
+            border-radius: 17px;
+            background: linear-gradient(135deg, #0b5ed7, #073b8e);
+            box-shadow: 0 8px 18px rgba(11, 94, 215, .2);
+            color: white;
+            font-size: 23px;
+        }
+
+        .card-heading h2 {
+            margin-bottom: 9px;
+            color: var(--navy);
+            font-size: 24px;
+        }
+
+        .card-heading p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .progress {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px;
+            border-radius: 11px;
+            background: #f5f8fd;
+            border: 1px solid #e8eff9;
+        }
+
+        .progress-step.active {
+            background: #eaf2ff;
+            border-color: #b9d2ff;
+        }
+
+        .progress-number {
+            width: 29px;
+            height: 29px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #dceaff;
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .progress-step.active .progress-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-step strong {
+            display: block;
+            color: var(--navy);
+            font-size: 10px;
+        }
+
+        .progress-step small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 9px;
+            color: #293d58;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap > i {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+            color: #8192aa;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            min-height: 48px;
+            padding: 13px 43px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            outline: none;
+            background: #fbfdff;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(11, 94, 215, .09);
+            background: white;
+        }
+
+        .input-wrap input::placeholder {
+            color: #9aa8ba;
+        }
+
+        .hint {
+            display: block;
+            margin-top: 7px;
+            color: #7b8ca4;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .primary-btn {
+            width: 100%;
+            min-height: 48px;
+            margin-top: 4px;
+            padding: 13px 15px;
+            border: 0;
+            border-radius: 11px;
+            background: linear-gradient(110deg, #0b5ed7, #084298);
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(11, 94, 215, .18);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(11, 94, 215, .25);
+        }
+
+        .secondary-btn {
+            width: 100%;
+            min-height: 45px;
+            margin-top: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--navy);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .secondary-btn:hover {
+            background: #f5f8fd;
+        }
+
+        .verified-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 22px;
+            padding: 15px;
+            border: 1px solid #bce8cf;
+            border-radius: 13px;
+            background: #effaf4;
+        }
+
+        .verified-icon {
+            width: 37px;
+            height: 37px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #d4f5e0;
+            color: var(--green);
+        }
+
+        .verified-box h3 {
+            margin: 1px 0 7px;
+            color: #176b43;
+            font-size: 13px;
+        }
+
+        .verified-box p {
+            margin-top: 5px;
+            color: #3f6653;
+            font-size: 11px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .verified-box p strong {
+            color: #21533b;
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            padding: 5px;
+            border: 0;
+            background: transparent;
+            color: #7b8ca4;
+            cursor: pointer;
+        }
+
+        .password-rules {
+            margin: -5px 0 18px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f5f8fd;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.8;
+        }
+
+        .password-rules i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+
+        .login-prompt {
+            margin-top: 22px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .login-prompt a {
+            font-weight: 800;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f0f6ff;
+            color: #49617f;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        .security-note i {
+            margin-top: 2px;
+            color: var(--primary);
+        }
+
+        footer {
+            padding: 0 15px 22px;
+            color: #7a8aa0;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        @media (max-width: 780px) {
+            .topbar {
+                min-height: 68px;
+                padding: 13px 5%;
+            }
+
+            .brand {
+                font-size: 14px;
+            }
+
+            .brand-icon {
+                width: 39px;
+                height: 39px;
+            }
+
+            .home-link {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .page {
+                width: min(490px, 92%);
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                margin: 20px auto;
+                padding: 5px 0 22px;
+            }
+
+            .intro {
+                padding: 12px 5px 4px;
+                text-align: center;
+            }
+
+            .intro h1 {
+                font-size: 30px;
+                letter-spacing: -.7px;
+            }
+
+            .intro > p {
+                font-size: 13px;
+            }
+
+            .intro .eyebrow {
+                margin-bottom: 13px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            .registration-card {
+                width: 100%;
+                padding: 24px 19px;
+            }
+        }
+
+        @media (max-width: 370px) {
+            .progress {
+                gap: 6px;
+            }
+
+            .progress-step {
+                padding: 8px 6px;
+                gap: 6px;
+            }
+
+            .progress-step strong {
+                font-size: 9px;
+            }
+
+            .progress-step small {
+                font-size: 8px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+/* ACZ Blue-White Preloader */
+#preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f3f7fd;
+    transition: opacity .35s ease, visibility .35s ease;
 }
 
-body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#040814;
-    overflow:auto;
-    padding:20px;
+#preloader.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
-.grid{
-    position:fixed;
-    inset:0;
-    background:
-        linear-gradient(rgba(0,255,255,.08) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(0,255,255,.08) 1px,transparent 1px);
-    background-size:40px 40px;
-    animation:move 10s linear infinite;
+.preloader-content {
+    width: min(360px, 100%);
+    padding: 36px 25px;
+    text-align: center;
+    border: 1px solid #e0eaf7;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(16, 43, 80, .12);
 }
 
-@keyframes move{
-    to{
-        background-position:40px 40px;
+.preloader-logo {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    color: white;
+    font-size: 30px;
+    background: linear-gradient(135deg, #0b5ed7, #084298);
+    box-shadow: 0 9px 24px rgba(11, 94, 215, .22);
+    animation: aczLogoPulse 1.5s ease-in-out infinite;
+}
+
+.preloader-spinner {
+    width: 35px;
+    height: 35px;
+    margin: 0 auto 20px;
+    border: 4px solid #dce8f8;
+    border-top-color: #0b5ed7;
+    border-right-color: #0b5ed7;
+    border-radius: 50%;
+    animation: aczSpin .8s linear infinite;
+}
+
+.preloader-content h3 {
+    color: #102b50;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+#preloader-text {
+    margin-top: 9px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.preloader-track {
+    height: 5px;
+    margin-top: 22px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #e6eef9;
+}
+
+.preloader-progress {
+    width: 40%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0b5ed7, #65b7ff);
+    animation: aczProgress 1.3s ease-in-out infinite;
+}
+
+.preloader-secure {
+    display: block;
+    margin-top: 20px;
+    color: #0b5ed7;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+@keyframes aczSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes aczLogoPulse {
+    50% { transform: scale(1.05); }
+}
+
+@keyframes aczProgress {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(280%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #preloader *,
+    #preloader *::before,
+    #preloader *::after {
+        animation-duration: 2s !important;
     }
 }
 
-.orb{
-    position:fixed;
-    width:260px;
-    height:260px;
-    border-radius:50%;
-    filter:blur(70px);
-}
-
-.o1{
-    background:#00e5ff;
-    left:-80px;
-    top:-80px;
-}
-
-.o2{
-    background:#8a2eff;
-    right:-80px;
-    bottom:-80px;
-}
-
-.card{
-    position:relative;
-    width:430px;
-    max-width:100%;
-    padding:30px;
-    border-radius:22px;
-    background:rgba(12,20,40,.78);
-    backdrop-filter:blur(16px);
-    border:1px solid rgba(0,255,255,.3);
-    box-shadow:0 0 30px rgba(0,217,255,.45);
-    color:#fff;
-    z-index:2;
-}
-
-h2{
-    text-align:center;
-    color:#7ef9ff;
-    text-shadow:0 0 15px #00e5ff;
-    margin-bottom:5px;
-}
-
-.scan{
-    height:4px;
-    background:linear-gradient(
-        90deg,
-        transparent,
-        #00e5ff,
-        transparent
-    );
-    animation:scan 2s infinite;
-    margin:18px 0;
-}
-
-@keyframes scan{
-    from{
-        transform:translateX(-100%);
-    }
-    to{
-        transform:translateX(100%);
-    }
-}
-
-input{
-    width:100%;
-    padding:13px;
-    margin:8px 0;
-    border:none;
-    outline:none;
-    border-radius:8px;
-    background:#16243b;
-    color:#fff;
-    border:1px solid rgba(0,229,255,.15);
-}
-
-input:focus{
-    border-color:#00e5ff;
-    box-shadow:0 0 10px rgba(0,229,255,.25);
-}
-
-button{
-    width:100%;
-    padding:13px;
-    margin-top:8px;
-    border:none;
-    border-radius:8px;
-    background:linear-gradient(
-        90deg,
-        #00e5ff,
-        #6d32ff,
-        #ff00cc
-    );
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:.9;
-}
-
-.info{
-    background:#132238;
-    padding:14px;
-    border-radius:8px;
-    margin:12px 0;
-    border-left:4px solid #00e5ff;
-    line-height:1.6;
-}
-
-.small{
-    text-align:center;
-    color:#99eaff;
-    font-size:12px;
-    margin-top:15px;
-}
-
-.login-link{
-    text-align:center;
-    margin-top:15px;
-    font-size:13px;
-    color:#99eaff;
-}
-
-.login-link a{
-    color:#7ef9ff;
-    text-decoration:none;
-    font-weight:bold;
-}
-
-.login-link a:hover{
-    text-decoration:underline;
-}
-
-.security{
-    margin-top:15px;
-    padding:10px;
-    background:rgba(0,229,255,.05);
-    border-radius:8px;
-    text-align:center;
-    font-size:11px;
-    color:#8bbccc;
-}
-</style>
-
+    </style>
 </head>
 
 <body>
 
-<div class="grid"></div>
-<div class="orb o1"></div>
-<div class="orb o2"></div>
+<div id="preloader" aria-live="polite">
+    <div class="preloader-content">
+        <div class="preloader-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
 
-<div class="card">
+        <div class="preloader-spinner"></div>
 
-```
-<h2>🛡 ACZ Secure Registration</h2>
+        <h3>ADITYA CYBER ZONE</h3>
+        <p id="preloader-text">Loading Secure Registration...</p>
 
-<div class="scan"></div>
+        <div class="preloader-track">
+            <div class="preloader-progress"></div>
+        </div>
 
-{% if message %}
-<script>
-document.addEventListener("DOMContentLoaded", function(){
-    Swal.fire({
-        icon: "error",
-        title: "Registration",
-        text: "{{ message|escapejs }}",
-        confirmButtonText: "OK"
-    });
-});
-</script>
-{% endif %}
-
-{% if success %}
-<script>
-    document.addEventListener("DOMContentLoaded", function(){
-        Swal.fire({
-            icon: "success",
-            title: "Registration Successful!",
-            text: "{{ success|escapejs }}",
-            confirmButtonText: "Continue to Login"
-        }).then(function(){
-            window.location.href = "/customer-login/";
-        });
-    });
-</script>
-{% endif %}
-
-
-{% if not customer %}
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <input
-            type="text"
-            name="aadhaar_no"
-            placeholder="Enter Aadhaar Number"
-            maxlength="12"
-            minlength="12"
-            pattern="[0-9]{12}"
-            inputmode="numeric"
-            required
-        >
-
-        <button type="submit" name="verify" value="1">
-            🔍 Verify Aadhaar
-        </button>
-    </form>
-
-{% else %}
-
-    <div class="info">
-        <b>✅ Identity Verified</b>
-        <br><br>
-
-        👤 {{ customer.name }}
-        <br>
-
-        📱 {{ customer.contact_no }}
-        <br>
-
-        🪪 {{ customer.aadhaar_no }}
+        <span class="preloader-secure">
+            <i class="fa-solid fa-lock"></i> SECURE REGISTRATION PORTAL
+        </span>
     </div>
+</div>
 
-    <form method="POST" id="registerForm">
-        {% csrf_token %}
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Aditya Cyber Zone home">
+            <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span>
+                ADITYA CYBER ZONE
+                <small>CUSTOMER PORTAL</small>
+            </span>
+        </a>
 
-        <input
-            type="hidden"
-            name="aadhaar_no"
-            value="{{ customer.aadhaar_no }}"
-        >
+        <a class="home-link" href="/">
+            <i class="fa-solid fa-house"></i> Home
+        </a>
+    </header>
 
-        <input
-            type="password"
-            id="pwd"
-            name="password"
-            placeholder="Create Secure Password"
-            minlength="6"
-            required
-        >
+    <main class="page">
+        <section class="intro">
+            <div class="eyebrow">
+                <i class="fa-solid fa-user-shield"></i>
+                CREATE YOUR CUSTOMER ACCOUNT
+            </div>
 
-        <input
-            type="password"
-            id="confirm_pwd"
-            name="confirm_password"
-            placeholder="Confirm Password"
-            minlength="6"
-            required
-        >
+            <h1>Join <span>Aditya Cyber Zone.</span></h1>
 
-        <button type="submit" name="register" value="1">
-            🚀 Create Secure Account
-        </button>
-    </form>
+            <p>
+                Create your customer account to access your ACZ applications,
+                follow service updates and view available payment and receipt information.
+            </p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon"><i class="fa-solid fa-id-card"></i></div>
+                    <div>
+                        <strong>Step 1 — Verify Your Identity</strong>
+                        <p>Enter the Aadhaar number associated with your existing ACZ customer record.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon"><i class="fa-solid fa-key"></i></div>
+                    <div>
+                        <strong>Step 2 — Create a Password</strong>
+                        <p>After verification, choose and confirm your account password.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div>
+                        <strong>Step 3 — Access Your Account</strong>
+                        <p>Use your registered Aadhaar number and password to sign in.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="registration-card">
+            <div class="card-heading">
+                <div class="card-icon"><i class="fa-solid fa-user-plus"></i></div>
+                <h2>Create Your Account</h2>
+                <p>Follow the steps below to complete your customer registration.</p>
+            </div>
+
+            {% if message %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Registration",
+                        text: "{{ message|escapejs }}",
+                        confirmButtonText: "OK",
+                        confirmButtonColor: "#0b5ed7"
+                    });
+                });
+            </script>
+            {% endif %}
+
+            {% if success %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Registration Successful!",
+                        text: "{{ success|escapejs }}",
+                        confirmButtonText: "Continue to Login",
+                        confirmButtonColor: "#0b5ed7",
+                        allowOutsideClick: false
+                    }).then(function () {
+                        window.location.href = "/customer-login/";
+                    });
+                });
+            </script>
+            {% endif %}
+
+            <div class="progress">
+                <div class="progress-step {% if not customer %}active{% endif %}">
+                    <div class="progress-number">
+                        {% if customer %}<i class="fa-solid fa-check"></i>{% else %}1{% endif %}
+                    </div>
+                    <div>
+                        <strong>Verify Aadhaar</strong>
+                        <small>Identity verification</small>
+                    </div>
+                </div>
+
+                <div class="progress-step {% if customer %}active{% endif %}">
+                    <div class="progress-number">2</div>
+                    <div>
+                        <strong>Create Account</strong>
+                        <small>Set your password</small>
+                    </div>
+                </div>
+            </div>
+
+            {% if not customer %}
+
+                <form method="POST" autocomplete="on">
+                    {% csrf_token %}
+
+                    <div class="field">
+                        <label for="aadhaar_no">Registered Aadhaar Number</label>
+
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-id-card"></i>
+                            <input
+                                id="aadhaar_no"
+                                type="password"
+                                name="aadhaar_no"
+                                placeholder="Enter your 12-digit Aadhaar"
+                                maxlength="12"
+                                minlength="12"
+                                pattern="[0-9]{12}"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                aria-describedby="aadhaar-hint"
+                                required
+                            >
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                aria-label="Show Aadhaar number"
+                                onclick="toggleField('aadhaar_no', this)"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+
+                        <small id="aadhaar-hint" class="hint">
+                            Enter the Aadhaar number linked to your existing ACZ customer record.
+                        </small>
+                    </div>
+
+                    <button class="primary-btn" type="submit" name="verify" value="1">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        &nbsp; Verify Aadhaar &amp; Continue
+                    </button>
+                </form>
+
+            {% else %}
+
+                <div class="verified-box">
+                    <div class="verified-icon">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+
+                    <div>
+                        <h3>Customer Record Verified</h3>
+                        <p><strong>Name:</strong> {{ customer.name }}</p>
+                        <p><strong>Mobile:</strong> {{ customer.contact_no }}</p>
+                        <p><strong>Aadhaar:</strong> <span id="maskedAadhaar">•••• •••• {{ customer.aadhaar_no|slice:"-4:" }}</span></p>
+                    </div>
+                </div>
+
+                <form method="POST" id="registerForm" autocomplete="on">
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="aadhaar_no"
+                        value="{{ customer.aadhaar_no }}"
+                    >
+
+                    <div class="field">
+                        <label for="pwd">Create Password</label>
+
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input
+                                type="password"
+                                id="pwd"
+                                name="password"
+                                placeholder="Create a strong password"
+                                minlength="6"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                aria-label="Show password"
+                                onclick="toggleField('pwd', this)"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="confirm_pwd">Confirm Password</label>
+
+                        <div class="input-wrap">
+                            <i class="fa-solid fa-lock"></i>
+                            <input
+                                type="password"
+                                id="confirm_pwd"
+                                name="confirm_password"
+                                placeholder="Enter the same password again"
+                                minlength="6"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <button
+                                class="password-toggle"
+                                type="button"
+                                aria-label="Show confirm password"
+                                onclick="toggleField('confirm_pwd', this)"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="password-rules">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Password must contain at least 6 characters. Use a password you do not share with other websites.
+                    </div>
+
+                    <button class="primary-btn" type="submit" name="register" value="1">
+                        <i class="fa-solid fa-user-check"></i>
+                        &nbsp; Create My ACZ Account
+                    </button>
+
+                    <button class="secondary-btn" type="button" onclick="window.location.href='/customer-register/'">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        &nbsp; Start Again
+                    </button>
+                </form>
+
+                <script>
+                    document.getElementById("registerForm").addEventListener("submit", function (event) {
+                        const password = document.getElementById("pwd").value;
+                        const confirmPassword = document.getElementById("confirm_pwd").value;
+
+                        if (password.length < 6) {
+                            event.preventDefault();
+
+                            Swal.fire({
+                                icon: "warning",
+                                title: "Password Too Short",
+                                text: "Your password must contain at least 6 characters.",
+                                confirmButtonColor: "#0b5ed7"
+                            });
+
+                            return;
+                        }
+
+                        if (password !== confirmPassword) {
+                            event.preventDefault();
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "Passwords Do Not Match",
+                                text: "Please enter the same password in both fields.",
+                                confirmButtonColor: "#0b5ed7"
+                            });
+                        }
+                    });
+                </script>
+
+            {% endif %}
+
+            <div class="login-prompt">
+                Already have an account?
+                <a href="/customer-login/">Sign in here</a>
+            </div>
+
+            <div class="security-note">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Your account details should be entered only on the official ACZ website. Never share your password or OTP with anyone.</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; <span id="year"></span> Aditya Cyber Zone. All rights reserved.
+    </footer>
 
     <script>
-    document.getElementById("registerForm").addEventListener("submit", function(e){
+        document.getElementById("year").textContent = new Date().getFullYear();
 
-        const password = document.getElementById("pwd").value;
-        const confirmPassword = document.getElementById("confirm_pwd").value;
+        function toggleField(fieldId, button) {
+            const field = document.getElementById(fieldId);
+            const icon = button.querySelector("i");
+            const show = field.type === "password";
 
-        if(password !== confirmPassword){
-            e.preventDefault();
-
-            Swal.fire({
-                icon: "error",
-                title: "Password Mismatch",
-                text: "Both passwords must be the same."
-            });
-
-            return false;
+            field.type = show ? "text" : "password";
+            icon.className = show ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+            button.setAttribute("aria-label", show ? "Hide value" : "Show value");
         }
-
-        if(password.length < 6){
-            e.preventDefault();
-
-            Swal.fire({
-                icon: "warning",
-                title: "Weak Password",
-                text: "Password must contain at least 6 characters."
-            });
-
-            return false;
-        }
-    });
     </script>
 
-{% endif %}
+<script>
+(function () {
+    // Keep the ACZ preloader visible long enough to be noticed.
+    const preloaderStartedAt = Date.now();
+    const minimumVisibleTime = 3000;
+    let preloaderHidden = false;
 
-<div class="login-link">
-    Already registered?
-    <a href="/customer-login/">Login here</a>
-</div>
+    function hidePreloader() {
+        if (preloaderHidden) return;
+        const loader = document.getElementById("preloader");
+        if (!loader) return;
 
-<div class="security">
-    🔐 Encrypted Registration • ACZ Secure Server
-</div>
+        const elapsed = Date.now() - preloaderStartedAt;
+        const remaining = Math.max(0, minimumVisibleTime - elapsed);
 
-<div class="small">
-    Your information is securely processed.
-</div>
-```
+        setTimeout(function () {
+            if (preloaderHidden) return;
+            preloaderHidden = true;
+            loader.classList.add("preloader-hidden");
+            setTimeout(function () {
+                if (loader.isConnected) loader.remove();
+            }, 400);
+        }, remaining);
+    }
 
-</div>
+    window.addEventListener("load", hidePreloader, { once: true });
+    if (document.readyState === "complete") hidePreloader();
+    // Safety fallback if a resource never finishes loading.
+    setTimeout(hidePreloader, 5000);
+})();
+</script>
 
 </body>
 </html>
