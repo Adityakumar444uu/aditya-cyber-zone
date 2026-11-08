@@ -165,3 +165,7 @@ PAYU_BASE_URL = os.environ.get(
     "PAYU_BASE_URL",
     "https://secure.payu.in/_payment"
 )
+PAYU_VERIFY_URL = os.environ.get(
+    "PAYU_VERIFY_URL",
+    "https://info.payu.in/merchant/postservice.php?form=2"
+)

@@ -21,6 +21,8 @@ from django.views.decorators.http import require_GET
 from django.contrib.auth.models import User
 
 from .google_sheet import sync_application_to_sheet
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 from .models import (
     Application,
@@ -282,6 +284,7 @@ def customer_logout(request):
 
 
 
+
 def _payu_reverse_hash(post_data):
     """Build PayU's reverse hash from PayU response fields."""
     salt = getattr(settings, "PAYU_MERCHANT_SALT", "")
@@ -289,7 +292,7 @@ def _payu_reverse_hash(post_data):
     fields = [
         salt,
         post_data.get("status", ""),
-        "", "", "", "", "", "", "", "", "",
+        "", "", "", "", "",
         post_data.get("udf5", ""),
         post_data.get("udf4", ""),
         post_data.get("udf3", ""),
@@ -483,20 +486,58 @@ def create_payment(request, app_id):
             "payu_url": payu_url,
         },
     )
+def _payu_verify_payment(txnid):
+    """
+    Ask PayU server to verify a transaction.
+    Does not update application/payment records.
+    """
+    import hashlib
+    import json
+    from urllib.request import Request, urlopen
+    from urllib.error import URLError, HTTPError
+
+    key = settings.PAYU_MERCHANT_KEY
+    salt = settings.PAYU_MERCHANT_SALT
+
+    if not key or not salt:
+        return None
+
+    command = "verify_payment"
+    verify_hash = hashlib.sha512(
+        f"{key}|{command}|{txnid}|{salt}".encode("utf-8")
+    ).hexdigest()
+
+    payload = urlencode({
+        "key": key,
+        "command": command,
+        "var1": txnid,
+        "hash": verify_hash,
+    }).encode("utf-8")
+
+    req = Request(
+        settings.PAYU_VERIFY_URL,
+        data=payload,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        method="POST",
+    )
+
+    try:
+        with urlopen(req, timeout=20) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError):
+        return None
 
 
 @csrf_exempt
 def payment_success(request, app_id):
-    """Verify PayU callback and record a payment exactly once."""
+    """Verify PayU payment server-to-server and record it exactly once."""
 
     if request.method != "POST":
         return HttpResponseBadRequest(
             "Invalid payment callback method."
         )
 
-    post_data = request.POST
-    txnid = (post_data.get("txnid") or "").strip()
-    mihpayid = (post_data.get("mihpayid") or "").strip()
+    txnid = (request.POST.get("txnid") or "").strip()
 
     if not txnid:
         return render(
@@ -505,6 +546,117 @@ def payment_success(request, app_id):
             {"message": "Payment transaction ID is missing."},
         )
 
+    # Find the transaction before contacting PayU.
+    try:
+        initial_transaction = PayUTransaction.objects.get(
+            application_id=app_id,
+            txnid=txnid,
+        )
+    except PayUTransaction.DoesNotExist:
+        return render(
+            request,
+            "payment_failed.html",
+            {"message": "Payment transaction record not found."},
+        )
+
+    # Verify payment directly with PayU.
+    verify_result = _payu_verify_payment(txnid)
+
+    if (
+        not verify_result
+        or str(verify_result.get("status")) != "1"
+    ):
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": (
+                    "PayU server verification is unavailable. "
+                    "Please contact support."
+                )
+            },
+        )
+
+    transaction_details = (
+        verify_result.get("transaction_details") or {}
+    )
+    verified_data = transaction_details.get(txnid)
+
+    if not verified_data:
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": (
+                    "Transaction not found in PayU verification response."
+                )
+            },
+        )
+
+    if (
+        verified_data.get("txnid") != txnid
+        or str(verified_data.get("status", "")).lower() != "success"
+        or str(
+            verified_data.get("unmappedstatus", "")
+        ).lower() != "captured"
+    ):
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": (
+                    "PayU has not confirmed this payment as captured."
+                )
+            },
+        )
+
+    # Verify the amount returned by PayU.
+    try:
+        payment_amount = Decimal(
+            str(verified_data.get("amt", "0"))
+        ).quantize(Decimal("0.01"))
+
+        expected_amount = Decimal(
+            str(initial_transaction.amount)
+        ).quantize(Decimal("0.01"))
+
+    except (InvalidOperation, TypeError, ValueError):
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": (
+                    "Invalid amount in PayU verification response."
+                )
+            },
+        )
+
+    if payment_amount <= 0 or payment_amount != expected_amount:
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": (
+                    "PayU verified amount does not match "
+                    "the transaction amount."
+                )
+            },
+        )
+
+    mihpayid = str(
+        verified_data.get("mihpayid") or ""
+    ).strip()
+
+    if not mihpayid:
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": "PayU payment reference is missing."
+            },
+        )
+
+    # Lock records and prevent duplicate payment credit.
     with transaction.atomic():
 
         try:
@@ -519,7 +671,11 @@ def payment_success(request, app_id):
             return render(
                 request,
                 "payment_failed.html",
-                {"message": "Payment transaction record not found."},
+                {
+                    "message": (
+                        "Payment transaction record not found."
+                    )
+                },
             )
 
         locked_application = (
@@ -528,7 +684,7 @@ def payment_success(request, app_id):
             .get(pk=payu_transaction.application_id)
         )
 
-        # Idempotency: repeated successful callbacks cannot credit twice.
+        # A repeated callback must never credit twice.
         if payu_transaction.status == "Success":
             return render(
                 request,
@@ -540,77 +696,59 @@ def payment_success(request, app_id):
             return render(
                 request,
                 "payment_failed.html",
-                {"message": "This payment transaction is no longer pending."},
-            )
-
-        # Verify failure callbacks before changing transaction status.
-        if post_data.get("status", "").lower() != "success":
-            merchant_key = getattr(settings, "PAYU_MERCHANT_KEY", "")
-
-            if (
-                post_data.get("key") == merchant_key
-                and _payu_hash_matches(post_data)
-            ):
-                payu_transaction.status = "Failed"
-                payu_transaction.mihpayid = mihpayid
-                payu_transaction.save(
-                    update_fields=["status", "mihpayid", "updated_at"]
-                )
-
-            return render(
-                request,
-                "payment_failed.html",
-                {"message": "Payment failed or cancelled."},
-            )
-
-        is_valid, validation_message = _valid_payu_response(
-            post_data,
-            expected_txnid=payu_transaction.txnid,
-            expected_amount=payu_transaction.amount,
-        )
-
-        if not is_valid:
-            return render(
-                request,
-                "payment_failed.html",
-                {"message": validation_message},
-            )
-
-        try:
-            payment_amount = Decimal(
-                str(post_data.get("amount", "0"))
-            ).quantize(Decimal("0.01"))
-        except (InvalidOperation, TypeError, ValueError):
-            return render(
-                request,
-                "payment_failed.html",
-                {"message": "Invalid payment amount."},
+                {
+                    "message": (
+                        "This payment transaction is no longer pending."
+                    )
+                },
             )
 
         current_due = Decimal(
-            locked_application.due_amount
+            str(locked_application.due_amount)
         ).quantize(Decimal("0.01"))
 
-        if payment_amount <= 0 or payment_amount > current_due:
+        if payment_amount > current_due:
             return render(
                 request,
                 "payment_failed.html",
                 {
                     "message": (
-                        "Payment amount does not match "
-                        "the outstanding balance."
+                        "Verified payment exceeds the outstanding balance. "
+                        "Please contact support."
                     )
                 },
             )
 
-        # Credit the application only after successful verification.
-        locked_application.paid_amount = (
-            Decimal(locked_application.paid_amount) + payment_amount
-        )
+        new_paid_amount = (
+            Decimal(str(locked_application.paid_amount))
+            + payment_amount
+        ).quantize(Decimal("0.01"))
+
+        new_due_amount = (
+            current_due - payment_amount
+        ).quantize(Decimal("0.01"))
+
+        locked_application.paid_amount = new_paid_amount
+        locked_application.due_amount = new_due_amount
         locked_application.payment_mode = "Online"
-        locked_application.razorpay_payment_id = mihpayid or txnid
         locked_application.payment_reference_no = txnid
-        locked_application.save()
+        locked_application.razorpay_payment_id = mihpayid
+        locked_application.payment_status = (
+            "Paid" if new_due_amount == 0 else "Unpaid"
+        )
+
+        locked_application.save(
+            update_fields=[
+                "paid_amount",
+                "due_amount",
+                "payment_mode",
+                "payment_reference_no",
+                "razorpay_payment_id",
+                "payment_status",
+                # Application.save() may generate this when the balance is fully paid.
+                "receipt_no",
+            ]
+        )
 
         PaymentHistory.objects.create(
             application=locked_application,
@@ -623,8 +761,13 @@ def payment_success(request, app_id):
 
         payu_transaction.status = "Success"
         payu_transaction.mihpayid = mihpayid
+
         payu_transaction.save(
-            update_fields=["status", "mihpayid", "updated_at"]
+            update_fields=[
+                "status",
+                "mihpayid",
+                "updated_at",
+            ]
         )
 
     return render(
@@ -633,116 +776,6 @@ def payment_success(request, app_id):
         {"application": locked_application},
     )
 
-
-
-# -----------------------------------------------------------------------------
-# PAYMENT HISTORY / RECEIPTS
-# -----------------------------------------------------------------------------
-
-@login_required
-def payment_history(request):
-    customer = Customer.objects.filter(user=request.user).first()
-    history = PaymentHistory.objects.none()
-    if customer:
-        history = PaymentHistory.objects.filter(application__customer=customer).select_related("application").order_by("-created_at")
-    return render(request, "payment_history.html", {"history": history})
-
-
-@never_cache
-def payment_history_search(request):
-    customer = None
-    applications = []
-    history = []
-    error = None
-    searched = False
-    search_type = "mobile_no"
-
-    if request.method == "POST":
-        searched = True
-        search_type = (request.POST.get("search_type") or "mobile_no").strip()
-        search_value = (request.POST.get("search_value") or "").strip()
-        verify_aadhaar = (request.POST.get("verify_aadhaar") or "").strip()
-        verify_mobile = (request.POST.get("verify_mobile") or "").strip()
-        valid_types = {"aadhaar_no", "mobile_no", "application_no"}
-
-        if search_type not in valid_types:
-            error = "Please select a valid search option."
-        elif not search_value:
-            error = "Please enter the value to search."
-        elif search_type == "aadhaar_no":
-            if not verify_mobile:
-                error = "Please enter your registered mobile number."
-            else:
-                customer = Customer.objects.filter(aadhaar_no=search_value, contact_no=verify_mobile).first()
-        elif search_type == "mobile_no":
-            if not verify_aadhaar:
-                error = "Please enter your Aadhaar number."
-            else:
-                customer = Customer.objects.filter(contact_no=search_value, aadhaar_no=verify_aadhaar).first()
-        else:
-            if not verify_aadhaar or not verify_mobile:
-                error = "Please enter both Aadhaar and registered mobile number."
-            else:
-                application = Application.objects.filter(
-                    application_no=search_value,
-                    customer__aadhaar_no=verify_aadhaar,
-                    customer__contact_no=verify_mobile,
-                ).select_related("customer").first()
-                if application:
-                    customer = application.customer
-                    applications = [application]
-
-        if not error and customer is None:
-            error = "Details could not be verified. Please check and try again."
-        if not error and customer:
-            if search_type != "application_no":
-                applications = list(Application.objects.filter(customer=customer).order_by("-application_date", "-id"))
-            history = PaymentHistory.objects.filter(application__in=applications).select_related("application").order_by("-created_at")
-        if error:
-            customer, applications, history = None, [], []
-
-    response = render(request, "payment_history_search.html", {
-        "customer": customer,
-        "applications": applications,
-        "history": history,
-        "error": error,
-        "searched": searched,
-        "search_type": search_type,
-    })
-    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response["Pragma"] = "no-cache"
-    return response
-
-
-@login_required
-def receipt(request, app_id):
-    application = get_object_or_404(Application, id=app_id, customer__user=request.user)
-    return render(request, "receipt.html", {"application": application})
-
-
-@login_required
-def consolidated_receipt(request):
-    customer = Customer.objects.filter(user=request.user).first()
-    if customer is None:
-        applications = Application.objects.none()
-        total_paid = Decimal("0.00")
-        total_due = Decimal("0.00")
-    else:
-        applications = Application.objects.filter(customer=customer).order_by("-application_date", "-id")
-        totals = applications.aggregate(total_paid=Sum("paid_amount"), total_due=Sum("due_amount"))
-        total_paid = totals["total_paid"] or Decimal("0.00")
-        total_due = totals["total_due"] or Decimal("0.00")
-
-    response = render(request, "consolidated_receipt.html", {
-        "applications": applications,
-        "customer": customer,
-        "total_paid": total_paid,
-        "total_due": total_due,
-        "public_view": False,
-    })
-    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response["Pragma"] = "no-cache"
-    return response
 
 
 # -----------------------------------------------------------------------------
@@ -1021,6 +1054,130 @@ def kriparohii_grievance(request):
         "ticket_no", "category", "status", "priority", "remarks"
     ).order_by("-created_at")
     return JsonResponse({"success": True, "grievances": list(grievances)})
+
+
+
+# -----------------------------------------------------------------------------
+# PAYMENT HISTORY / SEARCH / RECEIPTS
+# -----------------------------------------------------------------------------
+
+@login_required
+@never_cache
+def payment_history(request):
+    """Show only the signed-in customer's payment records."""
+    customer = Customer.objects.filter(user=request.user).first()
+    if customer is None:
+        return redirect("customer_dashboard")
+
+    history = (
+        PaymentHistory.objects
+        .filter(application__customer=customer)
+        .select_related("application")
+        .order_by("-created_at")
+    )
+    return render(request, "payment_history.html", {
+        "customer": customer,
+        "payment_history": history,
+        "history": history,
+    })
+
+
+@never_cache
+def payment_history_search(request):
+    """
+    Public payment-history lookup with cross-verification.
+    Application-number searches require both Aadhaar and mobile.
+    Aadhaar/mobile searches require both values to match the same customer.
+    """
+    customer = None
+    applications = Application.objects.none()
+    history = PaymentHistory.objects.none()
+    error = None
+    searched = False
+
+    if request.method == "POST" or request.GET:
+        searched = True
+        application_no = (request.POST.get("application_no") or request.GET.get("application_no") or "").strip()
+        aadhaar_no = (request.POST.get("aadhaar_no") or request.GET.get("aadhaar_no") or "").strip()
+        mobile = (request.POST.get("mobile") or request.GET.get("mobile") or "").strip()
+
+        if application_no:
+            if not aadhaar_no or not mobile:
+                error = "Application number search ke liye Aadhaar number aur registered mobile number dono zaroori hain."
+            else:
+                customer = Customer.objects.filter(
+                    aadhaar_no=aadhaar_no,
+                    contact_no=mobile,
+                ).first()
+                if customer is None:
+                    error = "Aadhaar number aur mobile number match nahi karte."
+                else:
+                    applications = Application.objects.filter(
+                        customer=customer,
+                        application_no__iexact=application_no,
+                    ).order_by("-application_date", "-id")
+                    if not applications.exists():
+                        error = "Is customer ke liye application number nahi mila."
+                    else:
+                        history = (
+                            PaymentHistory.objects
+                            .filter(application__in=applications)
+                            .select_related("application")
+                            .order_by("-created_at")
+                        )
+        elif aadhaar_no and mobile:
+            customer = Customer.objects.filter(
+                aadhaar_no=aadhaar_no,
+                contact_no=mobile,
+            ).first()
+            if customer is None:
+                error = "Aadhaar number aur mobile number match nahi karte."
+            else:
+                applications = Application.objects.filter(
+                    customer=customer
+                ).order_by("-application_date", "-id")
+                history = (
+                    PaymentHistory.objects
+                    .filter(application__customer=customer)
+                    .select_related("application")
+                    .order_by("-created_at")
+                )
+                if not applications.exists():
+                    error = "Is customer ke naam par koi application nahi mili."
+        else:
+            error = "Aadhaar aur registered mobile number enter karein, ya application number ke saath dono details dein."
+
+    return render(request, "payment_history_search.html", {
+        "customer": customer,
+        "applications": applications,
+        "history": history,
+        "error": error,
+        "searched": searched,
+        "search_type": "application" if (
+            (request.POST.get("application_no") if request.method == "POST" else request.GET.get("application_no"))
+        ) else "customer",
+    })
+
+
+@login_required
+@never_cache
+def receipt(request, app_id):
+    """A customer can view/download only their own application's receipt."""
+    application = get_object_or_404(
+        Application.objects.select_related("customer", "part", "sub_part"),
+        id=app_id,
+        customer__user=request.user,
+    )
+    payments = (
+        PaymentHistory.objects
+        .filter(application=application)
+        .order_by("created_at", "id")
+    )
+    return render(request, "receipt.html", {
+        "application": application,
+        "payments": payments,
+        "payment_history": payments,
+    })
 
 
 # -----------------------------------------------------------------------------
