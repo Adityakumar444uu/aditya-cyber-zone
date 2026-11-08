@@ -1,33 +1,131 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Online Payment</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment | Aditya Cyber Zone</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #071b3b, #075985);
+            color: #172554;
+        }
+        .payment-card {
+            width: 100%;
+            max-width: 480px;
+            padding: 32px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px #00152d66;
+            text-align: center;
+        }
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            color: #075985;
+        }
+        .subtitle { color: #64748b; }
+        .amount {
+            margin: 25px 0;
+            padding: 22px;
+            background: #eff6ff;
+            border-radius: 14px;
+        }
+        .amount h1 {
+            margin: 8px 0;
+            color: #075985;
+            font-size: 36px;
+        }
+        .details {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 2;
+        }
+        .details p {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 7px;
+        }
+        .secure {
+            color: #15803d;
+            font-size: 13px;
+            margin: 20px 0;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            border: 0;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #0284c7, #2563eb);
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #64748b;
+            text-decoration: none;
+        }
+    </style>
 </head>
+<body>
 
-<body style="font-family:Arial;background:#f2f2f2;padding:40px;">
+<div class="payment-card">
 
-<div style="width:500px;margin:auto;background:white;padding:30px;border-radius:12px;text-align:center;box-shadow:0 0 10px #ccc;">
-    <h2>ADITYA CYBER ZONE</h2>
-    <h3>Online Payment</h3>
+    <div class="logo">ADITYA CYBER ZONE</div>
+    <p class="subtitle">Secure Online Payment</p>
 
-    <p><b>Customer:</b> {{ application.customer.name }}</p>
-    <p><b>Application:</b> {{ application.application_name }}</p>
-    <p><b>Application No:</b> {{ application.application_no }}</p>
-    <p><b>Amount:</b> ₹{{ application.due_amount }}</p>
+    <div class="amount">
+        <small>PAYMENT AMOUNT</small>
+        <h1>₹{{ payu_data.amount }}</h1>
+    </div>
 
-    <form action="{{ payu_url }}" method="post" id="payuForm">
+    <div class="details">
+        <p><b>Customer:</b> {{ application.customer.name }}</p>
+        <p><b>Application:</b> {{ application.application_name }}</p>
+        <p><b>Application No:</b> {{ application.application_no }}</p>
+        <p><b>Transaction:</b> {{ payu_data.txnid }}</p>
+    </div>
+
+    <div class="secure">
+        🔒 Secure payment through PayU Test Gateway
+    </div>
+
+    <form action="{{ payu_url }}" method="POST" id="payuForm">
         {% for key, value in payu_data.items %}
             <input type="hidden" name="{{ key }}" value="{{ value }}">
         {% endfor %}
 
-        <button type="submit" style="background:#28a745;color:white;border:none;padding:14px 25px;border-radius:8px;font-size:17px;cursor:pointer;">
-            Pay Now
+        <button type="submit" id="payButton">
+            Proceed to PayU Payment →
         </button>
     </form>
+
+    <a href="{% url 'customer_dashboard' %}" class="back">
+        ← Back to Dashboard
+    </a>
+
 </div>
 
 <script>
-document.getElementById("payuForm").submit();
+document.getElementById("payuForm").addEventListener("submit", function () {
+    const button = document.getElementById("payButton");
+    button.disabled = true;
+    button.textContent = "Connecting to PayU...";
+});
 </script>
 
 </body>

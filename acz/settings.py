@@ -1,14 +1,23 @@
 import os
 import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-lmq-*5^5*$4+9$#c4e^yd0eanw@!wck0ddo@re@&jcquxv#1xb'
+load_dotenv(BASE_DIR / "acz" / ".env")
 
-DEBUG = True
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "DJANGO_ALLOWED_HOSTS",
+        "localhost,127.0.0.1"
+    ).split(",")
+    if host.strip()
+]
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -120,14 +129,39 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 
+
+# Use Cloudinary only when its credentials are configured.
+CLOUDINARY_CONFIGURED = (
+    bool(os.environ.get("CLOUDINARY_URL"))
+    or all(
+        os.environ.get(key)
+        for key in (
+            "CLOUDINARY_CLOUD_NAME",
+            "CLOUDINARY_API_KEY",
+            "CLOUDINARY_API_SECRET",
+        )
+    )
+)
+
 STORAGES = {
     "default": {
-       "BACKEND": "cloudinary_storage.storage.RawMediaCloudinaryStorage",
+        "BACKEND": (
+            "cloudinary_storage.storage.RawMediaCloudinaryStorage"
+            if CLOUDINARY_CONFIGURED
+            else "django.core.files.storage.FileSystemStorage"
+        ),
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-PAYU_MERCHANT_KEY = os.environ.get("PAYU_MERCHANT_KEY", "agqUY0")
-PAYU_MERCHANT_SALT = os.environ.get("PAYU_MERCHANT_SALT", "pVWOiBTevwuOcEsPClinHQBQ20XjzGl9")
-PAYU_BASE_URL = os.environ.get("PAYU_BASE_URL", "https://test.payu.in/_payment")
+
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+
+PAYU_MERCHANT_KEY = os.environ.get("PAYU_MERCHANT_KEY", "")
+PAYU_MERCHANT_SALT = os.environ.get("PAYU_MERCHANT_SALT", "")
+PAYU_BASE_URL = os.environ.get(
+    "PAYU_BASE_URL",
+    "https://secure.payu.in/_payment"
+)

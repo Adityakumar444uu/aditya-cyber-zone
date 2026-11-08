@@ -1,144 +1,712 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Track Grievance | ACZ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f7fc">
+    <title>Track Grievance | Aditya Cyber Zone</title>
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Segoe UI',Arial;
+        :root {
+            --blue: #2165d9;
+            --blue-dark: #143d82;
+            --navy: #102b52;
+            --text: #182b49;
+            --muted: #71819a;
+            --border: #e4eaf3;
+            --surface: #ffffff;
+            --background: #f4f7fc;
+            --green: #138452;
+            --shadow: 0 18px 55px rgba(25, 55, 100, .09);
         }
 
-        body{
-            min-height:100vh;
-            background:linear-gradient(135deg,#020024,#090979,#00d4ff);
-            padding:30px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
         }
 
-        .box{
-            max-width:1000px;
-            margin:auto;
-            background:rgba(255,255,255,0.12);
-            backdrop-filter:blur(12px);
-            border-radius:20px;
-            padding:30px;
-            box-shadow:0 0 30px rgba(0,255,255,0.4);
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 5% 0%, #e3edff 0, transparent 32%),
+                radial-gradient(circle at 100% 30%, #e3f6ff 0, transparent 27%),
+                var(--background);
+            color: var(--text);
+            padding: 0 18px 40px;
         }
 
-        h1{
-            text-align:center;
-            color:#00f7ff;
-            margin-bottom:10px;
+        /* PRELOADER */
+        #acz-preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f8fe;
+            transition: opacity .45s ease, visibility .45s ease;
         }
 
-        .sub{
-            text-align:center;
-            color:white;
-            margin-bottom:25px;
+        #acz-preloader.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
-        .search{
-            display:flex;
-            gap:10px;
-            margin-bottom:25px;
+        .loader-content {
+            width: min(340px, calc(100% - 40px));
+            text-align: center;
         }
 
-        .search input{
-            flex:1;
-            padding:14px;
-            border:none;
-            border-radius:30px;
-            outline:none;
-            font-size:16px;
+        .loader-logo {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 22px;
+            display: grid;
+            place-items: center;
+            border-radius: 23px;
+            color: white;
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(145deg, #347bf0, #1749a4);
+            box-shadow: 0 12px 30px #2165d942;
+            animation: logoPulse 1.5s ease-in-out infinite;
         }
 
-        .search button{
-            padding:14px 25px;
-            border:none;
-            border-radius:30px;
-            background:linear-gradient(90deg,#00f7ff,#00ff88);
-            font-weight:bold;
-            cursor:pointer;
+        .loader-content h2 {
+            font-size: 21px;
+            color: #153767;
+            margin-bottom: 8px;
         }
 
-        .card{
-            background:white;
-            border-radius:15px;
-            padding:20px;
-            margin-top:20px;
-            box-shadow:0 0 15px rgba(0,0,0,.15);
+        .loader-content p {
+            color: #74839a;
+            font-size: 13px;
+            margin-bottom: 22px;
         }
 
-        .row{
-            display:flex;
-            justify-content:space-between;
-            border-bottom:1px solid #eee;
-            padding:10px 0;
+        .loader-spinner {
+            width: 34px;
+            height: 34px;
+            margin: 0 auto 20px;
+            border: 3px solid #dce7fa;
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
         }
 
-        .status{
-            padding:6px 14px;
-            border-radius:20px;
-            font-weight:bold;
+        .loader-track {
+            width: 100%;
+            height: 5px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #e2eaf7;
         }
 
-        .Pending{
-            background:#fff3cd;
-            color:#856404;
+        .loader-progress {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #2165d9, #42b8f5);
+            animation: progress 3s ease-out forwards;
         }
 
-        .Resolved{
-            background:#d4edda;
-            color:#155724;
+        .loader-caption {
+            display: block;
+            margin-top: 12px;
+            color: #8b98ad;
+            font-size: 11px;
+            letter-spacing: .4px;
         }
 
-        .Rejected{
-            background:#f8d7da;
-            color:#721c24;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .InProcess{
-            background:#cce5ff;
-            color:#004085;
+        @keyframes logoPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        .timeline{
-            margin-top:30px;
+        @keyframes progress {
+            0% { width: 0; }
+            70% { width: 82%; }
+            100% { width: 100%; }
         }
 
-        .step{
-            background:white;
-            padding:15px;
-            border-left:5px solid #00f7ff;
-            border-radius:10px;
-            margin-bottom:15px;
+        /* HEADER */
+        .topbar {
+            max-width: 1120px;
+            margin: auto;
+            min-height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
 
-        .empty{
-            text-align:center;
-            color:white;
-            margin-top:20px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            min-width: 0;
         }
 
-        .back{
-            display:block;
-            text-align:center;
-            margin-top:25px;
-            color:#00f7ff;
-            text-decoration:none;
-            font-weight:bold;
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            color: white;
+            background: linear-gradient(145deg, #347bf0, #1749a4);
+            border-radius: 14px;
+            font-size: 19px;
+            font-weight: 900;
+            box-shadow: 0 7px 18px #2165d925;
         }
 
-        @media(max-width:650px){
-            .search{
-                flex-direction:column;
+        .brand-name {
+            display: block;
+            font-size: 17px;
+            font-weight: 800;
+            color: #173663;
+        }
+
+        .brand-sub {
+            display: block;
+            color: #8795aa;
+            font-size: 9px;
+            letter-spacing: 1.6px;
+            margin-top: 3px;
+            font-weight: 700;
+        }
+
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            color: #345273;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .home-link:hover {
+            border-color: #b7cdf4;
+            color: var(--blue);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN LAYOUT */
+        .page {
+            max-width: 1000px;
+            margin: 18px auto 0;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 30px 34px;
+            border-radius: 23px;
+            background: linear-gradient(115deg, #14396f, #2165d9);
+            box-shadow: 0 15px 35px #174c9d24;
+            color: white;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            right: -55px;
+            top: -110px;
+            border: 35px solid #ffffff12;
+            border-radius: 50%;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 11px;
+            border: 1px solid #ffffff35;
+            border-radius: 30px;
+            background: #ffffff12;
+            font-size: 10px;
+            letter-spacing: 1px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin-top: 17px;
+            font-size: clamp(25px, 4vw, 34px);
+            line-height: 1.2;
+            letter-spacing: -.5px;
+        }
+
+        .hero p {
+            margin-top: 10px;
+            max-width: 580px;
+            color: #dce9ff;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .content-card {
+            margin-top: 22px;
+            padding: 28px;
+            background: var(--surface);
+            border: 1px solid #e7edf6;
+            border-radius: 21px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 9px;
+        }
+
+        .heading-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 13px;
+            background: #edf4ff;
+            font-size: 20px;
+        }
+
+        .section-heading h2 {
+            color: #173663;
+            font-size: 19px;
+        }
+
+        .section-description {
+            margin: 0 0 23px 55px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* SEARCH */
+        .search-form {
+            display: flex;
+            gap: 11px;
+            padding: 7px;
+            border: 1px solid #e1e8f3;
+            border-radius: 15px;
+            background: #f8faff;
+        }
+
+        .search-form input {
+            width: 100%;
+            min-width: 0;
+            padding: 13px 14px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            outline: none;
+            background: transparent;
+            color: #1b3150;
+            font-size: 14px;
+        }
+
+        .search-form input:focus {
+            border-color: #b7cff8;
+            background: white;
+        }
+
+        .search-form button {
+            padding: 0 24px;
+            border: 0;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #347bf0, #2055b7);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .search-form button:hover {
+            box-shadow: 0 7px 17px #2165d938;
+            transform: translateY(-1px);
+        }
+
+        .privacy-note {
+            margin-top: 13px;
+            color: #8996aa;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* DETAILS */
+        .details-title {
+            margin: 26px 0 15px;
+            color: #173663;
+            font-size: 17px;
+        }
+
+        .ticket-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 18px 20px;
+            border: 1px solid #dce8fc;
+            border-radius: 15px;
+            background: linear-gradient(120deg, #f2f7ff, #f9fbff);
+        }
+
+        .ticket-label {
+            color: #74849d;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+        }
+
+        .ticket-number {
+            margin-top: 6px;
+            color: #2058bb;
+            font-size: 21px;
+            font-weight: 900;
+            letter-spacing: .5px;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            padding: 7px 12px;
+            border-radius: 30px;
+            background: #edf3ff;
+            color: #2858a7;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status.Pending {
+            background: #fff6df;
+            color: #94620b;
+        }
+
+        .status.Resolved {
+            background: #e6f8ee;
+            color: #147b4a;
+        }
+
+        .status.Rejected {
+            background: #fff0f0;
+            color: #b52b35;
+        }
+
+        .status.InProcess,
+        .status.WaitingforCustomer {
+            background: #eaf2ff;
+            color: #2458ad;
+        }
+
+        .status.Closed {
+            background: #edf0f5;
+            color: #596579;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+            margin-top: 16px;
+        }
+
+        .detail-item {
+            min-width: 0;
+            padding: 16px;
+            border: 1px solid #e8edf5;
+            border-radius: 13px;
+            background: #fff;
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #8794a8;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            color: #243b5b;
+            font-size: 13px;
+            font-weight: 650;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        /* TIMELINE */
+        .timeline-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin: 30px 0 20px;
+        }
+
+        .timeline-heading h2 {
+            color: #173663;
+            font-size: 19px;
+        }
+
+        .timeline-heading p {
+            margin-top: 4px;
+            color: #8492a7;
+            font-size: 11px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-left: 12px;
+            padding: 0 0 24px 28px;
+            border-left: 2px solid #dfe9f8;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+            border-left-color: transparent;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -9px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border: 4px solid #e6efff;
+            border-radius: 50%;
+            background: #2868d3;
+        }
+
+        .timeline-panel {
+            padding: 17px;
+            border: 1px solid #e6edf6;
+            border-radius: 14px;
+            background: #fbfcff;
+        }
+
+        .timeline-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 9px;
+        }
+
+        .timeline-top h3 {
+            color: #203c64;
+            font-size: 14px;
+        }
+
+        .timeline-date {
+            color: #8996aa;
+            font-size: 10px;
+        }
+
+        .timeline-remarks {
+            color: #64758e;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            padding: 25px 18px;
+            text-align: center;
+            border: 1px dashed #d7e2f1;
+            border-radius: 15px;
+            background: #f9fbff;
+        }
+
+        .empty-icon {
+            font-size: 31px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            color: #284569;
+            font-size: 15px;
+            margin-bottom: 7px;
+        }
+
+        .empty-state p {
+            color: #7d8ba1;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .not-found {
+            margin-top: 20px;
+            padding: 17px;
+            border: 1px solid #f2d7d9;
+            border-radius: 13px;
+            background: #fff6f6;
+            color: #a92d36;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 26px;
+            padding: 20px 10px 0;
+            border-top: 1px solid #e4eaf3;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer a {
+            color: #42618b;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .footer a:hover {
+            color: var(--blue);
+        }
+
+        .copyright {
+            margin-top: 16px;
+            color: #98a3b5;
+            font-size: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0 12px 25px;
             }
 
-            .row{
-                flex-direction:column;
-                gap:5px;
+            .topbar {
+                min-height: 74px;
+            }
+
+            .brand-mark {
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
+            }
+
+            .brand-name {
+                font-size: 14px;
+            }
+
+            .brand-sub {
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+
+            .home-link {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .hero {
+                padding: 24px 21px;
+                border-radius: 18px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+                border-radius: 17px;
+            }
+
+            .section-heading h2 {
+                font-size: 17px;
+            }
+
+            .section-description {
+                margin-left: 0;
+                margin-top: 12px;
+            }
+
+            .search-form {
+                flex-direction: column;
+                padding: 9px;
+            }
+
+            .search-form input {
+                min-height: 45px;
+            }
+
+            .search-form button {
+                min-height: 46px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-item.full {
+                grid-column: auto;
+            }
+
+            .ticket-number {
+                font-size: 18px;
+            }
+
+            .timeline-item {
+                padding-left: 20px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
             }
         }
     </style>
@@ -146,100 +714,241 @@
 
 <body>
 
-<div class="box">
-
-    <h1>🎫 Track Grievance</h1>
-    <p class="sub">Check Complaint Status Using Ticket Number</p>
-
-    <form method="GET" class="search">
-        <input type="text"
-               name="ticket_no"
-               placeholder="Enter Ticket Number"
-               value="{{ request.GET.ticket_no }}">
-
-        <button type="submit">Search</button>
-    </form>
-
-    {% if grievance %}
-
-    <div class="card">
-
-        <div class="row">
-            <strong>Ticket Number</strong>
-            <span>{{ grievance.ticket_no }}</span>
+    <!-- PRELOADER -->
+    <div id="acz-preloader" role="status" aria-live="polite">
+        <div class="loader-content">
+            <div class="loader-logo">ACZ</div>
+            <div class="loader-spinner"></div>
+            <h2>Aditya Cyber Zone</h2>
+            <p>Loading your grievance tracking portal...</p>
+            <div class="loader-track">
+                <div class="loader-progress"></div>
+            </div>
+            <span class="loader-caption">SECURE CUSTOMER SUPPORT</span>
         </div>
+    </div>
 
-        <div class="row">
-            <strong>Name</strong>
-            <span>{{ grievance.name }}</span>
-        </div>
-
-        <div class="row">
-            <strong>Mobile</strong>
-            <span>{{ grievance.mobile }}</span>
-        </div>
-
-        <div class="row">
-            <strong>Category</strong>
-            <span>{{ grievance.category }}</span>
-        </div>
-
-        <div class="row">
-            <strong>Priority</strong>
-            <span>{{ grievance.priority }}</span>
-        </div>
-
-        <div class="row">
-            <strong>Status</strong>
-            <span class="status {{ grievance.status|cut:' ' }}">
-                {{ grievance.status }}
+    <!-- HEADER -->
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Aditya Cyber Zone home">
+            <span class="brand-mark">ACZ</span>
+            <span>
+                <span class="brand-name">Aditya Cyber Zone</span>
+                <span class="brand-sub">DIGITAL SERVICE CENTRE</span>
             </span>
-        </div>
+        </a>
 
-        <div class="row">
-            <strong>Description</strong>
-            <span>{{ grievance.description }}</span>
-        </div>
+        <a href="/" class="home-link">← Back to Home</a>
+    </header>
 
-    </div>
+    <main class="page">
 
-    <div class="timeline">
+        <!-- HERO -->
+        <section class="hero">
+            <span class="hero-label">🛡️ Customer Support Portal</span>
+            <h1>Track Your Grievance</h1>
+            <p>
+                Stay updated on your complaint. Enter your grievance ticket
+                number to check the current status and review its progress.
+            </p>
+        </section>
 
-        <h2 style="color:white;margin-bottom:15px;">
-            📍 Status Timeline
-        </h2>
+        <!-- SEARCH -->
+        <section class="content-card">
+            <div class="section-heading">
+                <div class="heading-icon">🎫</div>
+                <h2>Find Your Ticket</h2>
+            </div>
 
-        {% for item in history %}
+            <p class="section-description">
+                Enter the ticket number you received when your grievance
+                was registered.
+            </p>
 
-        <div class="step">
-            <h3>{{ item.status }}</h3>
-            <p>{{ item.remarks }}</p>
-            <small>{{ item.created_at }}</small>
-        </div>
+            <form method="GET" class="search-form">
+                <input
+                    type="text"
+                    name="ticket_no"
+                    placeholder="e.g. GRV-20261025-123456"
+                    value="{{ request.GET.ticket_no|default:'' }}"
+                    aria-label="Grievance ticket number"
+                    maxlength="100"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit">🔍 Search Ticket</button>
+            </form>
 
-        {% empty %}
+            <p class="privacy-note">
+                🔒 Please keep your ticket number private and share it only
+                with trusted people.
+            </p>
 
-        <div class="empty">
-            No timeline available.
-        </div>
+            {% if grievance %}
 
-        {% endfor %}
+                <!-- TICKET DETAILS -->
+                <h2 class="details-title">Grievance Details</h2>
 
-    </div>
+                <div class="ticket-banner">
+                    <div>
+                        <div class="ticket-label">Ticket Reference Number</div>
+                        <div class="ticket-number">{{ grievance.ticket_no }}</div>
+                    </div>
 
-    {% elif request.GET.ticket_no %}
+                    <div>
+                        <span class="status {{ grievance.status|cut:' ' }}">
+                            {{ grievance.status }}
+                        </span>
+                    </div>
+                </div>
 
-    <div class="empty">
-        ❌ No grievance found with this ticket number.
-    </div>
+                <div class="details-grid">
 
-    {% endif %}
+                    <div class="detail-item">
+                        <span class="detail-label">Customer Name</span>
+                        <div class="detail-value">{{ grievance.name }}</div>
+                    </div>
 
-    <a href="/" class="back">
-        ⬅ Back to Home
-    </a>
+                    <div class="detail-item">
+                        <span class="detail-label">Mobile Number</span>
+                        <div class="detail-value">{{ grievance.mobile }}</div>
+                    </div>
 
-</div>
+                    <div class="detail-item">
+                        <span class="detail-label">Category</span>
+                        <div class="detail-value">{{ grievance.category }}</div>
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="detail-label">Priority</span>
+                        <div class="detail-value">{{ grievance.priority }}</div>
+                    </div>
+
+                    <div class="detail-item full">
+                        <span class="detail-label">Complaint Description</span>
+                        <div class="detail-value">{{ grievance.description }}</div>
+                    </div>
+
+                </div>
+
+                <!-- TIMELINE -->
+                <div class="timeline-heading">
+                    <div class="heading-icon">📍</div>
+                    <div>
+                        <h2>Status Timeline</h2>
+                        <p>Updates recorded for your grievance ticket</p>
+                    </div>
+                </div>
+
+                {% if history %}
+                    <div class="timeline">
+                        {% for item in history %}
+                            <div class="timeline-item">
+                                <span class="timeline-dot"></span>
+
+                                <div class="timeline-panel">
+                                    <div class="timeline-top">
+                                        <h3>{{ item.status }}</h3>
+                                        <span class="timeline-date">
+                                            {{ item.created_at|date:"d M Y, h:i A" }}
+                                        </span>
+                                    </div>
+
+                                    <p class="timeline-remarks">
+                                        {% if item.remarks %}
+                                            {{ item.remarks }}
+                                        {% else %}
+                                            Status updated.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">🕓</div>
+                        <h3>No Timeline Updates Yet</h3>
+                        <p>
+                            Your ticket was found, but no timeline entries
+                            are available yet. Please check again later.
+                        </p>
+                    </div>
+                {% endif %}
+
+            {% elif request.GET.ticket_no %}
+
+                <div class="not-found">
+                    <strong>⚠️ No grievance found</strong><br>
+                    We could not find a grievance matching that ticket number.
+                    Please check the number and try again.
+                </div>
+
+            {% else %}
+
+                <div class="empty-state" style="margin-top:22px;">
+                    <div class="empty-icon">🔎</div>
+                    <h3>Ready to Track Your Complaint?</h3>
+                    <p>
+                        Enter your ticket number above to view your grievance
+                        details, current status and available timeline updates.
+                    </p>
+                </div>
+
+            {% endif %}
+
+            <!-- FOOTER LINKS -->
+            <footer class="footer">
+                <div class="footer-links">
+                    <a href="/">← Back to Home</a>
+                    <a href="/raise-grievance/">＋ Raise a Grievance</a>
+                    <a href="/customer-login/">Customer Login →</a>
+                </div>
+
+                <p class="copyright">
+                    © 2026 Aditya Cyber Zone. All rights reserved.
+                </p>
+            </footer>
+        </section>
+    </main>
+
+    <script>
+        (() => {
+            const preloader = document.getElementById("acz-preloader");
+            const minimumVisibleTime = 3000;
+            const startedAt = Date.now();
+            let dismissed = false;
+
+            function hidePreloader() {
+                if (dismissed) return;
+
+                const elapsed = Date.now() - startedAt;
+                const remaining = Math.max(0, minimumVisibleTime - elapsed);
+
+                window.setTimeout(() => {
+                    if (dismissed) return;
+                    dismissed = true;
+                    preloader.classList.add("hide");
+
+                    window.setTimeout(() => {
+                        if (preloader.isConnected) {
+                            preloader.remove();
+                        }
+                    }, 500);
+                }, remaining);
+            }
+
+            if (document.readyState === "complete") {
+                hidePreloader();
+            } else {
+                window.addEventListener("load", hidePreloader, { once: true });
+            }
+
+            // Prevent the preloader from remaining forever on a slow connection.
+            window.setTimeout(hidePreloader, 10000);
+        })();
+    </script>
 
 </body>
 </html>
+```

@@ -1,1 +1,31 @@
+
+# Secrets and credentials
+.env
+acz/.env
+.local_secret_key
 credentials.json
+
+# Local database
+db.sqlite3
+
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Local backups
+*.dump
+*.backup
+backup_grievance_20261004/
+2026-08-18T13_26Z/
+
+# Local uploads
+media/
+
+# Editor settings
+.vscode/
+
+# Generated static files
+staticfiles/
+grievances/
+acz_applications.xlsx
+~$acz_applications.xlsx
