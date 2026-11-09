@@ -5,6 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0b5ed7">
+    
+<link rel="manifest" href="{% static 'pwa/manifest.webmanifest' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'pwa/icon.svg' %}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACZ">
+<link rel="apple-touch-icon" href="{% static 'pwa/apple-touch-icon.png' %}">
+
     <title>Aditya Cyber Zone | Digital Services</title>
 
     <style>
@@ -1261,5 +1270,87 @@
     setInterval(refreshApplicationCounts, 15000);
 })();
 </script>
+
+<script>
+(function () {
+    let deferredInstallPrompt = null;
+
+    // Register ACZ service worker
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker.register("/service-worker.js", {
+                scope: "/"
+            }).catch(function (error) {
+                console.error("ACZ service worker registration failed:", error);
+            });
+        });
+    }
+
+    // Create install button
+    const installButton = document.createElement("button");
+    installButton.id = "acz-install-button";
+    installButton.type = "button";
+    installButton.textContent = "⬇ Install ACZ App";
+
+    Object.assign(installButton.style, {
+        position: "fixed",
+        right: "18px",
+        bottom: "22px",
+        zIndex: "99999",
+        padding: "13px 19px",
+        border: "none",
+        borderRadius: "30px",
+        background: "#0b5ed7",
+        color: "#ffffff",
+        fontSize: "14px",
+        fontWeight: "700",
+        boxShadow: "0 5px 20px rgba(11,94,215,0.35)",
+        cursor: "pointer",
+        display: "none"
+    });
+
+    document.body.appendChild(installButton);
+
+    // Android / supported browser install prompt
+    window.addEventListener("beforeinstallprompt", function (event) {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        installButton.style.display = "block";
+    });
+
+    installButton.addEventListener("click", async function () {
+        if (!deferredInstallPrompt) return;
+
+        deferredInstallPrompt.prompt();
+
+        await deferredInstallPrompt.userChoice;
+
+        deferredInstallPrompt = null;
+        installButton.style.display = "none";
+    });
+
+    // Hide button when app is already installed
+    window.addEventListener("appinstalled", function () {
+        installButton.style.display = "none";
+        deferredInstallPrompt = null;
+    });
+
+    // iPhone Safari installation guidance
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        navigator.standalone === true;
+
+    if (isIOS && !isStandalone) {
+        installButton.textContent = "＋ Add ACZ to Home Screen";
+        installButton.style.display = "block";
+
+        installButton.addEventListener("click", function () {
+            alert("To install ACZ:\n\n1. Tap the Share button in Safari.\n2. Select 'Add to Home Screen'.\n3. Tap Add.");
+        });
+    }
+})();
+</script>
 </body>
 </html>
+
