@@ -1055,11 +1055,13 @@
             </div>
 
             <form
-                method="POST"
-                id="grievance-form"
-                enctype="multipart/form-data"
-            >
-                {% csrf_token %}
+    method="POST"
+    id="grievance-form"
+    enctype="multipart/form-data"
+>
+    {% csrf_token %}
+
+    <input type="hidden" name="submit_grievance" value="1">
 
                 <div class="field">
                     <label class="field-label" for="subject">
@@ -1145,12 +1147,12 @@
                 </div>
 
                 <button
-                    type="submit"
-                    name="submit_grievance"
-                    class="primary-btn"
-                >
-                    🚀 Submit Grievance
-                </button>
+    type="submit"
+    id="submit-grievance-btn"
+    class="primary-btn"
+>
+    🚀 Submit Grievance
+</button>
             </form>
         </section>
         {% endif %}
@@ -1175,12 +1177,14 @@
 
 
 <script>
+
 (function () {
     "use strict";
 
     // ---------- PRELOADER ----------
     const startedAt = Date.now();
     const preloader = document.getElementById("acz-preloader");
+
     let pageLoaded = document.readyState === "complete";
     let minimumTimePassed = false;
     let hidden = false;
@@ -1209,26 +1213,21 @@
         hidePreloaderIfReady();
     }
 
-    // ---------- GRIEVANCE FORM VALIDATION ----------
+    // ---------- GRIEVANCE FORM ----------
     const grievanceForm = document.getElementById("grievance-form");
 
     if (!grievanceForm) return;
 
-    // IMPORTANT:
-    // Application radio buttons form ke bahar hain.
-    // Isliye unhe grievanceForm.querySelector() se nahi,
-    // document se search karna hai.
     const applicationRadios = document.querySelectorAll(
-        'input[type="radio"][name="application_id"][form="grievance-form"]'
+        'input[type="radio"][name="application_id"]'
     );
 
     function getSelectedApplication() {
         return document.querySelector(
-            'input[type="radio"][name="application_id"][form="grievance-form"]:checked'
+            'input[type="radio"][name="application_id"]:checked'
         );
     }
 
-    // Radio select karne par card ka selected state update ho.
     applicationRadios.forEach(function (radio) {
         radio.addEventListener("change", function () {
             document.querySelectorAll(".application-card").forEach(function (card) {
@@ -1244,13 +1243,11 @@
         });
     });
 
-    // Submit se pehle application ko verify karo.
     grievanceForm.addEventListener("submit", function (event) {
         const selectedApplication = getSelectedApplication();
 
         if (!selectedApplication || !selectedApplication.value) {
             event.preventDefault();
-
             alert("Please select the application related to your grievance.");
 
             if (applicationRadios.length > 0) {
@@ -1264,10 +1261,23 @@
             return;
         }
 
-        // Double submission rokna.
-        const submitButton = grievanceForm.querySelector(
-            'button[name="submit_grievance"]'
+        // Ensure selected application ID is sent.
+        let applicationInput = grievanceForm.querySelector(
+            'input[type="hidden"][name="application_id"]'
         );
+
+        if (!applicationInput) {
+            applicationInput = document.createElement("input");
+            applicationInput.type = "hidden";
+            applicationInput.name = "application_id";
+            grievanceForm.appendChild(applicationInput);
+        }
+
+        applicationInput.value = selectedApplication.value;
+
+        // Hidden submit_grievance field ensures Django receives the marker.
+        // Button can now safely be disabled after validation.
+        const submitButton = document.getElementById("submit-grievance-btn");
 
         if (submitButton) {
             submitButton.disabled = true;
@@ -1275,6 +1285,7 @@
         }
     });
 })();
+
 </script>
 
 
