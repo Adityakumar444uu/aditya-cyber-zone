@@ -20,6 +20,8 @@ from .models import (
     Grievance,
     GrievanceHistory,
     UpiPaymentSubmission,
+    CustomerSession,
+    CustomerActivity,
 )
 from django.db import transaction
 
@@ -1051,3 +1053,30 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+@admin.register(CustomerSession)
+class CustomerSessionAdmin(admin.ModelAdmin):
+    list_display = (
+        "customer",
+        "started_at",
+        "last_activity",
+        "ended_at",
+        "is_active",
+        "ip_address",
+    )
+    list_filter = ("is_active", "started_at")
+    search_fields = ("customer__name", "ip_address")
+    readonly_fields = ("started_at", "last_activity", "ended_at")
+
+
+@admin.register(CustomerActivity)
+class CustomerActivityAdmin(admin.ModelAdmin):
+    list_display = (
+        "customer",
+        "event_type",
+        "page_path",
+        "created_at",
+        "ip_address",
+    )
+    list_filter = ("event_type", "created_at")
+    search_fields = ("customer__name", "page_path", "ip_address")
+    readonly_fields = ("created_at",)

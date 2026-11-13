@@ -640,3 +640,65 @@ class PayUTransaction(models.Model):
 
     def __str__(self):
         return f"{self.txnid} - {self.status}"
+    
+# CUSTOMER SESSION AND ACTIVITY MONITORING
+
+class CustomerSession(models.Model):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="monitoring_sessions",
+    )
+    started_at = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(default=timezone.now)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+        indexes = [
+            models.Index(fields=["customer", "started_at"]),
+            models.Index(fields=["is_active", "last_activity"]),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.name} - {self.started_at}"
+
+
+class CustomerActivity(models.Model):
+    EVENT_CHOICES = [
+        ("REGISTER", "Registration"),
+        ("LOGIN", "Login"),
+        ("LOGOUT", "Logout"),
+        ("PAGE_VISIT", "Page Visit"),
+    ]
+
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="activity_logs",
+    )
+    session = models.ForeignKey(
+        CustomerSession,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="activities",
+    )
+    event_type = models.CharField(max_length=30, choices=EVENT_CHOICES)
+    page_path = models.CharField(max_length=255, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["customer", "created_at"]),
+            models.Index(fields=["event_type", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"{self.customer.name} - {self.event_type}"

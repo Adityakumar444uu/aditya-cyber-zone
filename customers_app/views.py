@@ -34,7 +34,22 @@ from .models import (
     PaymentHistory,
     PayUTransaction,
     UpiPaymentSubmission,
+    CustomerSession,
+    CustomerActivity,
 )
+def _get_customer_ip(request):
+    return request.META.get("REMOTE_ADDR") or None
+
+
+def _record_customer_activity(request, customer, event_type, session=None):
+    CustomerActivity.objects.create(
+        customer=customer,
+        session=session,
+        event_type=event_type,
+        page_path=request.path[:255],
+        ip_address=_get_customer_ip(request),
+        user_agent=request.META.get("HTTP_USER_AGENT", "")[:1000],
+    )
 
 
 
@@ -182,18 +197,24 @@ def customer_register(request):
     if request.method == "POST" and "verify" in request.POST:
         aadhaar_no = (request.POST.get("aadhaar_no") or "").strip()
         customer = Customer.objects.filter(aadhaar_no=aadhaar_no).first()
+
         if customer is None:
             message = "Aadhaar not found. Please contact Admin."
         elif customer.user_id:
             message = "Account already created. Please login."
         else:
-            return render(request, "customer_register.html", {"customer": customer, "message": ""})
+            return render(request, "customer_register.html", {
+                "customer": customer,
+                "message": "",
+            })
 
     elif request.method == "POST" and "register" in request.POST:
         aadhaar_no = (request.POST.get("aadhaar_no") or "").strip()
         password = request.POST.get("password") or ""
         confirm_password = request.POST.get("confirm_password") or ""
+
         customer = Customer.objects.filter(aadhaar_no=aadhaar_no).first()
+
         if customer is None:
             message = "Customer not found."
         elif customer.user_id:
@@ -205,6 +226,7 @@ def customer_register(request):
         else:
             with transaction.atomic():
                 customer = Customer.objects.select_for_update().get(pk=customer.pk)
+
                 if customer.user_id:
                     message = "Account already exists. Please login."
                 else:
@@ -216,22 +238,54 @@ def customer_register(request):
                     customer.user = user
                     customer.is_registered = True
                     customer.save(update_fields=["user", "is_registered"])
-                    return redirect("/customer-login/?registered=1")
 
-    return render(request, "customer_register.html", {"message": message, "customer": customer})
+            if not message:
+                _record_customer_activity(request, customer, "REGISTER")
+                return redirect("/customer-login/?registered=1")
+
+    return render(request, "customer_register.html", {
+        "message": message,
+        "customer": customer,
+    })
 
 
 def customer_login(request):
     error = None
+
     if request.method == "POST":
         aadhaar_no = (request.POST.get("aadhaar_no") or "").strip()
         password = request.POST.get("password") or ""
-        user = authenticate(request, username=aadhaar_no, password=password)
+
+        user = authenticate(
+            request,
+            username=aadhaar_no,
+            password=password,
+        )
+
         if user is not None and user.is_active:
             customer = Customer.objects.filter(user=user).first()
+
             if customer:
                 login(request, user)
+
+                customer_session = CustomerSession.objects.create(
+                    customer=customer,
+                    ip_address=_get_customer_ip(request),
+                    user_agent=request.META.get("HTTP_USER_AGENT", "")[:1000],
+                    is_active=True,
+                )
+
+                request.session["acz_monitoring_session_id"] = customer_session.pk
+
+                _record_customer_activity(
+                    request,
+                    customer,
+                    "LOGIN",
+                    customer_session,
+                )
+
                 return redirect("customer_dashboard")
+
         error = "Invalid Aadhaar Number or Password."
 
     return render(request, "customer_login.html", {
@@ -274,6 +328,39 @@ def customer_dashboard(request):
 
 @login_required
 def customer_logout(request):
+    customer = Customer.objects.filter(user=request.user).first()
+
+    if customer:
+        session_id = request.session.get("acz_monitoring_session_id")
+        customer_session = None
+
+        if session_id:
+            customer_session = CustomerSession.objects.filter(
+                pk=session_id,
+                customer=customer,
+                is_active=True,
+            ).first()
+
+        if customer_session:
+            now = timezone.now()
+            customer_session.ended_at = now
+            customer_session.last_activity = now
+            customer_session.is_active = False
+            customer_session.save(update_fields=[
+                "ended_at",
+                "last_activity",
+                "is_active",
+            ])
+
+        _record_customer_activity(
+            request,
+            customer,
+            "LOGOUT",
+            customer_session,
+        )
+
+    request.session.pop("acz_monitoring_session_id", None)
+
     logout(request)
     return redirect("/customer-login/?success=1")
 
