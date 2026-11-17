@@ -1169,70 +1169,105 @@ def payment_history(request):
     })
 
 
+
 @never_cache
 def payment_history_search(request):
     """
     Public payment-history lookup with cross-verification.
-    Application-number searches require both Aadhaar and mobile.
-    Aadhaar/mobile searches require both values to match the same customer.
+
+    Aadhaar search: Aadhaar + registered mobile.
+    Mobile search: Mobile + Aadhaar.
+    Application search: Application number + Aadhaar + mobile.
     """
     customer = None
     applications = Application.objects.none()
     history = PaymentHistory.objects.none()
     error = None
     searched = False
+    search_type = "mobile_no"
 
-    if request.method == "POST" or request.GET:
+    if request.method == "POST":
         searched = True
-        application_no = (request.POST.get("application_no") or request.GET.get("application_no") or "").strip()
-        aadhaar_no = (request.POST.get("aadhaar_no") or request.GET.get("aadhaar_no") or "").strip()
-        mobile = (request.POST.get("mobile") or request.GET.get("mobile") or "").strip()
 
-        if application_no:
+        search_type = request.POST.get("search_type", "mobile_no").strip()
+
+        search_value = (
+            request.POST.get("search_value") or ""
+        ).strip()
+
+        verify_aadhaar = (
+            request.POST.get("verify_aadhaar") or ""
+        ).strip()
+
+        verify_mobile = (
+            request.POST.get("verify_mobile") or ""
+        ).strip()
+
+        # Aadhaar number search
+        if search_type == "aadhaar_no":
+            aadhaar_no = search_value
+            mobile = verify_mobile
+
             if not aadhaar_no or not mobile:
-                error = "Application number search ke liye Aadhaar number aur registered mobile number dono zaroori hain."
-            else:
-                customer = Customer.objects.filter(
-                    aadhaar_no=aadhaar_no,
-                    contact_no=mobile,
-                ).first()
-                if customer is None:
-                    error = "Aadhaar number aur mobile number match nahi karte."
-                else:
-                    applications = Application.objects.filter(
-                        customer=customer,
-                        application_no__iexact=application_no,
-                    ).order_by("-application_date", "-id")
-                    if not applications.exists():
-                        error = "Is customer ke liye application number nahi mila."
-                    else:
-                        history = (
-                            PaymentHistory.objects
-                            .filter(application__in=applications)
-                            .select_related("application")
-                            .order_by("-created_at")
-                        )
-        elif aadhaar_no and mobile:
+                error = "Aadhaar aur registered mobile number dono enter karein."
+
+        # Registered mobile search
+        elif search_type == "mobile_no":
+            mobile = search_value
+            aadhaar_no = verify_aadhaar
+
+            if not mobile or not aadhaar_no:
+                error = "Registered mobile aur Aadhaar number dono enter karein."
+
+        # Application number search
+        elif search_type == "application_no":
+            application_no = search_value
+            aadhaar_no = verify_aadhaar
+            mobile = verify_mobile
+
+            if not application_no or not aadhaar_no or not mobile:
+                error = "Application number, Aadhaar aur registered mobile number tino enter karein."
+
+        else:
+            error = "Please select a valid search option."
+
+        # Verify customer identity
+        if not error:
             customer = Customer.objects.filter(
                 aadhaar_no=aadhaar_no,
                 contact_no=mobile,
             ).first()
+
             if customer is None:
-                error = "Aadhaar number aur mobile number match nahi karte."
+                error = "Aadhaar number aur registered mobile number match nahi karte."
+
+        # Fetch application and payment history
+        if customer and not error:
+
+            if search_type == "application_no":
+                applications = Application.objects.filter(
+                    customer=customer,
+                    application_no__iexact=application_no,
+                ).order_by("-application_date", "-id")
+
+                if not applications.exists():
+                    error = "Is customer ke liye application number nahi mila."
+
             else:
                 applications = Application.objects.filter(
                     customer=customer
                 ).order_by("-application_date", "-id")
+
+                if not applications.exists():
+                    error = "Is customer ke naam par koi application nahi mili."
+
+            if not error:
                 history = (
                     PaymentHistory.objects
-                    .filter(application__customer=customer)
+                    .filter(application__in=applications)
                     .select_related("application")
                     .order_by("-created_at")
                 )
-                if not applications.exists():
-                    error = "Is customer ke naam par koi application nahi mili."
-        else:
-            error = "Aadhaar aur registered mobile number enter karein, ya application number ke saath dono details dein."
 
     return render(request, "payment_history_search.html", {
         "customer": customer,
@@ -1240,10 +1275,9 @@ def payment_history_search(request):
         "history": history,
         "error": error,
         "searched": searched,
-        "search_type": "application" if (
-            (request.POST.get("application_no") if request.method == "POST" else request.GET.get("application_no"))
-        ) else "customer",
+        "search_type": search_type,
     })
+
 
 
 @login_required
