@@ -322,7 +322,7 @@
         .footer-links a { color: #c0cee2; text-decoration: none; font-size: 11px; }
         .footer-links a:hover { color: #fff; }
 
-        /* Kriparohii AI widget */
+        /* Kriya AI widget */
         #kriparohii-btn {
             position: fixed; right: 24px; bottom: 24px; z-index: 1000;
             width: 64px; height: 64px; display: grid; place-items: center;
@@ -796,7 +796,7 @@
                 <div class="trust-item"><span class="trust-icon">▣</span><span><strong>Application Tracking</strong><small>Check progress online</small></span></div>
                 <div class="trust-item"><span class="trust-icon">₹</span><span><strong>Payment Records</strong><small>Keep track of payments</small></span></div>
                 <div class="trust-item"><span class="trust-icon">♧</span><span><strong>Customer Portal</strong><small>Access your account</small></span></div>
-                <div class="trust-item"><span class="trust-icon">✦</span><span><strong>AI Assistance</strong><small>Help from Kriparohii</small></span></div>
+                <div class="trust-item"><span class="trust-icon">✦</span><span><strong>AI Assistance</strong><small>Help from Kriya</small></span></div>
             </div>
         </section>
 
@@ -877,7 +877,7 @@
                         <div class="status-card-note">Raise or check a grievance</div>
                     </div>
                     <div class="status-card">
-                        <div class="status-card-head"><span class="status-card-label">Kriparohii AI</span><span class="status-card-icon">✦</span></div>
+                        <div class="status-card-head"><span class="status-card-label">Kriya AI</span><span class="status-card-icon">✦</span></div>
                         <div class="status-card-value">AI assistance</div>
                         <div class="status-card-note">Open the assistant from this page</div>
                     </div>
@@ -969,10 +969,10 @@
                 <div class="ai-banner">
                     <div class="ai-banner-content">
                         <div class="ai-banner-label">ACZ DIGITAL ASSISTANT</div>
-                        <h2>Need a hand? Meet Kriparohii AI.</h2>
+                        <h2>Need a hand? Meet Kriya AI.</h2>
                         <p>Get help with application status, payment information, notices and grievance updates through the assistant.</p>
                     </div>
-                    <div class="ai-banner-action"><button type="button" onclick="openAI()">Chat with Kriparohii <span aria-hidden="true">↗</span></button></div>
+                    <div class="ai-banner-action"><button type="button" onclick="openAI()">Chat with Kriya <span aria-hidden="true">↗</span></button></div>
                 </div>
             </div>
         </section>
@@ -994,22 +994,22 @@
         </div>
     </footer>
 
-    <!-- Kriparohii AI floating button -->
-    <button id="kriparohii-btn" type="button" onclick="openAI()" aria-label="Open Kriparohii AI chat">
+    <!-- Kriya AI floating button -->
+    <button id="kriparohii-btn" type="button" onclick="openAI()" aria-label="Open Kriya AI chat">
         <span class="ai-fab-icon">✦</span>
-        <span class="ai-fab-label">Ask Kriparohii AI</span>
+        <span class="ai-fab-label">Ask Kriya AI</span>
     </button>
 
-    <section id="kriparohii-chat" aria-label="Kriparohii AI chat" aria-hidden="true">
+    <section id="kriparohii-chat" aria-label="Kriya AI chat" aria-hidden="true">
         <div class="chat-header">
             <div class="chat-avatar">✦</div>
-            <div><div class="chat-title">KRIPAROHII AI</div><div class="chat-subtitle">ACZ customer assistant</div></div>
+            <div><div class="chat-title">KRIYA AI</div><div class="chat-subtitle">ACZ customer assistant</div></div>
             <button id="close-chat" type="button" aria-label="Close chat">×</button>
         </div>
         <div class="chat-body" id="chat-body">
             <div class="bot-msg">
                 <strong>Namaste!</strong><br><br>
-                Main <strong>Kriparohii AI</strong> hoon. Apne ACZ service details dekhne ke liye apna 12-digit Aadhaar number enter karein.
+                Main <strong>Kriya AI</strong> hoon. Apne ACZ service details dekhne ke liye apna 12-digit Aadhaar number enter karein.
             </div>
             <div id="typing" style="display:none;margin-top:10px;"><div class="typing"><span>●</span><span>●</span><span>●</span></div></div>
         </div>
@@ -1068,7 +1068,7 @@
             mobileMenuBtn.textContent = isOpen ? "×" : "☰";
         });
 
-        // Kriparohii AI: preserves existing Django backend endpoint paths.
+        // Kriya AI: preserves existing Django backend endpoint paths.
         let aadhaarVerified = false;
         const chatPanel = document.getElementById("kriparohii-chat");
         const chatBody = document.getElementById("chat-body");
@@ -1353,4 +1353,3 @@
 </script>
 </body>
 </html>
-
