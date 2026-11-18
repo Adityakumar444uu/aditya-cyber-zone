@@ -17,6 +17,7 @@ from .models import (
     Application,
     ApplicationStatusHistory,
     PaymentHistory,
+    PaymentNotification,
     Grievance,
     GrievanceHistory,
     UpiPaymentSubmission,
@@ -46,31 +47,43 @@ class ApplicationSubPartAdmin(admin.ModelAdmin):
 # =========================
 # CUSTOMER ADMIN
 # =========================
-\
-class ApplicationInline(admin.TabularInline):
+class ApplicationInline(admin.StackedInline):
     model = Application
     extra = 0
     can_delete = True
+    show_change_link = True
+    verbose_name = "Application"
+    verbose_name_plural = "Customer Applications"
 
-    fields = (
-        'part',
-        'sub_part',
-        'application_no',
-        'application_date',
-        'amount',
-        'paid_amount',
-        'due_amount',
-        'payment_status',
-        'payment_mode',
-        'payment_reference_no',
-        'receipt_no',
-        'status',
-        'delivery_date',
-        'remarks',
+    # A vertical layout keeps the customer page easy to use.
+    fieldsets = (
+        ("Application Details", {
+            "fields": (
+                ("part", "sub_part"),
+                ("application_no", "application_date"),
+            )
+        }),
+        ("Charges & Payment", {
+            "fields": (
+                ("amount", "service_charge"),
+                ("total_amount", "paid_amount"),
+                ("due_amount", "payment_status"),
+                ("payment_mode",),
+                ("payment_reference_no", "receipt_no"),
+            )
+        }),
+        ("Status & Delivery", {
+            "classes": ("collapse",),
+            "fields": (
+                ("status", "delivery_date"),
+                "remarks",
+            )
+        }),
     )
 
     readonly_fields = (
         'amount',
+        'total_amount',
         'due_amount',
         'payment_status',
         'payment_reference_no',
@@ -145,6 +158,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         'amount',
+        'total_amount',
         'due_amount',
         'payment_status',
         'payment_reference_no',
@@ -169,6 +183,8 @@ class ApplicationAdmin(admin.ModelAdmin):
         ("Payment Details", {
             "fields": (
                 "amount",
+                "service_charge",
+                "total_amount",
                 "paid_amount",
                 "due_amount",
                 "payment_status",
@@ -213,8 +229,12 @@ class ApplicationAdmin(admin.ModelAdmin):
     def payment_info(self,obj):
 
         return format_html(
-            "₹{}<br><small>Paid ₹{} | Due ₹{}<br>{} / {}</small>",
+            "Base ₹{} + Service ₹{}<br>"
+            "<b>Total ₹{}</b><br>"
+            "<small>Paid ₹{} | Due ₹{}<br>{} / {}</small>",
             obj.amount,
+            obj.service_charge,
+            obj.total_amount,
             obj.paid_amount,
             obj.due_amount,
             obj.payment_status,
@@ -278,23 +298,19 @@ class ApplicationAdmin(admin.ModelAdmin):
 
         if obj.paid_amount > old_paid_amount:
 
-            PaymentHistory.objects.create(
-
+            payment_record = PaymentHistory.objects.create(
                 application=obj,
-
-                amount=(
-                    obj.paid_amount -
-                    old_paid_amount
-                ),
-
+                amount=(obj.paid_amount - old_paid_amount),
                 payment_mode=obj.payment_mode,
-
                 payment_status=obj.payment_status,
-
-                payment_reference_no=
-                obj.payment_reference_no,
-
+                payment_reference_no=obj.payment_reference_no,
                 receipt_no=obj.receipt_no,
+            )
+
+            # Keep the application's latest payment identifiers in sync.
+            Application.objects.filter(pk=obj.pk).update(
+                payment_reference_no=payment_record.payment_reference_no,
+                receipt_no=payment_record.receipt_no,
             )
 
 
@@ -395,6 +411,8 @@ class ApplicationStatusHistoryAdmin(admin.ModelAdmin):
 # PAYMENT HISTORY
 # =========================
 
+
+
 @admin.register(PaymentHistory)
 class PaymentHistoryAdmin(admin.ModelAdmin):
 
@@ -412,7 +430,7 @@ class PaymentHistoryAdmin(admin.ModelAdmin):
     list_filter = (
         'payment_mode',
         'payment_status',
-        'created_at'
+        'created_at',
     )
 
     search_fields = (
@@ -420,6 +438,75 @@ class PaymentHistoryAdmin(admin.ModelAdmin):
         'payment_reference_no',
         'receipt_no',
     )
+
+    readonly_fields = (
+        'application',
+        'amount',
+        'payment_mode',
+        'payment_status',
+        'payment_reference_no',
+        'receipt_no',
+        'created_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        PaymentNotification.objects.filter(
+            is_read=False
+        ).update(
+            is_read=True,
+            read_at=timezone.now()
+        )
+
+        return super().changelist_view(
+            request,
+            extra_context=extra_context
+        )
+
+
+@admin.register(PaymentNotification)
+class PaymentNotificationAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'payu_transaction',
+        'is_read',
+        'created_at',
+        'read_at',
+    )
+
+    list_filter = (
+        'is_read',
+        'created_at',
+    )
+
+    search_fields = (
+        'payu_transaction__txnid',
+        'payu_transaction__mihpayid',
+    )
+
+    readonly_fields = (
+        'payu_transaction',
+        'is_read',
+        'created_at',
+        'read_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 
@@ -482,6 +569,11 @@ old_index = admin.site.index
 def custom_admin_index(request, extra_context=None):
 
     extra_context = extra_context or {}
+    extra_context["unread_payment_notifications"] = (
+    PaymentNotification.objects.filter(
+        is_read=False
+    ).count()
+)
 
 
     extra_context["total_customers"] = (
@@ -629,6 +721,7 @@ def backup_database(request):
         list(Application.objects.all()) +
         list(ApplicationStatusHistory.objects.all()) +
         list(PaymentHistory.objects.all()) +
+        list(PaymentNotification.objects.all()) +
         list(Grievance.objects.all()) +
         list(GrievanceHistory.objects.all()),
 
@@ -833,13 +926,17 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
         return format_html(
             "<b>Application No:</b> {}<br>"
             "<b>Service:</b> {}<br>"
-            "<b>Total Amount:</b> ₹{}<br>"
+            "<b>Application Charge:</b> ₹{}<br>"
+            "<b>Service Charge:</b> ₹{}<br>"
+            "<b>Total Payable:</b> ₹{}<br>"
             "<b>Already Paid:</b> ₹{}<br>"
             "<b>Current Due:</b> ₹{}<br>"
             "<b>Payment Mode:</b> {}",
             application.application_no or "—",
             application.part,
             application.amount,
+            application.service_charge,
+            application.total_amount,
             application.paid_amount,
             application.due_amount,
             application.payment_mode or "—",
@@ -1022,13 +1119,19 @@ class UpiPaymentSubmissionAdmin(admin.ModelAdmin):
             application.payment_mode = "Online"
             application.save()
 
-            PaymentHistory.objects.create(
+            payment_record = PaymentHistory.objects.create(
                 application=application,
                 amount=submission.amount,
                 payment_mode="Online",
                 payment_status="Paid",
                 payment_reference_no=submission.utr,
                 receipt_no=application.receipt_no,
+            )
+
+            # Keep the application's latest payment identifiers in sync.
+            Application.objects.filter(pk=application.pk).update(
+                payment_reference_no=payment_record.payment_reference_no,
+                receipt_no=payment_record.receipt_no,
             )
 
             submission.status = "Approved"
@@ -1080,3 +1183,20 @@ class CustomerActivityAdmin(admin.ModelAdmin):
     list_filter = ("event_type", "created_at")
     search_fields = ("customer__name", "page_path", "ip_address")
     readonly_fields = ("created_at",)
+
+# ACZ: Show unread payment notification count on all admin pages
+
+_original_each_context = admin.site.each_context
+
+
+def custom_each_context(request):
+    context = _original_each_context(request)
+
+    context["unread_payment_notifications"] = (
+        PaymentNotification.objects.filter(is_read=False).count()
+    )
+
+    return context
+
+
+admin.site.each_context = custom_each_context

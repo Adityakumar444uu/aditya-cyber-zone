@@ -1,0 +1,66 @@
+
+{% extends "admin/base.html" %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="/admin/">
+        Aditya Cyber Zone Admin
+    </a>
+</h1>
+
+<a href="/check-status/"
+   style="
+   background:green;
+   color:white;
+   padding:10px 15px;
+   border-radius:6px;
+   text-decoration:none;
+   margin-left:20px;
+   font-weight:bold;
+   ">
+    Customer Status Check
+</a>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .acz-payment-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: #fff;
+            border-radius: 12px;
+            padding: 2px 7px;
+            margin-left: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+    </style>
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const count = Number(
+            "{{ unread_payment_notifications|default:0 }}"
+        );
+
+        if (count > 0) {
+            const links = document.querySelectorAll(
+                'a[href*="/admin/customers_app/paymenthistory/"]'
+            );
+
+            links.forEach(function (link) {
+                if (!link.querySelector(".acz-payment-badge")) {
+                    const badge = document.createElement("span");
+                    badge.className = "acz-payment-badge";
+                    badge.textContent = count;
+                    link.appendChild(badge);
+                }
+            });
+        }
+    });
+    </script>
+{% endblock %}

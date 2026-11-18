@@ -2,7 +2,30 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
+from django.core.exceptions import ValidationError
 
+def generate_unique_payment_reference():
+    """Generate a payment reference not already used in Payment History."""
+    while True:
+        value = (
+            f"ACZPAY-{timezone.now():%Y%m%d}-"
+            f"{uuid.uuid4().hex.upper()}"
+        )
+        if not PaymentHistory.objects.filter(
+            payment_reference_no=value
+        ).exists():
+            return value
+
+
+def generate_unique_receipt_no():
+    """Generate a receipt number not already used in Payment History."""
+    while True:
+        value = (
+            f"RCPT-{timezone.now():%Y%m%d}-"
+            f"{uuid.uuid4().hex.upper()}"
+        )
+        if not PaymentHistory.objects.filter(receipt_no=value).exists():
+            return value
 
 class Customer(models.Model):
     user = models.OneToOneField(
@@ -115,6 +138,16 @@ class Application(models.Model):
         default=0
     )
 
+    service_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    @property
+    def total_amount(self):
+        return (self.amount or 0) + (self.service_charge or 0)
+
     paid_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -190,37 +223,55 @@ class Application(models.Model):
         blank=True
     )
 
+
     def save(self, *args, **kwargs):
+        # Fully paid application ke financial details lock rahenge.
+        if self.pk:
+            old = Application.objects.filter(pk=self.pk).first()
+
+            if old and old.payment_status == "Paid":
+                locked_fields = [
+                    "amount",
+                    "service_charge",
+                    "paid_amount",
+                    "due_amount",
+                    "payment_status",
+                    "payment_mode",
+                    "payment_reference_no",
+                    "receipt_no",
+                    "sub_part_id",
+                    "part_id",
+                ]
+
+                changed_fields = [
+                    field for field in locked_fields
+                    if getattr(self, field) != getattr(old, field)
+                ]
+
+                if changed_fields:
+                    raise ValidationError(
+                        "This application is fully paid. "
+                        "Its payment details are locked."
+                    )
 
         if self.sub_part:
             self.part = self.sub_part.part
             self.amount = self.sub_part.amount
             self.application_name = self.sub_part.name
 
-        self.due_amount = self.amount - self.paid_amount
+        self.due_amount = self.total_amount - self.paid_amount
 
         if self.due_amount < 0:
             self.due_amount = 0
 
-        if self.paid_amount >= self.amount and self.amount > 0:
+        if self.total_amount > 0 and self.paid_amount >= self.total_amount:
             self.payment_status = "Paid"
 
-            count = Application.objects.count() + 1
-
             if not self.payment_reference_no:
-                self.payment_reference_no = (
-                    f"ACZPAY"
-                    f"{timezone.now().strftime('%Y%m%d')}"
-                    f"{count:04d}"
-                )
+                self.payment_reference_no = generate_unique_payment_reference()
 
             if not self.receipt_no:
-                self.receipt_no = (
-                    f"RCPT-"
-                    f"{timezone.now().strftime('%Y%m%d')}-"
-                    f"{count:04d}"
-                )
-
+                self.receipt_no = generate_unique_receipt_no()
         else:
             self.payment_status = "Unpaid"
 
@@ -294,6 +345,38 @@ class PaymentHistory(models.Model):
 
     def __str__(self):
         return f"{self.application} - ₹{self.amount}"
+
+    def save(self, *args, **kwargs):
+        # Existing payment record ko edit nahi kar sakte.
+        if self.pk and PaymentHistory.objects.filter(pk=self.pk).exists():
+            raise ValidationError(
+                "Payment history records cannot be edited."
+            )
+
+        # Blank ya pehle se used IDs ko nayi unique IDs se replace karo.
+        if (
+            not self.payment_reference_no
+            or PaymentHistory.objects.filter(
+                payment_reference_no=self.payment_reference_no
+            ).exists()
+        ):
+            self.payment_reference_no = generate_unique_payment_reference()
+
+        if (
+            not self.receipt_no
+            or PaymentHistory.objects.filter(
+                receipt_no=self.receipt_no
+            ).exists()
+        ):
+            self.receipt_no = generate_unique_receipt_no()
+
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError(
+            "Payment history records cannot be deleted."
+        )
+
 
 
 class Grievance(models.Model):
@@ -577,7 +660,7 @@ class Notice(models.Model):
     def __str__(self):
         return self.title
 
-    
+
 from django.conf import settings as django_settings
 
 
@@ -640,7 +723,32 @@ class PayUTransaction(models.Model):
 
     def __str__(self):
         return f"{self.txnid} - {self.status}"
-    
+
+class PaymentNotification(models.Model):
+
+    payu_transaction = models.OneToOneField(
+        PayUTransaction,
+        on_delete=models.CASCADE,
+        related_name="notification"
+    )
+
+    is_read = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    read_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        status = "Read" if self.is_read else "Unread"
+        return f"{self.payu_transaction.txnid} - {status}"
+
+
 # CUSTOMER SESSION AND ACTIVITY MONITORING
 
 class CustomerSession(models.Model):

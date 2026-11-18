@@ -33,6 +33,7 @@ from .models import (
     Notice,
     PaymentHistory,
     PayUTransaction,
+    PaymentNotification,
     UpiPaymentSubmission,
     CustomerSession,
     CustomerActivity,
@@ -754,6 +755,9 @@ def payment_success(request, app_id):
                     txnid=txnid,
                 )
             )
+            PaymentNotification.objects.get_or_create(
+    payu_transaction=payu_transaction
+)
         except PayUTransaction.DoesNotExist:
             return render(
                 request,
@@ -794,13 +798,13 @@ def payment_success(request, app_id):
             str(locked_application.due_amount)
         ).quantize(Decimal("0.01"))
 
-        if payment_amount > current_due:
+        if payment_amount != current_due:
             return render(
                 request,
                 "payment_failed.html",
                 {
                     "message": (
-                        "Verified payment exceeds the outstanding balance. "
+                        "Only full outstanding payment is accepted. "
                         "Please contact support."
                     )
                 },
