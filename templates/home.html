@@ -603,6 +603,33 @@
     font-weight: 800 !important;
     text-indent: 0 !important;
 }
+
+        /* ACZ top notice ticker and first-visit popup */
+        .acz-notice-ticker { position:relative; z-index:99; display:flex; align-items:center; gap:14px; min-height:42px; overflow:hidden; padding:8px max(20px,calc((100% - 1180px)/2)); background:linear-gradient(90deg,#991b1b,#dc2626,#b91c1c); color:#fff; }
+        .acz-notice-ticker-label { flex:0 0 auto; display:inline-flex; align-items:center; gap:7px; padding:4px 9px; border:1px solid rgba(255,255,255,.35); border-radius:6px; font-size:10px; font-weight:900; letter-spacing:.1em; }
+        .acz-notice-track { min-width:0; overflow:hidden; white-space:nowrap; flex:1; }
+        .acz-notice-track-inner { display:inline-flex; align-items:center; gap:42px; min-width:max-content; animation:aczNoticeSlide 28s linear infinite; font-size:13px; font-weight:750; }
+        .acz-notice-ticker:hover .acz-notice-track-inner { animation-play-state:paused; }
+        .acz-notice-track-inner span:before { content:'◆'; margin-right:11px; color:#fecaca; font-size:9px; }
+        @keyframes aczNoticeSlide { from { transform:translateX(100vw); } to { transform:translateX(-100%); } }
+        .acz-notice-modal { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(8,18,38,.68); backdrop-filter:blur(5px); }
+        .acz-notice-modal.is-open { display:flex; animation:aczModalFade .2s ease both; }
+        @keyframes aczModalFade { from { opacity:0; } to { opacity:1; } }
+        .acz-notice-dialog { width:min(540px,100%); max-height:min(78vh,680px); overflow:hidden; border-radius:20px; background:#fff; box-shadow:0 28px 90px rgba(0,0,0,.3); animation:aczModalPop .25s ease both; }
+        @keyframes aczModalPop { from { opacity:0; transform:translateY(14px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .acz-notice-dialog-head { display:flex; align-items:center; gap:12px; padding:19px 21px; color:#fff; background:linear-gradient(110deg,#991b1b,#dc2626); }
+        .acz-notice-dialog-icon { width:42px; height:42px; display:grid; place-items:center; flex:0 0 42px; border-radius:13px; background:rgba(255,255,255,.17); font-size:21px; }
+        .acz-notice-dialog-head h2 { font-size:17px; font-weight:900; }
+        .acz-notice-dialog-head p { margin-top:2px; color:#fee2e2; font-size:11px; }
+        .acz-notice-close { margin-left:auto; width:35px; height:35px; border:1px solid rgba(255,255,255,.4); border-radius:10px; background:transparent; color:#fff; font-size:25px; cursor:pointer; }
+        .acz-notice-dialog-body { max-height:calc(min(78vh,680px) - 82px); overflow:auto; padding:8px 21px 18px; }
+        .acz-popup-notice { padding:15px 0; border-bottom:1px solid #edf0f5; }
+        .acz-popup-notice:last-child { border-bottom:0; }
+        .acz-popup-notice h3 { color:#991b1b; font-size:14px; font-weight:850; }
+        .acz-popup-notice p { margin-top:5px; color:#475569; font-size:13px; line-height:1.65; white-space:pre-wrap; }
+        .acz-notice-empty { padding:22px 0; color:#64748b; font-size:13px; }
+        @media (max-width:560px) { .acz-notice-ticker { min-height:40px; gap:8px; padding:7px 12px; } .acz-notice-ticker-label { font-size:9px; } .acz-notice-track-inner { font-size:11px; } .acz-notice-dialog-head { padding:16px; } .acz-notice-dialog-body { padding:6px 16px 14px; } }
+        @media (prefers-reduced-motion:reduce) { .acz-notice-track-inner { animation:none; } }
     </style>
 </head>
 
@@ -613,6 +640,16 @@
             <span class="topline-extra">Reliable support for your digital service needs</span>
         </div>
     </div>
+
+    {% if notices %}
+    <div class="acz-notice-ticker" role="region" aria-label="Latest ACZ notices">
+        <span class="acz-notice-ticker-label">⚠ NOTICE</span>
+        <div class="acz-notice-track"><div class="acz-notice-track-inner">
+            {% for notice in notices %}<span><strong>{{ notice.title }}</strong>{% if notice.message %} — {{ notice.message }}{% endif %}</span>{% endfor %}
+            {% for notice in notices %}<span><strong>{{ notice.title }}</strong>{% if notice.message %} — {{ notice.message }}{% endif %}</span>{% endfor %}
+        </div></div>
+    </div>
+    {% endif %}
 
     <header class="site-header">
         <div class="container header-inner">
@@ -935,35 +972,6 @@
             </div>
         </section>
 
-        {% if notices %}
-        <section class="section" id="notices">
-            <div class="container">
-                <div class="section-head">
-                    <div>
-                        <div class="section-kicker">Latest updates</div>
-                        <h2 class="section-title">Notices & announcements</h2>
-                        <p class="section-description">Updates published by the ACZ team will appear here.</p>
-                    </div>
-                </div>
-                <div class="notice-panel">
-                    <div class="notice-panel-head">
-                        <div class="notice-bell">♢</div>
-                        <div><h3>ACZ Notices</h3><p>Latest information for customers</p></div>
-                        <span class="notice-live"><span class="pulse-dot" style="display:inline-block;width:6px;height:6px;"></span> UPDATES</span>
-                    </div>
-                    <div class="notice-list">
-                        {% for notice in notices %}
-                        <div class="notice-item">
-                            <span class="notice-bullet">•</span>
-                            <div><strong>{{ notice.title }}</strong><div style="margin-top:4px;">{{ notice.message }}</div></div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </section>
-        {% endif %}
-
         <section class="section section-soft">
             <div class="container">
                 <div class="ai-banner">
@@ -977,6 +985,23 @@
             </div>
         </section>
     </main>
+
+    {% if notices %}
+    <div class="acz-notice-modal" id="acz-notice-modal" role="dialog" aria-modal="true" aria-labelledby="acz-notice-title" aria-hidden="true">
+        <div class="acz-notice-dialog">
+            <div class="acz-notice-dialog-head">
+                <div class="acz-notice-dialog-icon">♢</div>
+                <div><h2 id="acz-notice-title">Important ACZ Notices</h2><p>Latest announcements from Aditya Cyber Zone</p></div>
+                <button class="acz-notice-close" id="acz-notice-close" type="button" aria-label="Close notices">×</button>
+            </div>
+            <div class="acz-notice-dialog-body">
+                {% for notice in notices %}
+                <article class="acz-popup-notice"><h3>{{ notice.title }}</h3><p>{{ notice.message }}</p></article>
+                {% empty %}<div class="acz-notice-empty">There are no active notices right now.</div>{% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <footer class="site-footer">
         <div class="container footer-inner">
@@ -1349,6 +1374,35 @@
             alert("To install ACZ:\n\n1. Tap the Share button in Safari.\n2. Select 'Add to Home Screen'.\n3. Tap Add.");
         });
     }
+})();
+</script>
+
+<script>
+(function () {
+    const modal = document.getElementById("acz-notice-modal");
+    const closeButton = document.getElementById("acz-notice-close");
+    if (!modal || !closeButton) return;
+
+    function closeNoticeModal() {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+    }
+
+    closeButton.addEventListener("click", closeNoticeModal);
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) closeNoticeModal();
+    });
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && modal.classList.contains("is-open")) closeNoticeModal();
+    });
+
+    window.addEventListener("load", function () {
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+        closeButton.focus();
+    });
 })();
 </script>
 </body>
